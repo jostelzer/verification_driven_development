@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verification-Gated Coding"
+  short_description: "Verification-gated coding workflow"
+  default_prompt: "Use $verification-gated-coding to create a joint implementation and verification plan, run executable checks, collect evidence, and issue a final certificate only at terminal state."
