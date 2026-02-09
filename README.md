@@ -1,6 +1,6 @@
 # Verification-Driven Development Skill
 
-## For humans
+## README FOR HUMANS
 
 ![Verification-Driven Development logo](verification-driven-development/assets/vdd.png)
 
@@ -24,7 +24,7 @@ Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
 
-## For agents
+## README FOR AGENTS
 
 ### Contents
 
