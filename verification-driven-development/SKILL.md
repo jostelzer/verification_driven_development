@@ -1,6 +1,6 @@
 ---
 name: verification-driven-development
-description: Verification-first coding workflow that prevents task completion until executable verification runs and evidence is captured. Use for feature, bugfix, integration, service, deployment, and data-pipeline work where runtime behavior matters. Require a joint implementation plus verification plan, iterative implement-run-inspect-fix loops, and a final Verification Report plus Certificate. Allow static-only verification only as a rare exception after explicitly asking the user and receiving approval.
+description: Verification-first coding workflow (VDD) that prevents task completion until executable verification runs and evidence is captured. Use for feature, bugfix, integration, service, deployment, and data-pipeline work where runtime behavior matters. Require a joint implementation plus verification plan, iterative implement-run-inspect-fix loops, and a final Verification Report plus Certificate. Allow static-only verification only as a rare exception after explicitly asking the user and receiving approval.
 ---
 
 # Verification-Driven Development (VDD)
