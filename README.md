@@ -1,19 +1,37 @@
 # Verification-Driven Development Skill
 
-A Codex skill that enforces executable verification before completion.
+## For humans
 
-## Contents
+Build fast, with proof, and let the agent do the heavy lifting.
 
-- `verification-driven-development/`: skill folder (`SKILL.md`, `agents/`, `references/`)
-- `install.sh`: install or update the skill
-- `uninstall.sh`: remove the skill from local skill directories
+This skill gives your agent a strict verification-first operating mode:
+- The agent plans the implementation and verification path.
+- The agent runs the commands, inspects real outputs, and fixes failures iteratively.
+- The agent only closes when checks pass and evidence is captured.
 
-## Install
+You provide the goal and access; the agent drives execution end to end.
+Result: reliable delivery without manual babysitting.
+
+Install in Codex:
 
 ```bash
 cd ~/git/verification_driven_development
 ./install.sh
 ```
+
+Then restart Codex (or refresh skills), and invoke with:
+- `$verification-driven-development`
+- `VDD` (acronym)
+
+## For agents
+
+### Contents
+
+- `verification-driven-development/`: skill folder (`SKILL.md`, `agents/`, `references/`)
+- `install.sh`: install or update the skill
+- `uninstall.sh`: remove the skill from local skill directories
+
+### Install behavior
 
 Defaults:
 - `--mode symlink` for easy local iteration (edits in this repo are reflected immediately)
@@ -22,7 +40,7 @@ Defaults:
 2. Else use `~/.codex/skills` (or `$CODEX_HOME/skills`) if it exists
 3. Else create and use `~/.agents/skills`
 
-## Common install variants
+### Common install variants
 
 Install as copied files (release-style):
 
@@ -42,7 +60,7 @@ Preview actions only:
 ./install.sh --dry-run
 ```
 
-## Update after edits
+### Update after edits
 
 If installed with symlink mode (default), no reinstall is needed.
 If installed with copy mode, re-run:
@@ -51,7 +69,7 @@ If installed with copy mode, re-run:
 ./install.sh --mode copy
 ```
 
-## Uninstall
+### Uninstall
 
 ```bash
 ./uninstall.sh
@@ -59,7 +77,7 @@ If installed with copy mode, re-run:
 
 `uninstall.sh` defaults to `--target auto` and removes from both standard locations.
 
-## Optional validation
+### Optional validation
 
 If you have `skill-creator` tooling installed:
 
