@@ -2,6 +2,8 @@
 
 ## For humans
 
+![Verification-Driven Development logo](verification-driven-development/assets/vdd.png)
+
 Build fast, with proof, and let the agent do the heavy lifting.
 
 This skill gives your agent a strict verification-first operating mode:
