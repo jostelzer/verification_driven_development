@@ -16,10 +16,9 @@ Result: reliable delivery without manual babysitting.
 
 Install with the Skill Installer (for coding agents):
 
-```bash
-cd ~/git/verification_driven_development
-./install.sh
-```
+1. Open your agent's Skill Installer.
+2. Install from GitHub URL:
+   `https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development`
 
 Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
