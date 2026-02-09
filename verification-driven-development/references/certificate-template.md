@@ -7,6 +7,7 @@ Keep it concise but explicit: target 10 to 16 lines.
 
 ```markdown
 ## Verification Certificate
+Status Badge: 🟩 VERIFIED ✅ (GREEN FLAG)
 Verdict: VERIFIED ✅
 Task: <one-line task summary>
 Revision: <commit sha or working-tree marker>
@@ -29,6 +30,7 @@ Why this evidence is convincing:
 
 ```markdown
 ## Verification Certificate
+Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬
 Task: <one-line task summary>
 What was empirically verified by agent: <short summary of exact checks run>
@@ -46,6 +48,7 @@ How human evidence will confirm completion: <what result would close remaining r
 
 ```markdown
 ## Verification Certificate
+Status Badge: 🟥 BLOCKED ⛔
 Verdict: BLOCKED ⛔
 Task: <one-line task summary>
 Empirical attempts performed: <exact commands/actions run>

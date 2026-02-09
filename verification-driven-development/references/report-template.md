@@ -2,6 +2,13 @@
 
 Use this template for `VERIFIED` and `READY FOR HUMAN VERIFICATION`.
 
+## Verification Outcome (Required)
+
+Include exactly one status badge line at the top of the report:
+- `Status Badge: 🟩 VERIFIED ✅`
+- `Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬`
+- `Status Badge: 🟥 BLOCKED ⛔`
+
 ## Goal
 
 State the user request and acceptance criteria in one concise paragraph.
@@ -26,6 +33,10 @@ Provide copy/paste command list in execution order.
 <command 1>
 <command 2>
 ```
+
+## Standard Certificate (Required)
+
+Paste the full Verification Certificate block here, verbatim, using the certificate template. Do not summarize or paraphrase it.
 
 ## Evidence and Inspection
 
