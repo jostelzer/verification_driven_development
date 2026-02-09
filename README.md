@@ -1,17 +1,17 @@
-# Verification-Gated Coding Skill
+# Verification-Driven Development Skill
 
 A Codex skill that enforces executable verification before completion.
 
 ## Contents
 
-- `verification-gated-coding/`: skill folder (`SKILL.md`, `agents/`, `references/`)
+- `verification-driven-development/`: skill folder (`SKILL.md`, `agents/`, `references/`)
 - `install.sh`: install or update the skill
 - `uninstall.sh`: remove the skill from local skill directories
 
 ## Install
 
 ```bash
-cd ~/git/verification_gated_coding
+cd ~/git/verification_driven_development
 ./install.sh
 ```
 
@@ -65,5 +65,5 @@ If you have `skill-creator` tooling installed:
 
 ```bash
 python ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
-  ~/git/verification_gated_coding/verification-gated-coding
+  ~/git/verification_driven_development/verification-driven-development
 ```

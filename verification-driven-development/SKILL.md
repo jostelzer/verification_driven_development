@@ -1,13 +1,30 @@
 ---
-name: verification-gated-coding
+name: verification-driven-development
 description: Verification-first coding workflow that prevents task completion until executable verification runs and evidence is captured. Use for feature, bugfix, integration, service, deployment, and data-pipeline work where runtime behavior matters. Require a joint implementation plus verification plan, iterative implement-run-inspect-fix loops, and a final Verification Report plus Certificate. Allow static-only verification only as a rare exception after explicitly asking the user and receiving approval.
 ---
 
-# Verification-Gated Coding (VGC)
+# Verification-Driven Development (VDD)
 
 Enforce a hard verification gate:
 - Do not declare task completion without executed verification commands and observed evidence.
 - Do not issue terminal-state certificates until verification is complete.
+
+## Command Execution Ownership (Mandatory)
+
+Human command execution is a last resort.
+
+Must:
+- Attempt every runnable implementation and verification command directly in the agent environment first.
+- If a command fails, capture evidence (exact command, location, exit status, key stderr/stdout signals), diagnose why, and attempt the next reasonable fix/workaround.
+- Exhaust agent-side options before delegating any command to the human.
+- When blocked by permissions/sandboxing, request full access/escalated execution instead of asking the human to run commands.
+- Ask the human to run commands only when execution is genuinely impossible for the agent (for example: physical device action, MFA-bound identity step, browser click-path unavailable to agent, or out-of-band system the agent cannot reach).
+
+Any human-run request must include:
+- What was attempted by the agent.
+- Why it failed, with observed evidence (not guesses).
+- Why the human is required specifically.
+- Exact command/checklist the human should run, plus expected pass/fail signals.
 
 ## Inputs Required Before Claiming `VERIFIED`
 
@@ -26,7 +43,7 @@ Treat SSH/runtime access as first-class when available.
 Use exactly one final state:
 - `VERIFIED ✅`: implementation complete, executable verification passed, evidence supports success.
 - `READY FOR HUMAN VERIFICATION 🧑‍🔬`: implementation complete, human interaction is required to complete verification, harness and checklist provided.
-- `BLOCKED ⛔`: required runtime access/instructions are missing and verification cannot run.
+- `BLOCKED ⛔`: required runtime access/instructions are missing and verification cannot run after agent-side attempts (including requesting full access when permissions are the blocker).
 
 ## Operating Loop (Mandatory)
 
@@ -61,6 +78,7 @@ Verification plan:
 
 Uncertainty rule:
 - If any verification prerequisite is unknown (host, ports, env, secrets, credentials), ask the user in the plan before coding.
+- Unknown prerequisites do not justify delegating runnable commands to the user; the agent still owns execution attempts.
 
 ### Phase P2: Implement -> Run -> Inspect -> Fix
 
@@ -75,6 +93,7 @@ Loop until terminal state.
 Produce:
 - Verification Report using `references/report-template.md`.
 - Verification Certificate using `references/certificate-template.md`.
+- Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 
 ## Verification Policy
 
@@ -90,6 +109,8 @@ Allowed:
 Forbidden:
 - Source-text checks as stand-ins for behavior validation.
 - Success claims without executed commands and observed outputs.
+- Asking the human to run commands the agent has not attempted.
+- Asking the human to run commands when the blocker is permissions that should be handled via full-access/escalated execution.
 
 ## Static-Only Exception (Strict)
 

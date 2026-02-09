@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL_NAME="verification-gated-coding"
+SKILL_NAME="verification-driven-development"
 TARGET="auto"    # auto | agents | codex | both
 DRY_RUN="false"
 
