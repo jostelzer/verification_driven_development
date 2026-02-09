@@ -14,14 +14,14 @@ This skill gives your agent a strict verification-first operating mode:
 You provide the goal and access; the agent drives execution end to end.
 Result: reliable delivery without manual babysitting.
 
-Install in Codex:
+Install with the Skill Installer (for coding agents):
 
 ```bash
 cd ~/git/verification_driven_development
 ./install.sh
 ```
 
-Then restart Codex (or refresh skills), and invoke with:
+Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
 
