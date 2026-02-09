@@ -20,3 +20,10 @@
 2. Run fast smoke probe early to catch cheap failures.
 3. Run full verification after build and compare outputs against criteria.
 4. Report estimate versus actual timing and note cache effects.
+
+## Example D: Show-don't-tell performance fix
+
+1. Capture baseline metrics and generate a small table or chart from run output.
+2. Apply fix and rerun the same command with identical scope.
+3. Attach artifact paths (for example: chart image, CSV, or log extract) and map each to an acceptance criterion.
+4. Avoid prose-only verdicts; close only with concrete before/after signals.

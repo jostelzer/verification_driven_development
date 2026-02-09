@@ -45,6 +45,14 @@ Use exactly one final state:
 - `READY FOR HUMAN VERIFICATION 🧑‍🔬`: implementation complete, human interaction is required to complete verification, harness and checklist provided.
 - `BLOCKED ⛔`: required runtime access/instructions are missing and verification cannot run after agent-side attempts (including requesting full access when permissions are the blocker).
 
+## Communication Style (Default: Compact)
+
+Keep user-facing plans concise by default.
+- Target 6 to 10 bullets total, or one compact table with up to 5 steps.
+- Include only decisions that affect execution: change surfaces, commands, pass/fail signals, blockers, and timing.
+- Avoid restating policy text or obvious repository context.
+- Expand detail only when the user asks for it or when risk/ambiguity is high.
+
 ## Operating Loop (Mandatory)
 
 ### Phase P0 (Optional): Orientation
@@ -56,24 +64,24 @@ Run this phase when repo/runtime is unclear.
 - Consult external docs only when needed to unblock execution.
 
 Output:
-- Short findings bullets.
-- Draft plan covering both implementation and verification.
+- Short findings bullets (max 5).
+- Draft plan covering both implementation and verification in compact form.
 
 ### Phase P1: Joint Plan
 
 Produce one integrated plan before coding.
+Present it in a compact format.
 
 Implementation plan:
-- Specify files/surfaces to change.
-- Specify expected behavior change.
-- List risky assumptions and how verification will validate each one.
+- Specify files/surfaces to change (1 to 3 bullets).
+- Specify expected behavior change (1 to 2 bullets).
+- List risky assumptions (max 3) and how verification will validate each one.
 
 Verification plan:
-- List exact command(s) per step.
-- Specify execution location (`local`, `docker`, `ssh`).
-- Specify what to inspect (payload, log fields, db rows, files, metrics).
-- Specify concrete pass/fail signals.
-- Estimate time per step and total.
+- List exact command(s) per step (target max 5 steps).
+- Specify execution location (`local`, `docker`, `ssh`) per step.
+- Specify what to inspect and concrete pass/fail signals per step.
+- Estimate time per step and total (compact format is fine).
 - Warn when estimated total exceeds 10 minutes, then proceed automatically.
 
 Uncertainty rule:
@@ -93,6 +101,7 @@ Loop until terminal state.
 Produce:
 - Verification Report using `references/report-template.md`.
 - Verification Certificate using `references/certificate-template.md`.
+- Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 
 ## Verification Policy
@@ -101,6 +110,8 @@ Must:
 - Execute behavior through the same path a careful human would execute.
 - Collect concrete evidence and perform light introspection.
 - Keep verification practical; escalate to human verification when interaction is required.
+- Prefer a "show, don't tell" style: screenshots, charts, structured metrics/tables, audio captures, or similarly data-rich artifacts that can be included in chat.
+- Map each acceptance criterion to at least one artifact-backed signal.
 
 Allowed:
 - Temporary probes, debug flags, and one-off scripts.
@@ -109,6 +120,7 @@ Allowed:
 Forbidden:
 - Source-text checks as stand-ins for behavior validation.
 - Success claims without executed commands and observed outputs.
+- Bare success assertions (for example, "it worked") without artifacts or concrete data signals.
 - Asking the human to run commands the agent has not attempted.
 - Asking the human to run commands when the blocker is permissions that should be handled via full-access/escalated execution.
 

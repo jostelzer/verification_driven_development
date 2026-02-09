@@ -34,6 +34,11 @@ Provide strongest verification signals with short excerpts:
 - Signal 2: correlation signal (for example, request payload to log line).
 - Signal 3: negative evidence (absence of errors/timeouts/regressions where applicable).
 
+Prefer "show, don't tell" artifacts over prose-only claims:
+- Include at least one artifact per acceptance criterion when feasible (image, chart, audio clip, structured table, metric dump).
+- For each artifact, provide path/link and one line on what it proves.
+- If artifacts are not feasible, provide compact structured data (key-value table) rather than a plain statement.
+
 ## Timing
 
 Provide estimates from the plan and actual runtime:

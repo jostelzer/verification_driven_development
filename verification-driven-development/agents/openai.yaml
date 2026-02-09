@@ -3,4 +3,4 @@ interface:
   short_description: "Empower your agent to ship with proof, not guesswork."
   icon_small: "./assets/vdd.png"
   icon_large: "./assets/vdd.png"
-  default_prompt: "Use $verification-driven-development (VDD) to create a joint implementation and verification plan, run executable checks, collect evidence, and issue a final certificate only at terminal state."
+  default_prompt: "Use $verification-driven-development (VDD) to create a compact joint implementation and verification plan, run executable checks, collect show-don't-tell evidence artifacts, and issue a final certificate only at terminal state."

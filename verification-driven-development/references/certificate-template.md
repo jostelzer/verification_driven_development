@@ -17,6 +17,9 @@ Empirical verification efforts performed:
 Evidence gathered:
 - <concrete observation #1: values, response fields, log/result signal>
 - <concrete observation #2: values, metrics, or absence of errors/regressions>
+Artifact index:
+- <path/link to screenshot/chart/audio/table + one line about what it proves>
+- <path/link to second artifact + one line about what it proves>
 Why this evidence is convincing:
 - <map acceptance criterion to specific observed evidence>
 - <briefly state what false-positive/risk was ruled out>
@@ -30,6 +33,7 @@ Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬
 Task: <one-line task summary>
 What was empirically verified by agent: <short summary of exact checks run>
 Evidence gathered by agent: <concrete observations from those checks>
+Artifact index: <path/link(s) + what each artifact proves>
 Why this is not yet conclusive: <what still requires human interaction or access>
 Run this harness: <command(s)>
 Human checks:
