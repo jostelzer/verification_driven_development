@@ -1,0 +1,3 @@
+/Users/jjj/git/verification_driven_development/verification-driven-development/agents/openai.yaml:6:  default_prompt: "Use $verification-driven-development (VDD) to create a compact joint implementation and verification plan, run executable checks, collect show-don't-tell evidence artifacts, and issue a final certificate only at terminal state, rendering the certificate inline in the final response."
+/Users/jjj/git/verification_driven_development/verification-driven-development/references/certificate-template.md:10:Status Badge: 🟩 VERIFIED ✅ (GREEN FLAGS)
+/Users/jjj/git/verification_driven_development/verification-driven-development/references/certificate-template.md:15:Green Flags:

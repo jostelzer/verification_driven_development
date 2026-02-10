@@ -1,0 +1,2 @@
+/Users/jjj/git/verification_driven_development/verification-driven-development/SKILL.md:104:- Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
+/Users/jjj/git/verification_driven_development/verification-driven-development/references/evaluation-checklist.md:12:- Include the full Verification Certificate block inline in the final chat response (not just in artifacts).

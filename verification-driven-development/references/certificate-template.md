@@ -7,23 +7,17 @@ Keep it concise but explicit: target 10 to 16 lines.
 
 ```markdown
 ## Verification Certificate
-Status Badge: 🟩 VERIFIED ✅ (GREEN FLAG)
+Status Badge: 🟩 VERIFIED ✅ (GREEN FLAGS)
 Verdict: VERIFIED ✅
 Task: <one-line task summary>
 Revision: <commit sha or working-tree marker>
 Runtime: <local | docker | ssh host>
-Empirical verification efforts performed:
-- <exact command/action run, what input/scope it used, and observed pass outcome>
-- <second command/action run, what it covered, and observed pass outcome>
-Evidence gathered:
-- <concrete observation #1: values, response fields, log/result signal>
-- <concrete observation #2: values, metrics, or absence of errors/regressions>
-Artifact index:
+Green Flags:
+- ✅ <command(s) run + scope + pass signal>
+- ✅ <key evidence observed + value(s)>
+Artifacts:
 - <path/link to screenshot/chart/audio/table + one line about what it proves>
-- <path/link to second artifact + one line about what it proves>
-Why this evidence is convincing:
-- <map acceptance criterion to specific observed evidence>
-- <briefly state what false-positive/risk was ruled out>
+Why this is convincing: <map acceptance criterion to evidence + risk ruled out>
 ```
 
 ## READY FOR HUMAN VERIFICATION 🧑‍🔬
