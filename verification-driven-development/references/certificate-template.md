@@ -1,24 +1,14 @@
 # Verification Certificate Template
 
 Issue exactly one certificate at terminal state.
-Keep it concise but explicit: target 10 to 16 lines.
+Keep it concise: VERIFIED should be exactly 3 lines (header + 2 lines). Other states can be longer as needed.
 
 ## VERIFIED ✅
 
 ```markdown
 ## Verification Certificate
-Status Badge: 🟩 VERIFIED ✅ (GREEN FLAGS)
-Verdict: VERIFIED ✅
-Task: <one-line task summary>
-Revision: <commit sha or working-tree marker>
-Runtime: <local | docker | ssh host>
-Green Flags:
-- ✅ <command(s) run + scope + pass signal>
-- ✅ <key evidence observed + value(s)>
-Ground-Truth Evidence: <source + metric + threshold + result>
-Artifacts:
-- <path/link to screenshot/chart/audio/table + one line about what it proves>
-Why this is convincing: <map acceptance criterion to evidence + risk ruled out>
+Status: 🟩 VERIFIED ✅
+Green Flags: ✅ <short proof 1> | ✅ <short proof 2>
 ```
 
 ## READY FOR HUMAN VERIFICATION 🧑‍🔬
