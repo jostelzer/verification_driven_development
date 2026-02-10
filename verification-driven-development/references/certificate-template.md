@@ -15,6 +15,7 @@ Runtime: <local | docker | ssh host>
 Green Flags:
 - ✅ <command(s) run + scope + pass signal>
 - ✅ <key evidence observed + value(s)>
+Ground-Truth Evidence: <source + metric + threshold + result>
 Artifacts:
 - <path/link to screenshot/chart/audio/table + one line about what it proves>
 Why this is convincing: <map acceptance criterion to evidence + risk ruled out>
@@ -30,6 +31,7 @@ Task: <one-line task summary>
 What was empirically verified by agent: <short summary of exact checks run>
 Evidence gathered by agent: <concrete observations from those checks>
 Artifact index: <path/link(s) + what each artifact proves>
+Ground-Truth Gap: <what ground-truth data or comparison is missing or waived>
 Why this is not yet conclusive: <what still requires human interaction or access>
 Run this harness: <command(s)>
 Human checks:

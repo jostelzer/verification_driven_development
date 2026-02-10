@@ -24,6 +24,16 @@ State runtime surface and key versions:
 - Host/container identifiers when relevant.
 - Language/runtime/tool versions that materially affect behavior.
 
+## Ground-Truth Plan and Data
+
+Specify how verification approximated ground truth:
+- Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale).
+- Acquisition: how data or baseline was obtained (include commands if applicable).
+- Sample size and selection: what was evaluated and why it is representative.
+- Metrics and thresholds: include exact thresholds and whether they were met.
+- Data/artifact location: paths to datasets, outputs, and evaluation summaries.
+- Waiver (if any): explicit user waiver and the reduced evidence tier.
+
 ## Commands Run
 
 Provide copy/paste command list in execution order.
@@ -49,6 +59,7 @@ Prefer "show, don't tell" artifacts over prose-only claims:
 - Include at least one artifact per acceptance criterion when feasible (image, chart, audio clip, structured table, metric dump).
 - For each artifact, provide path/link and one line on what it proves.
 - If artifacts are not feasible, provide compact structured data (key-value table) rather than a plain statement.
+- Include ground-truth comparison outputs (tables, charts, or metric summaries) when available.
 
 ## Timing
 
