@@ -44,7 +44,8 @@ Treat SSH/runtime access as first-class when available.
 Verification should approximate ground truth as closely as practical.
 
 Rules:
-- If ground truth is plausibly obtainable, you must pursue it (ask the user and propose sources).
+- If ground truth is plausibly obtainable, you must pursue it (ask the user and propose sources). Any credible source is acceptable; prefer high-quality datasets when available.
+- Default to a small, representative sample that is fast to run but still convincing; scale up only if the user asks for thoroughness or risk justifies it.
 - If ground truth is not provided, present 2 to 3 options that trade off fidelity, time, and cost; ask the user to choose.
 - If ground truth is unavailable or explicitly waived, record the waiver and lower the terminal state unless the user explicitly accepts the reduced evidence tier.
 

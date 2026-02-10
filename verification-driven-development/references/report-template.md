@@ -27,9 +27,9 @@ State runtime surface and key versions:
 ## Ground-Truth Plan and Data
 
 Specify how verification approximated ground truth:
-- Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale).
+- Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale). Any credible source is acceptable; prefer high-quality datasets when available.
 - Acquisition: how data or baseline was obtained (include commands if applicable).
-- Sample size and selection: what was evaluated and why it is representative.
+- Sample size and selection: default to a small, representative sample unless a thorough run is explicitly requested.
 - Metrics and thresholds: include exact thresholds and whether they were met.
 - Data/artifact location: paths to datasets, outputs, and evaluation summaries.
 - Waiver (if any): explicit user waiver and the reduced evidence tier.
