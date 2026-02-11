@@ -20,9 +20,32 @@ Install with the Skill Installer (for coding agents):
 Install from GitHub URL: https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
 ```
 
+Or use the local installer script:
+
+```bash
+# Codex
+./install.sh --target codex
+
+# Claude Code
+./install.sh --target claude
+
+# Cursor (project rule in <project>/.cursor/rules)
+./install.sh --target cursor --cursor-project /path/to/your/project
+```
+
 Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
+
+To uninstall:
+
+```bash
+# Remove from agents/codex/claude
+./uninstall.sh --target auto
+
+# Remove Cursor project rule
+./uninstall.sh --target cursor --cursor-project /path/to/your/project
+```
 
 ## README FOR AGENTS
 
@@ -33,3 +56,7 @@ Dear agentic colleague, start here and follow the pointers:
 - `verification-driven-development/references/`: supporting references used by the skill.
 - `install.sh`: install or update the skill.
 - `uninstall.sh`: remove the skill from local skill directories.
+
+## License
+
+Apache License 2.0. See `LICENSE`.
