@@ -168,7 +168,12 @@ Default result for approved static-only exception:
 
 ## Probes and Artifacts
 
-Use `.agent/` (gitignored by convention):
+Before writing artifacts under `.agent/`:
+- Ensure the active repository ignores `.agent`.
+- If the repo root `.gitignore` does not include `.agent` or `.agent/`, append `.agent`.
+- If editing `.gitignore` is not allowed, add `.agent` to `.git/info/exclude` and record that fallback in the Verification Report.
+
+Use `.agent/`:
 - `.agent/probes/`
 - `.agent/runs/<timestamp>/`
 - `.agent/ground-truth/` for datasets, reference outputs, and evaluation summaries.
