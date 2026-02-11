@@ -1,0 +1,3 @@
+## Verification Certificate
+Status: 🟩 VERIFIED ✅
+Green Flags: ✅ Apache-2.0 license and new installer targets were implemented | ✅ Executable install/uninstall checks passed for codex, claude, cursor, auto, and all

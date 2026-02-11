@@ -1,0 +1,23 @@
+# verification rerun
+UTC 2026-02-11T08:37:03Z
+
+## syntax
+syntax_ok
+
+## isolated install/uninstall
+-- codex target
+[ok] copied verification-driven-development to /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/home-rerun/.codex/skills/verification-driven-development
+[next] restart your coding agent (or refresh skills/rules) to see changes
+[ok] removed /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/home-rerun/.codex/skills/verification-driven-development
+-- claude target
+[ok] copied verification-driven-development to /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/home-rerun/.claude/skills/verification-driven-development
+[next] restart your coding agent (or refresh skills/rules) to see changes
+[ok] removed /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/home-rerun/.claude/skills/verification-driven-development
+-- cursor target
+[ok] installed cursor rule to /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/cursor-project-rerun/.cursor/rules/verification-driven-development.mdc
+[next] restart your coding agent (or refresh skills/rules) to see changes
+6:# Verification-Driven Development (VDD)
+[ok] removed /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/cursor-project-rerun/.cursor/rules/verification-driven-development.mdc
+-- auto target fallback
+[ok] copied verification-driven-development to /Users/jjj/git/verification_driven_development/.agent/runs/20260211-083439/home-rerun/.codex/skills/verification-driven-development
+[next] restart your coding agent (or refresh skills/rules) to see changes
