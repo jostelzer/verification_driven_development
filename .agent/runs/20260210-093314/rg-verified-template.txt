@@ -1,3 +1,0 @@
-4:Keep it concise: VERIFIED should be exactly 3 lines (header + 2 lines). Other states can be longer as needed.
-10:Status: 🟩 VERIFIED ✅
-11:Green Flags: ✅ <short proof 1> | ✅ <short proof 2>

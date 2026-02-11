@@ -1,3 +1,0 @@
-## Verification Certificate
-Status: 🟩 VERIFIED ✅
-Green Flags: ✅ Remote `origin/main` snapshot was executed and inspected end-to-end | ✅ Publication blockers were reproduced with command evidence
