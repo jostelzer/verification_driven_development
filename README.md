@@ -2,7 +2,7 @@
 
 ## README FOR HUMANS
 
-![Verification-Driven Development logo](verification-driven-development/assets/vdd.png)
+<img src="verification-driven-development/assets/vdd.png" alt="Verification-Driven Development logo" width="50%" />
 
 Build fast, with proof, and let the agent do the heavy lifting.
 
