@@ -56,6 +56,10 @@ NORMALIZED_MD_OUT=/tmp/report.normalized.md \
   verification-driven-development/references/report-template.md \
   .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-gist.md
 
+# Validate report format before closeout
+./scripts/validate-vdd-report.sh \
+  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+
 # Convenience Make target
 make report-pdf \
   INPUT=verification-driven-development/references/report-template.md \
@@ -68,7 +72,21 @@ make report-gist \
 
 make report-package \
   INPUT=verification-driven-development/references/report-template.md
+
+# Validate + render pdf + render gist
+make report-closeout \
+  INPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md \
+  OUTPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.pdf \
+  GIST_OUTPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-gist.md
 ```
+
+Default closeout expectation in VDD:
+- Attempt all three artifacts by default:
+1. `verification-report.md`
+2. `verification-report.pdf`
+3. `verification-gist.md`
+
+If PDF rendering fails after an in-agent attempt, closeout may continue with markdown + gist, but the report must include exact PDF failure details (command, exit status, stderr signal).
 
 Rendering defaults are defined in:
 - `verification-driven-development/references/pandoc-pdf.yaml`
@@ -89,6 +107,12 @@ The gist generator reads these sections from the full report template/content:
 - `## Gist Claim`
 - `## Gist Evidence`
 - `## Gist Human Run`
+
+`How Human Can Run This` is validated for operator realism:
+- Must include concrete bash commands plus `Pass signal:` and `Fail signal:`.
+- Must not reference ad-hoc harness scripts from `.agent/runs`, `/tmp`, or `playwright/check/spec` files.
+
+`validate-vdd-report.sh` enforces required report sections and format fields before closeout.
 
 To uninstall:
 

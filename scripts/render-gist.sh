@@ -81,6 +81,39 @@ if [ -z "$HUMAN_RUN_BLOCK" ]; then
   exit 1
 fi
 
+HUMAN_RUN_COMMANDS="$(printf '%s\n' "$HUMAN_RUN_BLOCK" | awk '
+  BEGIN { in_code=0 }
+  /^```bash[[:space:]]*$/ { in_code=1; next }
+  in_code && /^```[[:space:]]*$/ { in_code=0; exit }
+  in_code { print }
+')"
+
+if [ -z "$HUMAN_RUN_COMMANDS" ]; then
+  echo "error: ## Gist Human Run must include a non-empty bash code block with real run commands" >&2
+  exit 1
+fi
+
+if printf '%s\n' "$HUMAN_RUN_COMMANDS" | grep -Eq '<command|<copy/paste|<path|<repo>'; then
+  echo "error: ## Gist Human Run contains placeholder commands; provide concrete runnable commands" >&2
+  exit 1
+fi
+
+FORBIDDEN_HUMAN_RUN_PATTERN='(\.agent/runs/|/tmp/|playwright_[^[:space:]]*\.js|[[:alnum:]_/-]*_check\.js|[^[:space:]]*\.spec\.js)'
+if printf '%s\n' "$HUMAN_RUN_COMMANDS" | grep -Eqi "$FORBIDDEN_HUMAN_RUN_PATTERN"; then
+  echo "error: ## Gist Human Run must use real operator entrypoints, not ad-hoc probe/test scripts (.agent/runs, /tmp, playwright/check/spec scripts)" >&2
+  exit 1
+fi
+
+if ! printf '%s\n' "$HUMAN_RUN_BLOCK" | grep -q '^Pass signal:'; then
+  echo "error: ## Gist Human Run is missing required line: Pass signal:" >&2
+  exit 1
+fi
+
+if ! printf '%s\n' "$HUMAN_RUN_BLOCK" | grep -q '^Fail signal:'; then
+  echo "error: ## Gist Human Run is missing required line: Fail signal:" >&2
+  exit 1
+fi
+
 CLAIM_LINE="$(printf '%s\n' "$CLAIM_BLOCK" | awk 'NF { print; exit }')"
 CLAIM_LINE="${CLAIM_LINE#- }"
 CLAIM_LINE="${CLAIM_LINE#Claim: }"

@@ -12,6 +12,15 @@ Include exactly one status badge line at the top of the report:
 - `Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬`
 - `Status Badge: 🟥 BLOCKED ⛔`
 
+## Closeout Artifacts (Required)
+
+Record canonical closeout artifact paths:
+- Report Markdown: `<path>/verification-report.md`
+- Report PDF: `<path>/verification-report.pdf` or `NOT GENERATED (render failed)`
+- Gist Markdown: `<path>/verification-gist.md`
+- PDF render command attempted: `<command>`
+- PDF render result: `success` | `failed (exit=<code>, signal=<stderr excerpt>)`
+
 ## Gist Claim (Required)
 
 Write one sentence with outcome and impact (target <=18 words).
@@ -31,6 +40,9 @@ Graphic: /absolute/path/to/probe-chart.png
 ## Gist Human Run (Required)
 
 Provide copy/paste steps and explicit pass/fail signals:
+1. Use real operator entrypoints (actual CLI/API/UI flow for the product).
+2. Do not reference ad-hoc probe scripts created during the run.
+3. Forbidden examples: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
 
 ```bash
 <command 1>

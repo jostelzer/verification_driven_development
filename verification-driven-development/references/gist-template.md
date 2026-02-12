@@ -28,3 +28,5 @@ Rules:
 - Evidence max 2 bullets.
 - At least 1 graphic when available.
 - If no graphic is feasible, include exactly one `Graphic unavailable:` line.
+- `How Human Can Run This` must use real operator entrypoints (no ad-hoc harness scripts).
+- Forbidden command patterns: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
