@@ -114,6 +114,7 @@ Loop until terminal state.
 Produce:
 - Verification Report using `references/report-template.md`.
 - Verification Certificate using `references/certificate-template.md`.
+- Chat Gist using `references/gist-template.md` (sections: Claim, Evidence, How Human Can Run This).
 - Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
@@ -190,5 +191,6 @@ Default behavior:
 Load as needed:
 - Report format: `references/report-template.md`
 - Certificate format: `references/certificate-template.md`
+- Chat gist format: `references/gist-template.md`
 - Usage patterns and examples: `references/examples.md`
 - Self-check checklist: `references/evaluation-checklist.md`

@@ -37,6 +37,59 @@ Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
 
+Generate a professionally formatted PDF report from Markdown:
+
+```bash
+# Direct script interface
+./scripts/render-report-pdf.sh \
+  verification-driven-development/references/report-template.md \
+  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.pdf
+
+# Optional: keep normalized Markdown used for PDF rendering
+NORMALIZED_MD_OUT=/tmp/report.normalized.md \
+  ./scripts/render-report-pdf.sh \
+  verification-driven-development/references/report-template.md \
+  /tmp/verification-report.pdf
+
+# Generate standardized gist (chat-ready) from a full report
+./scripts/render-gist.sh \
+  verification-driven-development/references/report-template.md \
+  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-gist.md
+
+# Convenience Make target
+make report-pdf \
+  INPUT=verification-driven-development/references/report-template.md \
+  OUTPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.pdf
+
+# Convenience Make targets for gist and full package
+make report-gist \
+  INPUT=verification-driven-development/references/report-template.md \
+  GIST_OUTPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-gist.md
+
+make report-package \
+  INPUT=verification-driven-development/references/report-template.md
+```
+
+Rendering defaults are defined in:
+- `verification-driven-development/references/pandoc-pdf.yaml`
+
+The renderer uses Pandoc defaults when supported, and automatically falls back
+to equivalent pinned CLI options on older Pandoc versions.
+
+PDF export normalizes status badges to deterministic text values:
+- `🟩 VERIFIED ✅` -> `[VERIFIED]`
+- `🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬` -> `[READY FOR HUMAN VERIFICATION]`
+- `🟥 BLOCKED ⛔` -> `[BLOCKED]`
+
+Standardized templates:
+- Full report: `verification-driven-development/references/report-template.md`
+- Gist (chat format): `verification-driven-development/references/gist-template.md`
+
+The gist generator reads these sections from the full report template/content:
+- `## Gist Claim`
+- `## Gist Evidence`
+- `## Gist Human Run`
+
 To uninstall:
 
 ```bash

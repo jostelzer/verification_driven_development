@@ -1,0 +1,29 @@
+from: markdown+table_captions+fenced_divs+smart
+to: pdf
+standalone: true
+pdf-engine: xelatex
+toc: true
+toc-depth: 2
+number-sections: true
+highlight-style: tango
+metadata:
+  title: Verification Report
+  author: Verification-Driven Development
+variables:
+  papersize: letter
+  geometry:
+    - margin=1in
+  fontsize: 11pt
+  linestretch: 1.15
+  colorlinks: true
+  linkcolor: blue
+  urlcolor: blue
+header-includes:
+  - |
+      \usepackage{fancyhdr}
+      \pagestyle{fancy}
+      \fancyhf{}
+      \lhead{Verification Report}
+      \rhead{\nouppercase{\leftmark}}
+      \cfoot{\thepage}
+      \setlength{\headheight}{14pt}
