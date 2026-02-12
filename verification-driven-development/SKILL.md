@@ -25,6 +25,14 @@ Any human-run request must include:
 - Why it failed, with observed evidence (not guesses).
 - Why the human is required specifically.
 - Exact command/checklist the human should run, plus expected pass/fail signals.
+- A compact **Human Verification Card** in this exact order:
+1. Preconditions (max 2 short lines).
+2. Steps (numbered, copy/paste commands or clicks only).
+3. Pass signal(s) (exact text/status/artifact expected).
+4. Fail signal(s) (exact text/status/artifact expected).
+5. Return condition (what to send back, and when to stop).
+- Hard cap for the card: max 8 lines or 120 words, whichever is smaller.
+- Style rules for the card: imperative voice, no hedging, no policy recap, no extra narrative.
 
 ## Inputs Required Before Claiming `VERIFIED`
 
@@ -64,20 +72,9 @@ Keep user-facing plans concise by default.
 - Include only decisions that affect execution: change surfaces, commands, pass/fail signals, blockers, and timing.
 - Avoid restating policy text or obvious repository context.
 - Expand detail only when the user asks for it or when risk/ambiguity is high.
+- For `READY FOR HUMAN VERIFICATION 🧑‍🔬`, always provide the Human Verification Card format above (precise and concise by construction).
 
 ## Operating Loop (Mandatory)
-
-### Phase P0 (Optional): Orientation
-
-Run this phase when repo/runtime is unclear.
-- Locate build/run/test entry points.
-- Locate observability surfaces (logs, endpoints, db tables, files, metrics).
-- Identify missing runtime inputs and minimal unblock questions.
-- Consult external docs only when needed to unblock execution.
-
-Output:
-- Short findings bullets (max 5).
-- Draft plan covering both implementation and verification in compact form.
 
 ### Phase P1: Joint Plan
 
