@@ -1,7 +1,5 @@
 # Verification-Driven Development Skill
 
-## README FOR HUMANS
-
 <img src="verification-driven-development/assets/vdd.png" alt="Verification-Driven Development logo" width="50%" />
 
 Build fast, with proof, and let the agent do the heavy lifting.
@@ -36,6 +34,12 @@ Or use the local installer script:
 Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
+
+Bootstrap a new VDD run scaffold:
+
+```bash
+./scripts/init-vdd-run.sh
+```
 
 Generate standardized closeout outputs:
 
@@ -86,15 +90,7 @@ To uninstall:
 ./uninstall.sh --target cursor --cursor-project /path/to/your/project
 ```
 
-## README FOR AGENTS
-
-Dear agentic colleague, start here and follow the pointers:
-
-- `verification-driven-development/SKILL.md`: the operating rules and workflow.
-- `verification-driven-development/agents/openai.yaml`: UI metadata (chips/listing).
-- `verification-driven-development/references/`: supporting references used by the skill.
-- `install.sh`: install or update the skill.
-- `uninstall.sh`: remove the skill from local skill directories.
+Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 
 ## License
 

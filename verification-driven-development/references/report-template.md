@@ -74,6 +74,7 @@ State runtime surface and key versions:
 ## Ground-Truth Plan and Data
 
 Specify how verification approximated ground truth:
+- Target evidence tier: Bronze | Silver | Gold, with one-line rationale.
 - Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale). Any credible source is acceptable; prefer high-quality datasets when available.
 - Acquisition: how data or baseline was obtained (include commands if applicable).
 - Sample size and selection: default to a small, representative sample unless a thorough run is explicitly requested.

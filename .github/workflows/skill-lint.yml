@@ -1,0 +1,18 @@
+name: Skill Lint
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Skill lint
+        run: ./scripts/lint-skill.sh
+
+      - name: Script tests
+        run: ./tests/test-vdd-scripts.sh

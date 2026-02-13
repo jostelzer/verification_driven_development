@@ -95,6 +95,7 @@ Verification plan:
 - Specify execution location (`local`, `docker`, `ssh`) per step.
 - Specify what to inspect and concrete pass/fail signals per step.
 - Include a Ground-Truth Plan: source, acquisition method, sample size, metric(s), threshold(s), and artifact location.
+- Choose a target evidence tier (`Bronze` | `Silver` | `Gold`) using `references/evidence-tiers.md`, and state why that tier is appropriate.
 - When ground truth is uncertain or costly, present 2 to 3 verification options with estimated time/cost and evidence tier.
 - Estimate time per step and total (compact format is fine).
 - Warn when estimated total exceeds 10 minutes, then proceed automatically.
@@ -125,14 +126,7 @@ Produce:
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 - For UI tasks, include a mandatory browser assertion summary (step entered, button visible/hidden, request fired/not fired) with artifact path.
-
-Markdown closeout policy (default required):
-- Default closeout artifact set is:
-1. `.agent/runs/<timestamp>/verification-report.md`
-- Verification Brief is required in final chat response and is chat-only (do not create `verification-brief.md`).
-- Do not skip markdown report generation.
-- PDF generation is optional and only performed when explicitly requested by the user.
-- Do not use free-form report structure. If validation fails, fix the report and rerun validation before final response.
+- Apply closeout defaults and formatting rules from `references/closeout-policy.md`.
 
 ## Verification Policy
 
@@ -144,10 +138,7 @@ Must:
 - Map each acceptance criterion to at least one artifact-backed signal.
 - Use sanity checks only as preflight; they are not sufficient for `VERIFIED ✅` without an explicit, documented user waiver.
 
-Evidence tiers (aim for the highest feasible tier):
-- Sanity: readiness, environment, and basic non-error execution.
-- Ground truth: outputs compared against trusted data, reference outputs, or labeled datasets.
-- Quantitative: metrics with thresholds and sample sizes; include confidence or variance where relevant.
+Evidence tiers (aim for the highest feasible tier) are defined in `references/evidence-tiers.md`.
 
 Allowed:
 - Temporary probes, debug flags, and one-off scripts.
@@ -165,29 +156,10 @@ Forbidden:
 
 Apply this protocol whenever acceptance criteria mention UI behavior, click flow, visibility changes, or browser-driven interactions.
 
-Mandatory UI preflight (run exactly in this order):
-1. `node -e "require.resolve('@playwright/test')" || npm install --prefix .agent/tools/pw @playwright/test@1.58.2`
-2. `NODE_PATH=.agent/tools/pw/node_modules node -e "require('playwright').chromium"`
-3. `node .agent/tools/pw/node_modules/playwright/cli.js install chromium`
-4. `NODE_PATH=.agent/tools/pw/node_modules node -e "require('playwright').chromium.launch({headless:true}).then(b=>b.close())"`
-
-If preflight fails:
-- Capture exact command plus key error output.
-- Continue fallback logic; do not stop at first failure.
-
-Playwright decision tree (in order):
-1. Try package preflight.
-2. Try browser install.
-3. Run harness.
-4. If still blocked after reasonable attempts, switch to `READY FOR HUMAN VERIFICATION 🧑‍🔬` and provide a real CLI/API/UI checklist.
-
-Harness location rules:
-- Agent-run UI probes must live in `.agent/probes/ui/` (stable path).
-- Do not use ad-hoc filenames in run folders for UI probes.
-
-Cleanup requirements:
-- After UI probes, clean generated junk (for example `test-results/`, temporary servers, temporary containers) when safe.
-- Record cleanup actions in the Verification Report.
+Use `references/ui-automation-protocol.md` as the source of truth for:
+- Mandatory preflight command order.
+- Decision tree and fallback behavior.
+- Harness location rules and cleanup requirements.
 
 ## Static-Only Exception (Strict)
 
@@ -237,5 +209,8 @@ Load as needed:
 - Report format: `references/report-template.md`
 - Certificate format: `references/certificate-template.md`
 - Verification brief format: `references/verification-brief-template.md`
+- Closeout defaults and formatting rules: `references/closeout-policy.md`
+- Evidence tier rubric: `references/evidence-tiers.md`
+- UI preflight/decision tree: `references/ui-automation-protocol.md`
 - Usage patterns and examples: `references/examples.md`
 - Self-check checklist: `references/evaluation-checklist.md`

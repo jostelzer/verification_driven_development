@@ -1,0 +1,26 @@
+# Evidence Tiers
+
+Select a target evidence tier during Phase P1 planning and report the achieved tier in closeout.
+
+## Bronze
+
+- Scope: sanity checks only (readiness and non-error execution).
+- Use when: constrained discovery/prototyping, or explicit user waiver.
+- Limit: normally insufficient for `VERIFIED ✅` without explicit user acceptance.
+
+## Silver
+
+- Scope: behavior validated against a credible baseline or ground-truth source on a representative sample.
+- Use when: standard feature/bugfix verification where practical confidence is needed.
+- Expectation: include concrete pass/fail signals and artifact-backed mapping to acceptance criteria.
+
+## Gold
+
+- Scope: Silver plus quantitative evaluation (thresholds, sample sizes, variance/confidence where relevant).
+- Use when: high-risk changes, performance-sensitive systems, or user-requested thoroughness.
+- Expectation: explicit metrics table or chart artifacts and threshold verdicts.
+
+## Selection Rule
+
+- Choose the highest feasible tier for available runtime, time budget, and risk.
+- If a lower tier is used, document why and the residual risk.
