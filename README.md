@@ -37,6 +37,45 @@ Then restart your coding agent (or refresh skills), and invoke with:
 - `$verification-driven-development`
 - `VDD` (acronym)
 
+Generate standardized closeout outputs:
+
+```bash
+# Render standardized Verification Brief (chat-ready) to stdout from a full report
+./scripts/render-verification-brief.sh \
+  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+
+# Validate report format before closeout
+./scripts/validate-vdd-report.sh \
+  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+
+# Convenience Make target for Verification Brief (stdout)
+make report-brief \
+  INPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+
+# Validate markdown closeout format
+make report-closeout \
+  INPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+```
+
+Default closeout expectation in VDD:
+- Produce markdown report by default: `verification-report.md`
+- Render Verification Brief directly in chat (not as a default `.md` artifact).
+
+Standardized templates:
+- Full report: `verification-driven-development/references/report-template.md`
+- Verification Brief (chat format): `verification-driven-development/references/verification-brief-template.md`
+
+The Verification Brief generator reads these sections from the full report template/content:
+- `## Verification Brief Claim`
+- `## Verification Brief Evidence`
+- `## Verification Brief How YOU Can Run This`
+
+`How YOU Can Run This` is validated for operator realism:
+- Must include concrete bash commands plus `Pass signal:` and `Fail signal:`.
+- Must not reference ad-hoc harness scripts from `.agent/runs`, `/tmp`, or `playwright/check/spec` files.
+
+`validate-vdd-report.sh` enforces required report sections and format fields before closeout.
+
 To uninstall:
 
 ```bash

@@ -25,6 +25,8 @@ Any human-run request must include:
 - Why it failed, with observed evidence (not guesses).
 - Why the human is required specifically.
 - Exact command/checklist the human should run, plus expected pass/fail signals.
+- Operator-facing run steps must use real product entrypoints (CLI/API/UI), not ad-hoc probe scripts created during the run.
+- Do not point humans to ephemeral harness files under `.agent/runs/` or `/tmp/`, or to `playwright_*.js`/`*_check.js`/`*.spec.js` scripts.
 - A compact **Human Verification Card** in this exact order:
 1. Preconditions (max 2 short lines).
 2. Steps (numbered, copy/paste commands or clicks only).
@@ -64,6 +66,8 @@ Use exactly one final state:
 - `VERIFIED ✅`: implementation complete, executable verification passed, ground-truth tier met, evidence supports success.
 - `READY FOR HUMAN VERIFICATION 🧑‍🔬`: implementation complete, human interaction is required to complete verification, harness and checklist provided.
 - `BLOCKED ⛔`: required runtime access/instructions are missing and verification cannot run after agent-side attempts (including requesting full access when permissions are the blocker).
+- UI gate for `VERIFIED ✅`: when acceptance criteria include UI behavior/click flow, `VERIFIED ✅` requires at least one executed browser-path signal; unit tests and static checks alone are insufficient.
+- If implementation is complete but the UI gate cannot be satisfied after reasonable agent-side attempts, emit `READY FOR HUMAN VERIFICATION 🧑‍🔬` with a real CLI/API/UI checklist.
 
 ## Communication Style (Default: Compact)
 
@@ -114,9 +118,21 @@ Loop until terminal state.
 Produce:
 - Verification Report using `references/report-template.md`.
 - Verification Certificate using `references/certificate-template.md`.
+- Verification Brief using `references/verification-brief-template.md` (sections: Claim, Evidence, How YOU Can Run This).
+- Validate report format before terminal output using `scripts/validate-vdd-report.sh <report_md>`.
+- If `scripts/validate-vdd-report.sh` is missing, treat closeout as `BLOCKED ⛔` and report the missing file/setup issue explicitly (no fallback validation note).
 - Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
+- For UI tasks, include a mandatory browser assertion summary (step entered, button visible/hidden, request fired/not fired) with artifact path.
+
+Markdown closeout policy (default required):
+- Default closeout artifact set is:
+1. `.agent/runs/<timestamp>/verification-report.md`
+- Verification Brief is required in final chat response and is chat-only (do not create `verification-brief.md`).
+- Do not skip markdown report generation.
+- PDF generation is optional and only performed when explicitly requested by the user.
+- Do not use free-form report structure. If validation fails, fix the report and rerun validation before final response.
 
 ## Verification Policy
 
@@ -143,6 +159,35 @@ Forbidden:
 - Bare success assertions (for example, "it worked") without artifacts or concrete data signals.
 - Asking the human to run commands the agent has not attempted.
 - Asking the human to run commands when the blocker is permissions that should be handled via full-access/escalated execution.
+- Providing "How YOU Can Run This" steps that rely on temporary probe/test scripts instead of the real operator workflow.
+
+## UI Automation Protocol (Playwright)
+
+Apply this protocol whenever acceptance criteria mention UI behavior, click flow, visibility changes, or browser-driven interactions.
+
+Mandatory UI preflight (run exactly in this order):
+1. `node -e "require.resolve('@playwright/test')" || npm install --prefix .agent/tools/pw @playwright/test@1.58.2`
+2. `NODE_PATH=.agent/tools/pw/node_modules node -e "require('playwright').chromium"`
+3. `node .agent/tools/pw/node_modules/playwright/cli.js install chromium`
+4. `NODE_PATH=.agent/tools/pw/node_modules node -e "require('playwright').chromium.launch({headless:true}).then(b=>b.close())"`
+
+If preflight fails:
+- Capture exact command plus key error output.
+- Continue fallback logic; do not stop at first failure.
+
+Playwright decision tree (in order):
+1. Try package preflight.
+2. Try browser install.
+3. Run harness.
+4. If still blocked after reasonable attempts, switch to `READY FOR HUMAN VERIFICATION 🧑‍🔬` and provide a real CLI/API/UI checklist.
+
+Harness location rules:
+- Agent-run UI probes must live in `.agent/probes/ui/` (stable path).
+- Do not use ad-hoc filenames in run folders for UI probes.
+
+Cleanup requirements:
+- After UI probes, clean generated junk (for example `test-results/`, temporary servers, temporary containers) when safe.
+- Record cleanup actions in the Verification Report.
 
 ## Static-Only Exception (Strict)
 
@@ -172,6 +217,7 @@ Before writing artifacts under `.agent/`:
 
 Use `.agent/`:
 - `.agent/probes/`
+- `.agent/probes/ui/` for Playwright/browser-path harnesses.
 - `.agent/runs/<timestamp>/`
 - `.agent/ground-truth/` for datasets, reference outputs, and evaluation summaries.
 
@@ -190,5 +236,6 @@ Default behavior:
 Load as needed:
 - Report format: `references/report-template.md`
 - Certificate format: `references/certificate-template.md`
+- Verification brief format: `references/verification-brief-template.md`
 - Usage patterns and examples: `references/examples.md`
 - Self-check checklist: `references/evaluation-checklist.md`

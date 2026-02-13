@@ -1,6 +1,9 @@
 # Verification Report Template
 
 Use this template for `VERIFIED` and `READY FOR HUMAN VERIFICATION`.
+This structure is the source of truth for:
+- Full report (Markdown).
+- Verification Brief shown in agent chat (generated from the three Verification Brief sections).
 
 ## Verification Outcome (Required)
 
@@ -9,9 +12,53 @@ Include exactly one status badge line at the top of the report:
 - `Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬`
 - `Status Badge: 🟥 BLOCKED ⛔`
 
+## Closeout Artifacts (Required)
+
+Record canonical closeout artifact paths:
+- Report Markdown: `<path>/verification-report.md`
+
+Verification Brief delivery:
+- Render directly in chat using the standardized Verification Brief structure.
+- Do not generate a default `verification-brief.md` artifact.
+
+## Verification Brief Claim (Required)
+
+Write one sentence with outcome and impact (target <=18 words).
+
+## Verification Brief Evidence (Required)
+
+Provide concise, convincing evidence:
+1. Exactly 2 evidence bullets with concrete signals (metric, output, or log).
+2. Include at least 1 graphic (image/chart screenshot) if available.
+3. If no graphic is available, add `Graphic unavailable: <reason>`.
+
+Example:
+- p95 latency improved from 92ms to 74ms across the same input sample.
+- End-to-end probe returned HTTP 200 and expected payload schema.
+Graphic: /absolute/path/to/probe-chart.png
+
+## Verification Brief How YOU Can Run This (Required)
+
+Provide copy/paste steps and explicit pass/fail signals:
+1. Use real operator entrypoints (actual CLI/API/UI flow for the product).
+2. Do not reference ad-hoc probe scripts created during the run.
+3. Forbidden examples: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
+
+```bash
+<command 1>
+<command 2>
+```
+
+Pass signal: <exact text/status/artifact expected>
+Fail signal: <exact text/status/artifact expected>
+
 ## Goal
 
 State the user request and acceptance criteria in one concise paragraph.
+
+## Acceptance Criteria
+
+List explicit acceptance criteria as short bullets.
 
 ## What Changed
 
@@ -43,6 +90,13 @@ Provide copy/paste command list in execution order.
 <command 1>
 <command 2>
 ```
+
+## Results by Criterion
+
+Map each acceptance criterion to evidence:
+- Criterion: <criterion text>
+- Result: PASS | FAIL
+- Evidence: <artifact path, metric, excerpt, or log line>
 
 ## Standard Certificate (Required)
 
