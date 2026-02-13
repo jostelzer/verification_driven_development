@@ -117,24 +117,21 @@ Loop until terminal state.
 
 Produce:
 - Verification Report using `references/report-template.md`.
-- Verification Report PDF (`verification-report.pdf`) rendered from the report markdown by default.
 - Verification Certificate using `references/certificate-template.md`.
-- Chat Gist using `references/gist-template.md` (sections: Claim, Evidence, How Human Can Run This).
-- Validate report format before terminal output using `scripts/validate-vdd-report.sh <report_md>` (or equivalent checks if script is unavailable).
+- Verification Brief using `references/verification-brief-template.md` (sections: Claim, Evidence, How YOU Can Run This).
+- Validate report format before terminal output using `scripts/validate-vdd-report.sh <report_md>`.
+- If `scripts/validate-vdd-report.sh` is missing, treat closeout as `BLOCKED ⛔` and report the missing file/setup issue explicitly (no fallback validation note).
 - Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 - For UI tasks, include a mandatory browser assertion summary (step entered, button visible/hidden, request fired/not fired) with artifact path.
 
-PDF closeout policy (default attempt required):
+Markdown closeout policy (default required):
 - Default closeout artifact set is:
 1. `.agent/runs/<timestamp>/verification-report.md`
-2. `.agent/runs/<timestamp>/verification-report.pdf`
-3. `.agent/runs/<timestamp>/verification-gist.md`
-- Do not skip PDF generation silently.
-- Attempt PDF rendering in-agent before closeout using repository automation when available (`make report-package`, `make report-pdf`) or an explicit renderer command.
-- If PDF rendering fails, capture exact command, exit status, and key stderr signals in the report.
-- If PDF cannot be produced after an in-agent attempt, continue with markdown + gist closeout and include an explicit PDF failure note (what was attempted and what failed). This alone does not block `VERIFIED ✅`.
+- Verification Brief is required in final chat response and is chat-only (do not create `verification-brief.md`).
+- Do not skip markdown report generation.
+- PDF generation is optional and only performed when explicitly requested by the user.
 - Do not use free-form report structure. If validation fails, fix the report and rerun validation before final response.
 
 ## Verification Policy
@@ -162,7 +159,7 @@ Forbidden:
 - Bare success assertions (for example, "it worked") without artifacts or concrete data signals.
 - Asking the human to run commands the agent has not attempted.
 - Asking the human to run commands when the blocker is permissions that should be handled via full-access/escalated execution.
-- Providing "How Human Can Run This" steps that rely on temporary probe/test scripts instead of the real operator workflow.
+- Providing "How YOU Can Run This" steps that rely on temporary probe/test scripts instead of the real operator workflow.
 
 ## UI Automation Protocol (Playwright)
 
@@ -239,6 +236,6 @@ Default behavior:
 Load as needed:
 - Report format: `references/report-template.md`
 - Certificate format: `references/certificate-template.md`
-- Chat gist format: `references/gist-template.md`
+- Verification brief format: `references/verification-brief-template.md`
 - Usage patterns and examples: `references/examples.md`
 - Self-check checklist: `references/evaluation-checklist.md`

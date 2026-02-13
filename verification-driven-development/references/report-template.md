@@ -2,8 +2,8 @@
 
 Use this template for `VERIFIED` and `READY FOR HUMAN VERIFICATION`.
 This structure is the source of truth for:
-- Full report (PDF).
-- Gist shown in agent chat (generated from the three Gist sections).
+- Full report (Markdown).
+- Verification Brief shown in agent chat (generated from the three Verification Brief sections).
 
 ## Verification Outcome (Required)
 
@@ -16,16 +16,16 @@ Include exactly one status badge line at the top of the report:
 
 Record canonical closeout artifact paths:
 - Report Markdown: `<path>/verification-report.md`
-- Report PDF: `<path>/verification-report.pdf` or `NOT GENERATED (render failed)`
-- Gist Markdown: `<path>/verification-gist.md`
-- PDF render command attempted: `<command>`
-- PDF render result: `success` | `failed (exit=<code>, signal=<stderr excerpt>)`
 
-## Gist Claim (Required)
+Verification Brief delivery:
+- Render directly in chat using the standardized Verification Brief structure.
+- Do not generate a default `verification-brief.md` artifact.
+
+## Verification Brief Claim (Required)
 
 Write one sentence with outcome and impact (target <=18 words).
 
-## Gist Evidence (Required)
+## Verification Brief Evidence (Required)
 
 Provide concise, convincing evidence:
 1. Exactly 2 evidence bullets with concrete signals (metric, output, or log).
@@ -37,7 +37,7 @@ Example:
 - End-to-end probe returned HTTP 200 and expected payload schema.
 Graphic: /absolute/path/to/probe-chart.png
 
-## Gist Human Run (Required)
+## Verification Brief How YOU Can Run This (Required)
 
 Provide copy/paste steps and explicit pass/fail signals:
 1. Use real operator entrypoints (actual CLI/API/UI flow for the product).

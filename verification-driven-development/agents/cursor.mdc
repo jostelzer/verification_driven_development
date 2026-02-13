@@ -27,6 +27,6 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 ## Final response requirements
 - Provide one terminal state: `VERIFIED`, `READY FOR HUMAN VERIFICATION`, or `BLOCKED`.
 - Include commands run, key evidence, artifact paths, and known gaps.
-- By default, produce closeout artifacts: markdown report, PDF report, and chat gist.
+- By default, produce closeout artifact: markdown report (Verification Brief still required in final response).
 - Validate report format before closeout (`scripts/validate-vdd-report.sh`) and fix errors first.
 - If runtime verification is unavailable, request explicit approval before using static-only checks.

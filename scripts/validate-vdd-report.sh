@@ -74,9 +74,9 @@ trim_block() {
 
 require_section 'Verification Outcome' 'Verification Outcome'
 require_section 'Closeout Artifacts' 'Closeout Artifacts'
-require_section 'Gist Claim' 'Gist Claim'
-require_section 'Gist Evidence' 'Gist Evidence'
-require_section 'Gist Human Run' 'Gist Human Run'
+require_section 'Verification Brief Claim' 'Verification Brief Claim'
+require_section 'Verification Brief Evidence' 'Verification Brief Evidence'
+require_section 'Verification Brief How YOU Can Run This' 'Verification Brief How YOU Can Run This'
 require_section 'Goal' 'Goal'
 require_section 'Acceptance Criteria' 'Acceptance Criteria'
 require_section 'What Changed' 'What Changed'
@@ -102,51 +102,55 @@ if ! grep -Eq '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_
   add_error "missing certificate block header: ## Verification Certificate"
 fi
 
+certificate_block="$(extract_section '^##[[:space:]]+Verification Certificate' | trim_block)"
+if [ -n "$certificate_block" ]; then
+  if printf '%s\n' "$certificate_block" | grep -q '^Green Flags:'; then
+    add_error "Verification Certificate must not use 'Green Flags:'; use standalone ✅ lines"
+  fi
+fi
+
+if grep -Eq '^Status Badge:[[:space:]]*(🟩 VERIFIED ✅|\[VERIFIED\])$' "$REPORT_MD"; then
+  verified_status_line_count="$(printf '%s\n' "$certificate_block" | awk '/^✅ VERIFIED$/ { c++ } END { print c+0 }')"
+  if [ "$verified_status_line_count" -ne 1 ]; then
+    add_error "VERIFIED certificate must include exactly one '✅ VERIFIED' line"
+  fi
+  verified_check_count="$(printf '%s\n' "$certificate_block" | awk '/^✅[[:space:]]+/ { c++ } END { print c+0 }')"
+  if [ "$verified_check_count" -ne 3 ]; then
+    add_error "VERIFIED certificate must include exactly 3 ✅ lines (status + 2 checks; found $verified_check_count)"
+  fi
+  if printf '%s\n' "$certificate_block" | grep -Eq '^Status:[[:space:]]+'; then
+    add_error "VERIFIED certificate must not use a 'Status:' line; use '✅ VERIFIED'"
+  fi
+fi
+
 closeout_block="$(extract_section '^##[[:space:]]+Closeout Artifacts' | trim_block)"
 if [ -z "$closeout_block" ]; then
   add_error "Closeout Artifacts section is empty"
 else
   report_md_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Report Markdown:' || true)"
-  report_pdf_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Report PDF:' || true)"
-  gist_md_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Gist Markdown:' || true)"
-  pdf_cmd_line="$(printf '%s\n' "$closeout_block" | grep -E '^- PDF render command attempted:' || true)"
-  pdf_result_line="$(printf '%s\n' "$closeout_block" | grep -E '^- PDF render result:' || true)"
 
   [ -n "$report_md_line" ] || add_error "Closeout Artifacts missing '- Report Markdown:'"
-  [ -n "$report_pdf_line" ] || add_error "Closeout Artifacts missing '- Report PDF:'"
-  [ -n "$gist_md_line" ] || add_error "Closeout Artifacts missing '- Gist Markdown:'"
-  [ -n "$pdf_cmd_line" ] || add_error "Closeout Artifacts missing '- PDF render command attempted:'"
-  [ -n "$pdf_result_line" ] || add_error "Closeout Artifacts missing '- PDF render result:'"
-
-  if [ -n "$report_pdf_line" ] && [ -n "$pdf_result_line" ]; then
-    if printf '%s\n' "$report_pdf_line" | grep -q 'NOT GENERATED'; then
-      if ! printf '%s\n' "$pdf_result_line" | grep -Eq 'failed'; then
-        add_error "Report PDF marked NOT GENERATED but PDF render result is not failed"
-      fi
-    else
-      if ! printf '%s\n' "$pdf_result_line" | grep -Eq 'success|failed'; then
-        add_error "PDF render result must be success or failed(...)"
-      fi
-    fi
+  if printf '%s\n' "$closeout_block" | grep -Eq '^- Verification Brief Markdown:'; then
+    add_error "Closeout Artifacts must not include '- Verification Brief Markdown:'; Verification Brief is chat-only"
   fi
 fi
 
-gist_evidence_block="$(extract_section '^##[[:space:]]+Gist Evidence' | trim_block)"
-if [ -z "$gist_evidence_block" ]; then
-  add_error "Gist Evidence section is empty"
+brief_evidence_block="$(extract_section '^##[[:space:]]+Verification Brief Evidence' | trim_block)"
+if [ -z "$brief_evidence_block" ]; then
+  add_error "Verification Brief Evidence section is empty"
 else
-  evidence_bullets="$(printf '%s\n' "$gist_evidence_block" | awk '/^- / { c++ } END { print c+0 }')"
+  evidence_bullets="$(printf '%s\n' "$brief_evidence_block" | awk '/^- / { c++ } END { print c+0 }')"
   if [ "$evidence_bullets" -ne 2 ]; then
-    add_error "Gist Evidence must contain exactly 2 bullets (found $evidence_bullets)"
+    add_error "Verification Brief Evidence must contain exactly 2 bullets (found $evidence_bullets)"
   fi
-  if ! printf '%s\n' "$gist_evidence_block" | grep -Eq '^!\[|^Graphic unavailable:'; then
-    add_error "Gist Evidence must include a graphic line or 'Graphic unavailable:'"
+  if ! printf '%s\n' "$brief_evidence_block" | grep -Eq '^!\[|^Graphic unavailable:'; then
+    add_error "Verification Brief Evidence must include a graphic line or 'Graphic unavailable:'"
   fi
 fi
 
-human_run_block="$(extract_section '^##[[:space:]]+Gist Human Run' | trim_block)"
+human_run_block="$(extract_section '^##[[:space:]]+Verification Brief How YOU Can Run This' | trim_block)"
 if [ -z "$human_run_block" ]; then
-  add_error "Gist Human Run section is empty"
+  add_error "Verification Brief How YOU Can Run This section is empty"
 else
   human_run_commands="$(printf '%s\n' "$human_run_block" | awk '
     BEGIN { in_code=0 }
@@ -155,23 +159,27 @@ else
     in_code { print }
   ')"
   if [ -z "$human_run_commands" ]; then
-    add_error "Gist Human Run must include a non-empty bash code block"
+    add_error "Verification Brief How YOU Can Run This must include a non-empty bash code block"
   fi
   if ! printf '%s\n' "$human_run_block" | grep -q '^Pass signal:'; then
-    add_error "Gist Human Run is missing 'Pass signal:'"
+    add_error "Verification Brief How YOU Can Run This is missing 'Pass signal:'"
   fi
   if ! printf '%s\n' "$human_run_block" | grep -q '^Fail signal:'; then
-    add_error "Gist Human Run is missing 'Fail signal:'"
+    add_error "Verification Brief How YOU Can Run This is missing 'Fail signal:'"
   fi
 
   forbidden_human_run_pattern='(\.agent/runs/|/tmp/|playwright_[^[:space:]]*\.js|[[:alnum:]_/-]*_check\.js|[^[:space:]]*\.spec\.js)'
   if [ -n "${human_run_commands:-}" ] && printf '%s\n' "$human_run_commands" | grep -Eqi "$forbidden_human_run_pattern"; then
-    add_error "Gist Human Run contains ad-hoc probe/test script commands; use real operator entrypoints"
+    add_error "Verification Brief How YOU Can Run This contains ad-hoc probe/test script commands; use real operator entrypoints"
   fi
 fi
 
 if grep -Eqi '<(command|copy/paste|path|criterion|exact|short|one-line|reason|signal|task|artifact|repo|input|output)[^>]*>' "$REPORT_MD"; then
   add_error "report contains unresolved placeholder tokens (<...>)"
+fi
+
+if grep -Eqi '^Validation notes:[[:space:]]+.*validate-vdd-report\.sh not present' "$REPORT_MD"; then
+  add_error "report must not claim fallback validation when validate-vdd-report.sh is missing"
 fi
 
 if ! grep -Eq '^##[[:space:]]+Commands Run([[:space:]]|$)' "$REPORT_MD"; then

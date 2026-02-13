@@ -1,14 +1,15 @@
 # Verification Certificate Template
 
 Issue exactly one certificate at terminal state.
-Keep it concise: VERIFIED should be exactly 3 lines (header + 2 lines). Other states can be longer as needed.
+Keep it concise: VERIFIED should be exactly 4 lines (header + status check line + 2 proof lines). Other states can be longer as needed.
 
 ## VERIFIED ✅
 
 ```markdown
 ## Verification Certificate
-Status: 🟩 VERIFIED ✅
-Green Flags: ✅ <short proof 1> | ✅ <short proof 2>
+✅ VERIFIED
+✅ <short proof 1>
+✅ <short proof 2>
 ```
 
 ## READY FOR HUMAN VERIFICATION 🧑‍🔬
