@@ -102,6 +102,12 @@ if ! grep -Eq '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_
   add_error "missing certificate block header: ## Verification Certificate"
 fi
 
+verification_certificate_line="$(grep -Enm1 '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD" | cut -d: -f1 || true)"
+human_run_section_line="$(grep -Enm1 '^##[[:space:]]+Verification Brief How YOU Can Run This([[:space:]]|$)' "$REPORT_MD" | cut -d: -f1 || true)"
+if [ -n "$verification_certificate_line" ] && [ -n "$human_run_section_line" ] && [ "$human_run_section_line" -le "$verification_certificate_line" ]; then
+  add_error "Verification Brief How YOU Can Run This must appear below Verification Certificate"
+fi
+
 certificate_block="$(extract_section '^##[[:space:]]+Verification Certificate' | trim_block)"
 if [ -n "$certificate_block" ]; then
   if printf '%s\n' "$certificate_block" | grep -q '^Green Flags:'; then
@@ -110,16 +116,16 @@ if [ -n "$certificate_block" ]; then
 fi
 
 if grep -Eq '^Status Badge:[[:space:]]*(🟩 VERIFIED ✅|\[VERIFIED\])$' "$REPORT_MD"; then
-  verified_status_line_count="$(printf '%s\n' "$certificate_block" | awk '/^✅ VERIFIED$/ { c++ } END { print c+0 }')"
+  verified_status_line_count="$(printf '%s\n' "$certificate_block" | awk '/^Status:[[:space:]]+VERIFIED$/ { c++ } END { print c+0 }')"
   if [ "$verified_status_line_count" -ne 1 ]; then
-    add_error "VERIFIED certificate must include exactly one '✅ VERIFIED' line"
+    add_error "VERIFIED certificate must include exactly one 'Status: VERIFIED' line"
   fi
   verified_check_count="$(printf '%s\n' "$certificate_block" | awk '/^✅[[:space:]]+/ { c++ } END { print c+0 }')"
-  if [ "$verified_check_count" -ne 3 ]; then
-    add_error "VERIFIED certificate must include exactly 3 ✅ lines (status + 2 checks; found $verified_check_count)"
+  if [ "$verified_check_count" -ne 2 ]; then
+    add_error "VERIFIED certificate must include exactly 2 ✅ lines (proof checks only; found $verified_check_count)"
   fi
-  if printf '%s\n' "$certificate_block" | grep -Eq '^Status:[[:space:]]+'; then
-    add_error "VERIFIED certificate must not use a 'Status:' line; use '✅ VERIFIED'"
+  if printf '%s\n' "$certificate_block" | grep -Eq '^✅ VERIFIED$'; then
+    add_error "VERIFIED certificate must not use '✅ VERIFIED'; use 'Status: VERIFIED'"
   fi
 fi
 

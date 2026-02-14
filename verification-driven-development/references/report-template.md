@@ -37,21 +37,6 @@ Example:
 - End-to-end probe returned HTTP 200 and expected payload schema.
 Graphic: /absolute/path/to/probe-chart.png
 
-## Verification Brief How YOU Can Run This (Required)
-
-Provide copy/paste steps and explicit pass/fail signals:
-1. Use real operator entrypoints (actual CLI/API/UI flow for the product).
-2. Do not reference ad-hoc probe scripts created during the run.
-3. Forbidden examples: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
-
-```bash
-<command 1>
-<command 2>
-```
-
-Pass signal: <exact text/status/artifact expected>
-Fail signal: <exact text/status/artifact expected>
-
 ## Goal
 
 State the user request and acceptance criteria in one concise paragraph.
@@ -102,6 +87,23 @@ Map each acceptance criterion to evidence:
 ## Standard Certificate (Required)
 
 Paste the full Verification Certificate block here, verbatim, using the certificate template. Do not summarize or paraphrase it.
+
+## Verification Brief How YOU Can Run This (Required)
+
+Place this section below the verification certificate.
+
+Provide copy/paste steps and explicit pass/fail signals:
+1. Use real operator entrypoints (actual CLI/API/UI flow for the product).
+2. Do not reference ad-hoc probe scripts created during the run.
+3. Forbidden examples: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
+
+```bash
+<command 1>
+<command 2>
+```
+
+Pass signal: <exact text/status/artifact expected>
+Fail signal: <exact text/status/artifact expected>
 
 ## Evidence and Inspection
 

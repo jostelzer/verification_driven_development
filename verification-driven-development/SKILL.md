@@ -123,6 +123,8 @@ Produce:
 - Validate report format before terminal output using `scripts/validate-vdd-report.sh <report_md>`.
 - If `scripts/validate-vdd-report.sh` is missing, treat closeout as `BLOCKED ⛔` and report the missing file/setup issue explicitly (no fallback validation note).
 - Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
+- In the report markdown, place `## Verification Brief How YOU Can Run This` below `## Verification Certificate`.
+- In the final chat response, place `How YOU Can Run This` immediately below the Verification Certificate block.
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 - For UI tasks, include a mandatory browser assertion summary (step entered, button visible/hidden, request fired/not fired) with artifact path.

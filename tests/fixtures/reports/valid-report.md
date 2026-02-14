@@ -16,16 +16,6 @@ Latency regression fixed with stable throughput under identical production-like 
 - API returned HTTP 200 with expected schema for all sample requests.
 Graphic unavailable: fixture report omits images by design.
 
-## Verification Brief How YOU Can Run This
-
-```bash
-make test
-curl -sSf http://localhost:8080/health
-```
-
-Pass signal: make test exits 0 and /health returns HTTP 200
-Fail signal: any non-zero exit or non-200 response
-
 ## Goal
 
 Fix latency regression in the request path without changing the external API contract.
@@ -81,9 +71,19 @@ Certificate rendered verbatim in the section below.
 
 ## Verification Certificate
 
-✅ VERIFIED
+Status: VERIFIED
 ✅ Runtime checks passed with expected API and benchmark outputs.
 ✅ Ground-truth comparison met threshold on representative sample.
+
+## Verification Brief How YOU Can Run This
+
+```bash
+make test
+curl -sSf http://localhost:8080/health
+```
+
+Pass signal: make test exits 0 and /health returns HTTP 200
+Fail signal: any non-zero exit or non-200 response
 
 ## Evidence and Inspection
 
