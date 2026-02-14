@@ -1,97 +1,54 @@
-# Verification-Driven Development Skill
+# Verification-Driven Development (VDD) Skill
 
 <img src="verification-driven-development/assets/vdd.png" alt="Verification-Driven Development logo" width="50%" />
 
-Build fast, with proof, and let the agent do the heavy lifting.
+Build fast, with proof.
 
-This skill gives your agent a strict verification-first operating mode:
-- The agent plans the implementation and verification path.
-- The agent runs the commands, inspects real outputs, and fixes failures iteratively.
-- The agent only closes when checks pass and evidence is captured.
+## What is this skill
 
-You provide the goal and access; the agent drives execution end to end.
-Result: reliable delivery without manual babysitting.
+Do you find yourself...
+- pasting stack traces back to your coding agent after it says "fixed"?
+- asking "did you actually run it?" (and not getting a clear command + output)?
+- getting code that compiles, but doesn't match your spec (wrong behavior, broken integration, missing edge cases)?
+- reading a PR and still not knowing what exact command proves "done"?
 
-Install with the Skill Installer (for coding agents):
+VDD puts a coding agent into a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
 
-```text
-Install from GitHub URL: https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
-```
+## Examples
 
-Or use the local installer script:
+### 1) From "naked model repo" to Dockerized HTTP inference (YOLO face detection)
 
-```bash
-# Codex
-./install.sh --target codex
+A GitHub repo is just model code/weights: no Dockerfile, no server, no API. The goal is a Docker image that runs an HTTP inference server.
 
-# Claude Code
-./install.sh --target claude
+What VDD forces (beyond "it builds"):
+- Add a minimal server (`/health`, `/predict`) and pin dependencies so rebuilds are deterministic.
+- Build the Docker image, run the container, and prove readiness with a health check.
+- Prove a client can reach the server from the host (not just "container is up").
+- Download a real JPEG from the internet that contains a face.
+- POST that JPEG to `/predict` and assert the response contains detections (and sensible fields/shape).
+- Capture the exact commands, outputs, and pass/fail signals in the closeout.
 
-# Cursor (project rule in <project>/.cursor/rules)
-./install.sh --target cursor --cursor-project /path/to/your/project
-```
+### 2) Port WebGL to ModernGL without changing output
 
-Then restart your coding agent (or refresh skills), and invoke with:
-- `$verification-driven-development`
-- `VDD` (acronym)
+A port that "seems fine" isn't verification. VDD forces a visual proof:
+- Capture a baseline screenshot from the original WebGL renderer (fixed seed/camera).
+- Port to ModernGL and generate the same screenshot.
+- Compare outputs (pixel diff with a tolerance) and save the diff artifact.
+- Treat mismatches as failing checks until resolved, then capture evidence.
 
-Bootstrap a new VDD run scaffold:
+### 3) Paper-to-code reproduction (numbers, plots, and claims)
 
-```bash
-./scripts/init-vdd-run.sh
-```
+Implementing "the algorithm" isn't the same as reproducing the claim. VDD pushes all the way to the paper's evidence:
+- Implement the method from the paper (and document any interpretation choices).
+- Fetch the dataset (or generate the synthetic setup), pin versions, and fix random seeds.
+- Reproduce the evaluation protocol end-to-end (preprocessing, splits, metrics).
+- Match a target metric/curve/table within an explicit tolerance.
+- Save the reproduced plots/tables as artifacts and include a single command that reruns the full reproduction.
 
-Generate standardized closeout outputs:
+## Installer
 
-```bash
-# Render standardized Verification Brief (chat-ready) to stdout from a full report
-./scripts/render-verification-brief.sh \
-  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
+- Skill Installer (GitHub folder): https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
+- Or local: `./install.sh --target codex|claude|cursor`
+- Invoke: `$verification-driven-development` (or `VDD`)
 
-# Validate report format before closeout
-./scripts/validate-vdd-report.sh \
-  .agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
-
-# Convenience Make target for Verification Brief (stdout)
-make report-brief \
-  INPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
-
-# Validate markdown closeout format
-make report-closeout \
-  INPUT=.agent/runs/$(date +%Y%m%d-%H%M%S)/verification-report.md
-```
-
-Default closeout expectation in VDD:
-- Produce markdown report by default: `verification-report.md`
-- Render Verification Brief directly in chat (not as a default `.md` artifact).
-
-Standardized templates:
-- Full report: `verification-driven-development/references/report-template.md`
-- Verification Brief (chat format): `verification-driven-development/references/verification-brief-template.md`
-
-The Verification Brief generator reads these sections from the full report template/content:
-- `## Verification Brief Claim`
-- `## Verification Brief Evidence`
-- `## Verification Brief How YOU Can Run This`
-
-`How YOU Can Run This` is validated for operator realism:
-- Must include concrete bash commands plus `Pass signal:` and `Fail signal:`.
-- Must not reference ad-hoc harness scripts from `.agent/runs`, `/tmp`, or `playwright/check/spec` files.
-
-`validate-vdd-report.sh` enforces required report sections and format fields before closeout.
-
-To uninstall:
-
-```bash
-# Remove from agents/codex/claude
-./uninstall.sh --target auto
-
-# Remove Cursor project rule
-./uninstall.sh --target cursor --cursor-project /path/to/your/project
-```
-
-Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
-
-## License
-
-Apache License 2.0. See `LICENSE`.
+License: Apache License 2.0. See `LICENSE`.
