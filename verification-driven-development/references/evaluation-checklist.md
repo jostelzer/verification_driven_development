@@ -10,6 +10,7 @@ Apply this checklist before finalizing any run.
 - Include evidence snippets tied directly to changed behavior.
 - Prefer artifact-backed evidence (images/charts/audio/structured metrics) over prose-only "pass" claims.
 - For noisy/proxy signals, include at least one control/baseline (for example, "no-change" run) so the metric is interpretable.
+- If evidence includes images/video/UI screenshots, include a semantic interpretation step using vision capabilities (what changed, measured as an observable), not just raw diffs.
 - Loop on failure with observed signals and reruns.
 - Issue certificate only at terminal state.
 - Include the full Verification Certificate block inline in the final chat response (not just in artifacts).
