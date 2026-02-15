@@ -11,6 +11,8 @@ This skill is great if you find yourself:
 
 VDD closes this loop by teaching your coding agent a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
 
+Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
+
 ## Examples
 
 ### 1) From "naked model repo" to Dockerized HTTP inference (e.g. YOLO face detection)
