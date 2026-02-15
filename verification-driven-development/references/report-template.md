@@ -122,7 +122,7 @@ Scientific interpretation (keep it short):
 Prefer "show, don't tell" artifacts over prose-only claims:
 - Include at least one artifact per acceptance criterion when feasible (image, chart, audio clip, structured table, metric dump).
 - For each artifact, provide path/link and one line on what it proves.
-- If an artifact is an image/video/screenshot, include a brief semantic interpretation (derived via vision capabilities when available) and the observable it supports (for example: text present/absent, object moved, UI state toggled).
+- If an artifact is an image/video/screenshot, include a brief semantic interpretation (derived via vision capabilities when available) and the observable it supports (for example: text present/absent, object moved, UI state toggled). If that interpretation is load-bearing, add one corroborating signal (logs/state/programmatic detector) or state why it could not be corroborated.
 - If artifacts are not feasible, provide compact structured data (key-value table) rather than a plain statement.
 - Include ground-truth comparison outputs (tables, charts, or metric summaries) when available.
 

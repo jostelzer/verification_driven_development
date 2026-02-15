@@ -151,7 +151,7 @@ Treat verification like a small experiment, not a pile of artifacts.
 - Evidence must discriminate `H1` from `H0` via an observable and a decision rule; artifacts without a decision rule are not evidence.
 - Prefer direct observables (state, telemetry, invariants). If using a proxy metric, justify why it tracks the observable.
 - For noisy signals, calibrate quickly: measure a "no-change" baseline (negative control) and repeat enough to estimate a noise floor.
-- When evidence includes images/video/UI screenshots, use your vision capabilities to extract semantic observables (text, object presence/positions, UI state) instead of relying only on pixel diffs. Treat vision-derived signals as proxies: triangulate with logs/state when possible and calibrate with a simple "no-change" control if the decision depends on it.
+- When evidence includes images/video/UI screenshots, use your vision capabilities to extract semantic observables (text, object presence/positions, UI state) instead of relying only on pixel diffs. Treat vision-derived signals as proxies: corroborate with state/logs or programmatic detectors when feasible, calibrate with a simple "no-change" control when noise is plausible, and prefer `INCONCLUSIVE` over overconfident interpretation when ambiguity remains.
 - If the measurement cannot distinguish `H1` from `H0`, do not claim `VERIFIED ✅`; redesign the check or escalate to `READY FOR HUMAN VERIFICATION 🧑‍🔬`.
 
 Allowed:
