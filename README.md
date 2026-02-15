@@ -2,21 +2,18 @@
 
 <img src="verification-driven-development/assets/vdd.png" alt="Verification-Driven Development logo" width="50%" />
 
-Build fast, with proof.
+## TLDR: Closed-loop verification = build fast, with proof.
 
-## What is this skill
+This skill is great if you find yourself:
+- pasting stack traces back to your coding agent
+- getting code that compiles, but doesn't match your spec (wrong behavior, broken integration)
+- being unsure if and what the agent actually ran
 
-Do you find yourself...
-- pasting stack traces back to your coding agent after it says "fixed"?
-- asking "did you actually run it?" (and not getting a clear command + output)?
-- getting code that compiles, but doesn't match your spec (wrong behavior, broken integration, missing edge cases)?
-- reading a PR and still not knowing what exact command proves "done"?
-
-VDD puts a coding agent into a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
+VDD closes this loop by teaching your coding agent a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
 
 ## Examples
 
-### 1) From "naked model repo" to Dockerized HTTP inference (YOLO face detection)
+### 1) From "naked model repo" to Dockerized HTTP inference (e.g. YOLO face detection)
 
 A GitHub repo is just model code/weights: no Dockerfile, no server, no API. The goal is a Docker image that runs an HTTP inference server.
 
@@ -35,15 +32,6 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Port to ModernGL and generate the same screenshot.
 - Compare outputs (pixel diff with a tolerance) and save the diff artifact.
 - Treat mismatches as failing checks until resolved, then capture evidence.
-
-### 3) Paper-to-code reproduction (numbers, plots, and claims)
-
-Implementing "the algorithm" isn't the same as reproducing the claim. VDD pushes all the way to the paper's evidence:
-- Implement the method from the paper (and document any interpretation choices).
-- Fetch the dataset (or generate the synthetic setup), pin versions, and fix random seeds.
-- Reproduce the evaluation protocol end-to-end (preprocessing, splits, metrics).
-- Match a target metric/curve/table within an explicit tolerance.
-- Save the reproduced plots/tables as artifacts and include a single command that reruns the full reproduction.
 
 ## Installer
 
