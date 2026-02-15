@@ -30,7 +30,7 @@ What VDD forces (beyond "it builds"):
 A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Capture a baseline screenshot from the original WebGL renderer (fixed seed/camera).
 - Port to ModernGL and generate the same screenshot.
-- Compare outputs (pixel diff with a tolerance) and save the diff artifact.
+- Compare outputs with a calibrated visual metric (tolerance + "no-change" baseline) and save diff + metric summary.
 - Treat mismatches as failing checks until resolved, then capture evidence.
 
 ## Installer

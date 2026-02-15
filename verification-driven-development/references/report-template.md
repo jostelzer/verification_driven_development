@@ -66,6 +66,8 @@ Specify how verification approximated ground truth:
 - Metrics and thresholds: include exact thresholds and whether they were met.
 - Data/artifact location: paths to datasets, outputs, and evaluation summaries.
 - Waiver (if any): explicit user waiver and the reduced evidence tier.
+- Discrimination: state `H1` (claim) vs `H0` (no change/plausible confounder) and the decision rule(s) used to separate them.
+- Controls (when applicable): for noisy/proxy signals, include a "no-change" baseline and what it implies about the noise floor.
 
 ## Commands Run
 
@@ -111,6 +113,11 @@ Provide strongest verification signals with short excerpts:
 - Signal 1: expected behavior observed.
 - Signal 2: correlation signal (for example, request payload to log line).
 - Signal 3: negative evidence (absence of errors/timeouts/regressions where applicable).
+
+Scientific interpretation (keep it short):
+- Why these signals discriminate `H1` from `H0`.
+- If signals are noisy: show effect size versus baseline/noise floor, and the threshold used.
+- Threats to validity: 1 to 3 bullets (plausible alternative explanations and what you did to rule them out, or why they remain).
 
 Prefer "show, don't tell" artifacts over prose-only claims:
 - Include at least one artifact per acceptance criterion when feasible (image, chart, audio clip, structured table, metric dump).

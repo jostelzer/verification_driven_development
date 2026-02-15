@@ -94,6 +94,7 @@ Verification plan:
 - List exact command(s) per step (target max 5 steps).
 - Specify execution location (`local`, `docker`, `ssh`) per step.
 - Specify what to inspect and concrete pass/fail signals per step.
+- For each acceptance criterion, design a discriminating check: state `H1` (the claim) vs `H0` (a plausible alternative / "no change"), the observable (with units), and the decision rule (threshold).
 - Include a Ground-Truth Plan: source, acquisition method, sample size, metric(s), threshold(s), and artifact location.
 - Choose a target evidence tier (`Bronze` | `Silver` | `Gold`) using `references/evidence-tiers.md`, and state why that tier is appropriate.
 - When ground truth is uncertain or costly, present 2 to 3 verification options with estimated time/cost and evidence tier.
@@ -111,6 +112,7 @@ Loop until terminal state.
 - Implement minimal changes.
 - Run planned verification.
 - Inspect evidence with at least one correlation step (for example, payload field to server log `request_id`).
+- Try to falsify your own claim: include at least one control/counterexample check for non-trivial criteria (noisy metrics, visuals, UI flows, performance) so evidence can distinguish `H1` from `H0`.
 - Execute ground-truth checks and retain inputs/outputs as artifacts.
 - If failing, summarize observed failure signals (not guesses), adjust code/probes, and rerun.
 
@@ -141,6 +143,15 @@ Must:
 - Use sanity checks only as preflight; they are not sufficient for `VERIFIED ✅` without an explicit, documented user waiver.
 
 Evidence tiers (aim for the highest feasible tier) are defined in `references/evidence-tiers.md`.
+
+### Scientific Mindset (Lean)
+
+Treat verification like a small experiment, not a pile of artifacts.
+- Always identify the competing explanation: `H1` (your claim) versus `H0` ("no change" or a plausible confounder).
+- Evidence must discriminate `H1` from `H0` via an observable and a decision rule; artifacts without a decision rule are not evidence.
+- Prefer direct observables (state, telemetry, invariants). If using a proxy metric, justify why it tracks the observable.
+- For noisy signals, calibrate quickly: measure a "no-change" baseline (negative control) and repeat enough to estimate a noise floor.
+- If the measurement cannot distinguish `H1` from `H0`, do not claim `VERIFIED ✅`; redesign the check or escalate to `READY FOR HUMAN VERIFICATION 🧑‍🔬`.
 
 Allowed:
 - Temporary probes, debug flags, and one-off scripts.

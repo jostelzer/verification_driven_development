@@ -21,6 +21,7 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 ## Evidence requirements
 - Map each acceptance criterion to at least one artifact-backed signal.
 - Include at least one correlation check (for example, input value to runtime output/log).
+- Treat verification as an experiment: define `H1` (claim) vs `H0` (no change/plausible confounder) and use evidence/controls that can distinguish them.
 - Prefer concrete evidence (structured metrics/tables/output excerpts) over plain assertions.
 - Use ground-truth comparison when possible (trusted baseline, labeled data, or reference output).
 
