@@ -11,8 +11,6 @@ This skill is great if you find yourself:
 
 VDD closes this loop by teaching your coding agent a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
 
-Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
-
 ## Examples
 
 ### 1) From "naked model repo" to Dockerized HTTP inference (e.g. YOLO face detection)
@@ -40,5 +38,7 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Skill Installer (GitHub folder): https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
 - Or local: `./install.sh --target codex|claude|cursor`
 - Invoke: `$verification-driven-development` (or `VDD`)
+
+Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 
 License: Apache License 2.0. See `LICENSE`.
