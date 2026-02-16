@@ -18,6 +18,21 @@ cleanup() {
 }
 trap cleanup EXIT
 
+if [ ! -f "$ROOT_VALIDATOR" ]; then
+  echo "error: root validator missing: $ROOT_VALIDATOR" >&2
+  exit 1
+fi
+
+if [ ! -f "$BUNDLED_VALIDATOR" ]; then
+  echo "error: bundled validator missing: $BUNDLED_VALIDATOR" >&2
+  echo "debug: available files under verification-driven-development/scripts:" >&2
+  ls -la "$REPO_ROOT/verification-driven-development/scripts" >&2 || true
+  exit 1
+fi
+
+"$ROOT_VALIDATOR" --help >/dev/null
+"$BUNDLED_VALIDATOR" --help >/dev/null
+
 "$ROOT_VALIDATOR" "$VALID_REPORT" >/dev/null
 "$BUNDLED_VALIDATOR" "$VALID_REPORT" >/dev/null
 
