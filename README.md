@@ -65,7 +65,10 @@ The command prints:
 - Skill Installer (GitHub folder):
   [https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development](https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development)
 - Or local: `./install.sh --target codex|claude|cursor`
-- Invoke: `$verification-driven-development` (or `VDD`)
+- Invocation by tool:
+  - Codex: `$verification-driven-development` (or `VDD`)
+  - Claude Code: `/verification-driven-development`
+  - Cursor: install the project rule with `./install.sh --target cursor --cursor-project <project-root>` (or `--target all`), which writes `.cursor/rules/verification-driven-development.mdc`; Cursor then applies it as a project rule in that workspace.
 - Bundled validator path after install:
   `<skill-root>/scripts/validate-vdd-report.sh`
   (source-repo wrapper remains at `scripts/validate-vdd-report.sh`).
