@@ -36,6 +36,26 @@ Any human-run request must include:
 - Hard cap for the card: max 8 lines or 120 words, whichever is smaller.
 - Style rules for the card: imperative voice, no hedging, no policy recap, no extra narrative.
 
+## Skill Failover Mode (Mandatory)
+
+Use failover mode when VDD tooling itself breaks (for example: validator crash, render script exception, missing required skill file, or internal instruction conflict).
+
+Rules:
+- Do not hide the failure and do not continue with normal closeout/certificate flow.
+- Terminal state must be `BLOCKED ⛔`.
+- Return a compact failover block that includes:
+1. Error summary.
+2. Exact failed command, execution location, and exit code.
+3. Stack trace in a fenced `text` block.
+4. Prefilled GitHub issue link for this skill repository.
+5. Copy/paste-ready issue body.
+- Generate failover issue content using this resolver order:
+1. `<active-repo>/scripts/render-vdd-failover-issue.sh ...`
+2. `<skill-root>/scripts/render-vdd-failover-issue.sh ...`
+- If neither script exists, manually provide:
+  - `https://github.com/jostelzer/verification_driven_development/issues/new`
+  - issue title, summary, command, exit code, and full stack trace body for user copy/paste.
+
 ## Inputs Required Before Claiming `VERIFIED`
 
 Require all of the following:
@@ -122,8 +142,11 @@ Produce:
 - Verification Report using `references/report-template.md`.
 - Verification Certificate using `references/certificate-template.md`.
 - Verification Brief using `references/verification-brief-template.md` (sections: Claim, Evidence, How YOU Can Run This).
-- Validate report format before terminal output using `scripts/validate-vdd-report.sh <report_md>`.
-- If `scripts/validate-vdd-report.sh` is missing, treat closeout as `BLOCKED ⛔` and report the missing file/setup issue explicitly (no fallback validation note).
+- Validate report format before terminal output by resolving the validator in this order:
+  1. `<active-repo>/scripts/validate-vdd-report.sh <report_md>` (project-local copy).
+  2. `<skill-root>/scripts/validate-vdd-report.sh <report_md>` (bundled with this skill; `<skill-root>` is the directory containing this `SKILL.md`).
+- If no validator is found at either location, treat closeout as `BLOCKED ⛔` and report the missing file/setup issue explicitly (no fallback validation note).
+- If VDD tooling fails before normal closeout is possible, enter Skill Failover Mode and include issue link + stack trace payload.
 - Always render the Verification Certificate block directly in the final chat response (user-visible), not only in `.md` artifacts.
 - In the report markdown, place `## Verification Brief How YOU Can Run This` below `## Verification Certificate`.
 - In the final chat response, place `How YOU Can Run This` immediately below the Verification Certificate block.

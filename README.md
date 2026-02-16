@@ -33,11 +33,29 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Compare outputs with a calibrated visual metric (tolerance + "no-change" baseline) and save diff + metric summary.
 - Treat mismatches as failing checks until resolved, then capture evidence.
 
+## Failover Mode for VDD Tooling Errors
+
+If VDD workflow tooling itself breaks (validator crash, render script exception, missing required skill files), use the failover helper to create a user-ready issue payload:
+
+```bash
+./scripts/render-vdd-failover-issue.sh \
+  --summary "validator crashed during closeout" \
+  --failed-command "./scripts/validate-vdd-report.sh .agent/runs/20260216-000000/verification-report.md" \
+  --exit-code 1 \
+  --stacktrace-file /tmp/vdd-error.log
+```
+
+The command prints:
+- a prefilled GitHub issue URL for this repository
+- an issue title
+- a full markdown body (including stack trace) for copy/paste
+
 ## Installer
 
 - Skill Installer (GitHub folder): https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
 - Or local: `./install.sh --target codex|claude|cursor`
 - Invoke: `$verification-driven-development` (or `VDD`)
+- Bundled validator path after install: `<skill-root>/scripts/validate-vdd-report.sh` (source-repo wrapper remains at `scripts/validate-vdd-report.sh`).
 
 Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 

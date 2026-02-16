@@ -21,6 +21,7 @@ Apply this checklist before finalizing any run.
 - Generate markdown report artifact by default (`verification-report.md`).
 - Run `scripts/validate-vdd-report.sh <report_md>` and fix all validation errors before closeout.
 - Do not claim fallback validation when the script is missing; report setup as blocked instead.
+- If VDD tooling fails internally, emit failover output with stack trace and a prefilled GitHub issue link/body.
 - Do not claim completion without executed verification, except approved static-only exception path.
 - Report achieved evidence tier and residual risk when using a lower tier.
 - If static-only exception is used, record user approval and reason explicitly.

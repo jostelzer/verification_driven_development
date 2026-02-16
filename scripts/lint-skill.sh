@@ -6,6 +6,8 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 README_MD="$REPO_ROOT/README.md"
 SKILL_MD="$REPO_ROOT/verification-driven-development/SKILL.md"
 OPENAI_YAML="$REPO_ROOT/verification-driven-development/agents/openai.yaml"
+FAILOVER_WRAPPER="$REPO_ROOT/scripts/render-vdd-failover-issue.sh"
+FAILOVER_CANONICAL="$REPO_ROOT/verification-driven-development/scripts/render-vdd-failover-issue.sh"
 
 declare -a ERRORS=()
 
@@ -32,6 +34,8 @@ require_heading() {
 require_file "$README_MD"
 require_file "$SKILL_MD"
 require_file "$OPENAI_YAML"
+require_file "$FAILOVER_WRAPPER"
+require_file "$FAILOVER_CANONICAL"
 
 if [ "${#ERRORS[@]}" -gt 0 ]; then
   printf 'skill lint failed:\n' >&2
@@ -55,6 +59,7 @@ fi
 # SKILL core structure and required references.
 require_heading "$SKILL_MD" '^#[[:space:]]+Verification-Driven Development \(VDD\)' '# Verification-Driven Development (VDD)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Command Execution Ownership \(Mandatory\)' '## Command Execution Ownership (Mandatory)'
+require_heading "$SKILL_MD" '^##[[:space:]]+Skill Failover Mode \(Mandatory\)' '## Skill Failover Mode (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Inputs Required Before Claiming `VERIFIED`' '## Inputs Required Before Claiming `VERIFIED`'
 require_heading "$SKILL_MD" '^##[[:space:]]+Ground-Truth Requirement \(Mandatory\)' '## Ground-Truth Requirement (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Operating Loop \(Mandatory\)' '## Operating Loop (Mandatory)'
@@ -107,7 +112,9 @@ for token in \
   'evidence artifacts' \
   'certificate' \
   'Verification Brief' \
-  'validate report format'
+  'validate report format' \
+  'failover mode' \
+  'GitHub issue link'
 do
   if ! grep -Fqi "$token" "$OPENAI_YAML"; then
     add_error "openai.yaml default_prompt drift: missing token '$token'"

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/vdd_runner.py", line 74, in <module>
+    main()
+  File "/tmp/vdd_runner.py", line 41, in main
+    raise RuntimeError("validator crashed while parsing Verification Brief")
+RuntimeError: validator crashed while parsing Verification Brief
