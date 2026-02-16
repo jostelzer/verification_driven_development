@@ -1,5 +1,7 @@
 ---
-description: Verification-first workflow with executable checks and evidence before completion.
+description: >-
+  Verification-first workflow with executable checks and evidence before
+  completion.
 alwaysApply: false
 ---
 
@@ -21,9 +23,15 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 ## Evidence requirements
 - Map each acceptance criterion to at least one artifact-backed signal.
 - Include at least one correlation check (for example, input value to runtime output/log).
-- Treat verification as an experiment: define `H1` (claim) vs `H0` (no change/plausible confounder) and use evidence/controls that can distinguish them.
-- When evidence includes screenshots/images/video, use vision-based interpretation to extract semantic signals (not only pixel diffs) and tie them to an observable and decision rule.
-- Treat vision-derived signals as heuristic proxies: corroborate with an independent signal when they affect the verdict; otherwise mark results as inconclusive.
+- Treat verification as an experiment: define `H1` (claim) vs `H0`
+  (no change/plausible confounder) and use evidence/controls that can
+  distinguish them.
+- When evidence includes screenshots/images/video, use vision-based
+  interpretation to extract semantic signals (not only pixel diffs) and tie
+  them to an observable and decision rule.
+- Treat vision-derived signals as heuristic proxies: corroborate with an
+  independent signal when they affect the verdict; otherwise mark results as
+  inconclusive.
 - Prefer concrete evidence (structured metrics/tables/output excerpts) over plain assertions.
 - Use ground-truth comparison when possible (trusted baseline, labeled data, or reference output).
 
@@ -31,6 +39,10 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 - Provide one terminal state: `VERIFIED`, `READY FOR HUMAN VERIFICATION`, or `BLOCKED`.
 - Include commands run, key evidence, artifact paths, and known gaps.
 - By default, produce closeout artifact: markdown report (Verification Brief still required in final response).
-- Validate report format before closeout using `<active-repo>/scripts/validate-vdd-report.sh` first, then `<skill-root>/scripts/validate-vdd-report.sh` if needed; fix errors first.
-- If VDD tooling itself fails, switch to failover mode: include failed command, exit code, stack trace, and a prefilled GitHub issue link/body generated via `render-vdd-failover-issue.sh`.
+- Validate report format before closeout using
+  `<active-repo>/scripts/validate-vdd-report.sh` first, then
+  `<skill-root>/scripts/validate-vdd-report.sh` if needed; fix errors first.
+- If VDD tooling itself fails, switch to failover mode: include failed command,
+  exit code, stack trace, and a prefilled GitHub issue link/body generated via
+  `render-vdd-failover-issue.sh`.
 - If runtime verification is unavailable, request explicit approval before using static-only checks.

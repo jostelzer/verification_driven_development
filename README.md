@@ -6,23 +6,31 @@
 
 This skill is great if you find yourself:
 - pasting stack traces back to your coding agent
-- getting code that compiles, but doesn't match your spec (wrong behavior, broken integration)
+- getting code that compiles, but doesn't match your spec
+  (wrong behavior, broken integration)
 - being unsure if and what the agent actually ran
 
-VDD closes this loop by teaching your coding agent a strict verification-first workflow: define executable checks up front, run real commands, inspect real outputs, iterate until checks pass, and close with evidence (a short Verification Report plus a Verification Certificate).
+VDD closes this loop by teaching your coding agent a strict
+verification-first workflow: define executable checks up front, run real
+commands, inspect real outputs, iterate until checks pass, and close with
+evidence (a short Verification Report plus a Verification Certificate).
 
 ## Examples
 
-### 1) From "naked model repo" to Dockerized HTTP inference (e.g. YOLO face detection)
+### 1) From "naked model repo" to Dockerized HTTP inference
 
-A GitHub repo is just model code/weights: no Dockerfile, no server, no API. The goal is a Docker image that runs an HTTP inference server.
+(e.g. YOLO face detection)
+
+A GitHub repo is just model code/weights: no Dockerfile, no server, no API.
+The goal is a Docker image that runs an HTTP inference server.
 
 What VDD forces (beyond "it builds"):
 - Add a minimal server (`/health`, `/predict`) and pin dependencies so rebuilds are deterministic.
 - Build the Docker image, run the container, and prove readiness with a health check.
 - Prove a client can reach the server from the host (not just "container is up").
 - Download a real JPEG from the internet that contains a face.
-- POST that JPEG to `/predict` and assert the response contains detections (and sensible fields/shape).
+- POST that JPEG to `/predict` and assert the response contains detections
+  (and sensible fields/shape).
 - Capture the exact commands, outputs, and pass/fail signals in the closeout.
 
 ### 2) Port WebGL to ModernGL without changing output
@@ -35,7 +43,9 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 
 ## Failover Mode for VDD Tooling Errors
 
-If VDD workflow tooling itself breaks (validator crash, render script exception, missing required skill files), use the failover helper to create a user-ready issue payload:
+If VDD workflow tooling itself breaks (validator crash, render script
+exception, missing required skill files), use the failover helper to create a
+user-ready issue payload:
 
 ```bash
 ./scripts/render-vdd-failover-issue.sh \
@@ -52,10 +62,13 @@ The command prints:
 
 ## Installer
 
-- Skill Installer (GitHub folder): https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development
+- Skill Installer (GitHub folder):
+  [https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development](https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development)
 - Or local: `./install.sh --target codex|claude|cursor`
 - Invoke: `$verification-driven-development` (or `VDD`)
-- Bundled validator path after install: `<skill-root>/scripts/validate-vdd-report.sh` (source-repo wrapper remains at `scripts/validate-vdd-report.sh`).
+- Bundled validator path after install:
+  `<skill-root>/scripts/validate-vdd-report.sh`
+  (source-repo wrapper remains at `scripts/validate-vdd-report.sh`).
 
 Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 
