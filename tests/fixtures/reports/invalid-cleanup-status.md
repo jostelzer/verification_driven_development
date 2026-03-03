@@ -4,7 +4,7 @@ Status Badge: 🟩 VERIFIED ✅
 
 ## Closeout Artifacts
 
-- Report Markdown: .agent/runs/20260213-000000/verification-report.md
+- Report Markdown: .agent/runs/20260213-000300/verification-report.md
 
 ## Verification Brief Claim
 
@@ -48,7 +48,7 @@ Fix latency regression in the request path without changing the external API con
 - Acquisition: collected baseline using existing benchmark command.
 - Sample size and selection: 200 requests sampled from production-like payloads.
 - Metrics and thresholds: p95 latency <= 90ms; met.
-- Data/artifact location: .agent/ground-truth/latency-baseline.csv and .agent/runs/20260213-000000/latency-after.csv.
+- Data/artifact location: .agent/ground-truth/latency-baseline.csv and .agent/runs/20260213-000300/latency-after.csv.
 - Waiver (if any): none.
 
 ## Commands Run
@@ -104,10 +104,10 @@ Fail signal: any non-zero exit or non-200 response
 
 ## Cleanup
 
-- Resources started by verification: local benchmark service (`benchd`, pid 21432).
-- Teardown commands run: `kill 21432`.
-- Post-cleanup check: `pgrep -f benchd` returned no matches.
-- Cleanup status: COMPLETE.
+- Resources started by verification: local benchmark service (`benchd`, pid 21988).
+- Teardown commands run: `kill 21988` (permission denied).
+- Post-cleanup check: `pgrep -f benchd` still showed pid 21988.
+- Cleanup status: INCOMPLETE.
 
 ## Known Limits
 

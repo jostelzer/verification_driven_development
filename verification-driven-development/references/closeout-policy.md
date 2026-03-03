@@ -39,3 +39,4 @@ Use this only when VDD tooling itself fails (validator/render script crash, miss
 - Do not use free-form report structure.
 - Keep artifact paths explicit and stable.
 - Include command ownership summary and known limits.
+- Include cleanup summary with teardown evidence and cleanup status.

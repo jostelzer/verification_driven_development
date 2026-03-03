@@ -6,6 +6,8 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 VALID_REPORT="$REPO_ROOT/tests/fixtures/reports/valid-report.md"
 INVALID_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-missing-final-state.md"
 INVALID_BRIEF_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-brief-operator-flow.md"
+INVALID_GOLD_GATE_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-gold-gate.md"
+INVALID_CLEANUP_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-cleanup-status.md"
 ROOT_VALIDATOR="$REPO_ROOT/scripts/validate-vdd-report.sh"
 BUNDLED_VALIDATOR="$REPO_ROOT/verification-driven-development/scripts/validate-vdd-report.sh"
 FAILOVER_STACKTRACE="$REPO_ROOT/tests/fixtures/errors/vdd-stacktrace.txt"
@@ -38,6 +40,16 @@ fi
 
 if "$ROOT_VALIDATOR" "$INVALID_REPORT" >/dev/null 2>&1; then
   echo "error: expected validator failure for invalid fixture: $INVALID_REPORT" >&2
+  exit 1
+fi
+
+if "$ROOT_VALIDATOR" "$INVALID_GOLD_GATE_REPORT" >/dev/null 2>&1; then
+  echo "error: expected validator failure for invalid Gold gate fixture: $INVALID_GOLD_GATE_REPORT" >&2
+  exit 1
+fi
+
+if "$ROOT_VALIDATOR" "$INVALID_CLEANUP_REPORT" >/dev/null 2>&1; then
+  echo "error: expected validator failure for invalid cleanup fixture: $INVALID_CLEANUP_REPORT" >&2
   exit 1
 fi
 

@@ -87,6 +87,7 @@ require_section 'Results by Criterion' 'Results by Criterion'
 require_section 'Standard Certificate' 'Standard Certificate'
 require_section 'Evidence and Inspection' 'Evidence and Inspection'
 require_section 'Timing' 'Timing'
+require_section 'Cleanup' 'Cleanup'
 require_section 'Known Limits' 'Known Limits'
 require_section 'Final State' 'Final State'
 
@@ -154,6 +155,44 @@ else
   fi
 fi
 
+ground_truth_block="$(extract_section '^##[[:space:]]+Ground-Truth Plan and Data' | trim_block)"
+if [ -z "$ground_truth_block" ]; then
+  add_error "Ground-Truth Plan and Data section is empty"
+else
+  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Target evidence tier:[[:space:]]*(Gold|Silver|Bronze)([[:space:][:punct:]].*)?$'; then
+    add_error "Ground-Truth Plan and Data must include '- Target evidence tier: Gold|Silver|Bronze'"
+  fi
+  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Achieved evidence tier:[[:space:]]*(Gold|Silver|Bronze)([[:space:][:punct:]].*)?$'; then
+    add_error "Ground-Truth Plan and Data must include '- Achieved evidence tier: Gold|Silver|Bronze'"
+  fi
+  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Gold runtime estimate:[[:space:]]*[^[:space:]].*'; then
+    add_error "Ground-Truth Plan and Data must include '- Gold runtime estimate:'"
+  fi
+  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Gold decision gate:[[:space:]]*(<=10m \(auto-Gold\)|>10m \(user choice required\))([[:space:][:punct:]].*)?$'; then
+    add_error "Ground-Truth Plan and Data must include '- Gold decision gate: <=10m (auto-Gold) | >10m (user choice required)'"
+  fi
+  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- User tier choice when Gold >10m:[[:space:]]*[^[:space:]].*'; then
+    add_error "Ground-Truth Plan and Data must include '- User tier choice when Gold >10m:'"
+  fi
+
+  target_tier="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- Target evidence tier:[[:space:]]*(Gold|Silver|Bronze).*/\1/p' | head -n1)"
+  gate_value="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- Gold decision gate:[[:space:]]*(<=10m \(auto-Gold\)|>10m \(user choice required\)).*/\1/p' | head -n1)"
+  user_choice="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- User tier choice when Gold >10m:[[:space:]]*(.*)$/\1/p' | head -n1)"
+  user_choice_tier="$(printf '%s\n' "$user_choice" | sed -nE 's/.*\b(Gold|Silver|Bronze)\b.*/\1/p' | head -n1)"
+
+  if [ "$gate_value" = "<=10m (auto-Gold)" ] && [ -n "$target_tier" ] && [ "$target_tier" != "Gold" ]; then
+    add_error "Target evidence tier must be Gold when Gold decision gate is <=10m (auto-Gold)"
+  fi
+
+  if [ "$gate_value" = ">10m (user choice required)" ]; then
+    if [ -z "$user_choice_tier" ]; then
+      add_error "User tier choice when Gold >10m must name Bronze, Silver, or Gold"
+    elif [ -n "$target_tier" ] && [ "$user_choice_tier" != "$target_tier" ]; then
+      add_error "Target evidence tier must match user tier choice when Gold >10m"
+    fi
+  fi
+fi
+
 human_run_block="$(extract_section '^##[[:space:]]+Verification Brief How YOU Can Run This' | trim_block)"
 if [ -z "$human_run_block" ]; then
   add_error "Verification Brief How YOU Can Run This section is empty"
@@ -186,6 +225,34 @@ fi
 
 if grep -Eqi '^Validation notes:[[:space:]]+.*validate-vdd-report\.sh not present' "$REPORT_MD"; then
   add_error "report must not claim fallback validation when validate-vdd-report.sh is missing"
+fi
+
+timing_block="$(extract_section '^##[[:space:]]+Timing' | trim_block)"
+if [ -n "$timing_block" ] && ! printf '%s\n' "$timing_block" | grep -q '^-[[:space:]]Tier gate outcome:'; then
+  add_error "Timing section must include '- Tier gate outcome:'"
+fi
+
+cleanup_block="$(extract_section '^##[[:space:]]+Cleanup' | trim_block)"
+if [ -z "$cleanup_block" ]; then
+  add_error "Cleanup section is empty"
+else
+  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Resources started by verification:[[:space:]]*[^[:space:]].*'; then
+    add_error "Cleanup section must include '- Resources started by verification:'"
+  fi
+  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Teardown commands run:[[:space:]]*[^[:space:]].*'; then
+    add_error "Cleanup section must include '- Teardown commands run:'"
+  fi
+  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Post-cleanup check:[[:space:]]*[^[:space:]].*'; then
+    add_error "Cleanup section must include '- Post-cleanup check:'"
+  fi
+  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Cleanup status:[[:space:]]*(COMPLETE|INCOMPLETE)([[:space:][:punct:]].*)?$'; then
+    add_error "Cleanup section must include '- Cleanup status: COMPLETE | INCOMPLETE'"
+  fi
+
+  cleanup_status="$(printf '%s\n' "$cleanup_block" | sed -nE 's/^- Cleanup status:[[:space:]]*(COMPLETE|INCOMPLETE).*/\1/p' | head -n1)"
+  if [ "$cleanup_status" = "INCOMPLETE" ] && ! grep -Eq '^Status Badge:[[:space:]]*(🟥 BLOCKED ⛔|\[BLOCKED\])$' "$REPORT_MD"; then
+    add_error "Cleanup status INCOMPLETE is only allowed with BLOCKED status"
+  fi
 fi
 
 if ! grep -Eq '^##[[:space:]]+Commands Run([[:space:]]|$)' "$REPORT_MD"; then

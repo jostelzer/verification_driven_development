@@ -83,8 +83,28 @@ do
   fi
 done
 
-if ! grep -Fq 'target evidence tier (`Bronze` | `Silver` | `Gold`)' "$SKILL_MD"; then
-  add_error "SKILL.md must require selecting a target evidence tier in Phase P1"
+if ! grep -Fq 'Set initial target evidence tier to `Gold` and estimate its runtime.' "$SKILL_MD"; then
+  add_error "SKILL.md must require Gold-first tier planning in Phase P1"
+fi
+
+if ! grep -Fq 'If estimated Gold total is 10 minutes or less, run Gold (mandatory).' "$SKILL_MD"; then
+  add_error "SKILL.md must require Gold when estimated runtime is <=10 minutes"
+fi
+
+if ! grep -Fq 'If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options (`Bronze`, `Silver`, `Gold`)' "$SKILL_MD"; then
+  add_error "SKILL.md must require explicit user tier selection when Gold exceeds 10 minutes"
+fi
+
+if ! grep -Fq 'Bronze and Silver options must still be true end-to-end operator-path verification' "$SKILL_MD"; then
+  add_error "SKILL.md must require Bronze/Silver to remain end-to-end verification"
+fi
+
+if ! grep -Fq 'Teardown all agent-spawned verification instances after checks' "$SKILL_MD"; then
+  add_error "SKILL.md must require teardown of verification-spawned instances"
+fi
+
+if ! grep -Fq 'Cleanup gate for terminal states' "$SKILL_MD"; then
+  add_error "SKILL.md must include cleanup gate semantics for terminal states"
 fi
 
 # openai.yaml sync checks against SKILL frontmatter/name and core behavior cues.
@@ -107,7 +127,12 @@ fi
 
 for token in \
   'joint implementation and verification plan' \
-  'target evidence tier' \
+  'estimate a Gold verification plan first' \
+  'require Gold when estimated <=10 minutes' \
+  'choose Bronze/Silver/Gold' \
+  'end-to-end verification tiers' \
+  'stop all verification-spawned instances before closeout' \
+  'teardown evidence' \
   'executable checks' \
   'evidence artifacts' \
   'certificate' \

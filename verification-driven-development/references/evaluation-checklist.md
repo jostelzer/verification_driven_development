@@ -6,7 +6,11 @@ Apply this checklist before finalizing any run.
 - Keep the joint plan compact by default (6 to 10 bullets total or one compact table).
 - Include explicit commands, pass/fail signals, and runtime location for each verification step.
 - For each acceptance criterion, make the evidence discriminating: state `H1` (claim) vs `H0` (no change/plausible confounder), the observable (units), and the decision rule (threshold).
-- Select a target evidence tier (Bronze/Silver/Gold) and justify it.
+- Estimate a Gold plan first and record total estimated runtime.
+- If Gold estimate is 10 minutes or less, select Gold (mandatory).
+- If Gold estimate exceeds 10 minutes, present concise Bronze/Silver/Gold options with exact checks and runtime; proceed only after explicit user choice.
+- Ensure Bronze/Silver options remain true end-to-end verification (not smoke-only).
+- Record target tier, achieved tier, and (if not Gold) explicit user choice plus residual risk.
 - Include evidence snippets tied directly to changed behavior.
 - Prefer artifact-backed evidence (images/charts/audio/structured metrics) over prose-only "pass" claims.
 - For noisy/proxy signals, include at least one control/baseline (for example, "no-change" run) so the metric is interpretable.
@@ -23,5 +27,6 @@ Apply this checklist before finalizing any run.
 - Do not claim fallback validation when the script is missing; report setup as blocked instead.
 - If VDD tooling fails internally, emit failover output with stack trace and a prefilled GitHub issue link/body.
 - Do not claim completion without executed verification, except approved static-only exception path.
-- Report achieved evidence tier and residual risk when using a lower tier.
+- Stop all verification-spawned instances before closeout; include teardown commands and a post-cleanup check.
+- If cleanup is incomplete, do not close as `VERIFIED` or `READY FOR HUMAN VERIFICATION`; use `BLOCKED`.
 - If static-only exception is used, record user approval and reason explicitly.

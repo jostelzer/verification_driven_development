@@ -48,7 +48,11 @@ Validate checkout button visibility changes in UI flow.
 
 ## Ground-Truth Plan and Data
 
-- Target evidence tier: Silver, because representative click flow baseline exists.
+- Target evidence tier: Gold, because full browser-path verification is estimated under 10 minutes.
+- Achieved evidence tier: Silver, because manual click confirmation is still pending.
+- Gold runtime estimate: 5m total.
+- Gold decision gate: <=10m (auto-Gold).
+- User tier choice when Gold >10m: n/a (Gold was mandatory).
 - Source: prior stable UI behavior snapshots.
 - Acquisition: compared runtime behavior against screenshot baseline.
 - Sample size and selection: two deterministic interaction paths.
@@ -102,7 +106,15 @@ How human evidence will confirm completion: screenshot pair matches expected beh
 
 - Estimated per-step + total: preflight 2m, UI test 3m, total 5m.
 - Actual per-step + total: preflight 2m, UI test 3m, total 5m.
-- Note if total exceeded 10 minutes and why: did not exceed.
+- Tier gate outcome: Gold mandatory (<=10m estimate).
+- Note if actual total exceeded estimate and why: did not exceed estimate.
+
+## Cleanup
+
+- Resources started by verification: Playwright Chromium process tree and temporary local UI server.
+- Teardown commands run: `pkill -f playwright`, `pkill -f ui-dev-server`.
+- Post-cleanup check: `pgrep -f 'playwright|ui-dev-server'` returned no matches.
+- Cleanup status: COMPLETE.
 
 ## Known Limits
 

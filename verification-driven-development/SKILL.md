@@ -22,6 +22,7 @@ Human command execution is a last resort.
 
 Must:
 - Attempt every runnable implementation and verification command directly in the agent environment first.
+- Track every process/container/tunnel started by the agent for verification so teardown can be completed.
 - If a command fails, capture evidence (exact command, location, exit status, key stderr/stdout signals), diagnose why, and attempt the next reasonable fix/workaround.
 - Exhaust agent-side options before delegating any command to the human.
 - When blocked by permissions/sandboxing, request full access/escalated execution instead of asking the human to run commands.
@@ -94,6 +95,8 @@ Use exactly one final state:
 - `READY FOR HUMAN VERIFICATION 🧑‍🔬`: implementation complete, human interaction is required to complete verification, harness and checklist provided.
 - `BLOCKED ⛔`: required runtime access/instructions are missing and verification cannot run after agent-side attempts (including requesting full access when permissions are the blocker).
 - UI gate for `VERIFIED ✅`: when acceptance criteria include UI behavior/click flow, `VERIFIED ✅` requires at least one executed browser-path signal; unit tests and static checks alone are insufficient.
+- Evidence-tier gate for `VERIFIED ✅`: if Gold is estimated at 10 minutes or less, `VERIFIED ✅` requires Gold evidence (no downgrade).
+- Cleanup gate for terminal states: before any terminal state, stop all verification-spawned instances and record teardown evidence; if any spawned instance cannot be stopped, terminal state must be `BLOCKED ⛔`.
 - If implementation is complete but the UI gate cannot be satisfied after reasonable agent-side attempts, emit `READY FOR HUMAN VERIFICATION 🧑‍🔬` with a real CLI/API/UI checklist.
 
 ## Communication Style (Default: Compact)
@@ -123,10 +126,12 @@ Verification plan:
 - Specify what to inspect and concrete pass/fail signals per step.
 - For each acceptance criterion, design a discriminating check: state `H1` (the claim) vs `H0` (a plausible alternative / "no change"), the observable (with units), and the decision rule (threshold).
 - Include a Ground-Truth Plan: source, acquisition method, sample size, metric(s), threshold(s), and artifact location.
-- Choose a target evidence tier (`Bronze` | `Silver` | `Gold`) using `references/evidence-tiers.md`, and state why that tier is appropriate.
-- When ground truth is uncertain or costly, present 2 to 3 verification options with estimated time/cost and evidence tier.
+- Set initial target evidence tier to `Gold` and estimate its runtime.
+- If estimated Gold total is 10 minutes or less, run Gold (mandatory).
+- If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options (`Bronze`, `Silver`, `Gold`) that list exact checks and estimated runtime per option; proceed only after explicit user choice.
+- Bronze and Silver options must still be true end-to-end operator-path verification (never smoke-only).
 - Estimate time per step and total (compact format is fine).
-- Warn when estimated total exceeds 10 minutes, then proceed automatically.
+- Record Gold feasibility and user tier choice in the plan when Gold exceeds 10 minutes.
 
 Uncertainty rule:
 - If any verification prerequisite is unknown (host, ports, env, secrets, credentials), ask the user in the plan before coding.
@@ -141,6 +146,7 @@ Loop until terminal state.
 - Inspect evidence with at least one correlation step (for example, payload field to server log `request_id`).
 - Try to falsify your own claim: include at least one control/counterexample check for non-trivial criteria (noisy metrics, visuals, UI flows, performance) so evidence can distinguish `H1` from `H0`.
 - Execute ground-truth checks and retain inputs/outputs as artifacts.
+- Teardown all agent-spawned verification instances after checks (servers, containers, browsers, tunnels, workers), then run one post-cleanup check proving teardown.
 - If failing, summarize observed failure signals (not guesses), adjust code/probes, and rerun.
 
 ### Phase P3: Closeout
@@ -160,6 +166,7 @@ Produce:
 - Artifact index with links/paths to evidence and one line per artifact stating what it proves.
 - Explicit command ownership summary: what the agent ran, what failed, and why any remaining human step was unavoidable.
 - For UI tasks, include a mandatory browser assertion summary (step entered, button visible/hidden, request fired/not fired) with artifact path.
+- Include cleanup summary: spawned instances, teardown commands, post-cleanup check, and cleanup status.
 - Apply closeout defaults and formatting rules from `references/closeout-policy.md`.
 
 ## Verification Policy
@@ -170,9 +177,10 @@ Must:
 - Keep verification practical; escalate to human verification when interaction is required.
 - Prefer a "show, don't tell" style: screenshots, charts, structured metrics/tables, audio captures, or similarly data-rich artifacts that can be included in chat.
 - Map each acceptance criterion to at least one artifact-backed signal.
-- Use sanity checks only as preflight; they are not sufficient for `VERIFIED ✅` without an explicit, documented user waiver.
+- Use smoke/sanity checks only as preflight; they do not count as Bronze/Silver/Gold evidence.
+- Always stop verification-spawned instances before closeout and prove teardown with at least one check (for example, `pgrep`/`docker ps`/port probe).
 
-Evidence tiers (aim for the highest feasible tier) are defined in `references/evidence-tiers.md`.
+Evidence tiers and Gold-default gating are defined in `references/evidence-tiers.md`.
 
 ### Scientific Mindset (Lean)
 
@@ -220,8 +228,9 @@ Default result for approved static-only exception:
 ## Time Estimation Policy
 
 - Estimate every verification step and total expected duration.
-- Warn in plan when total estimate exceeds 10 minutes.
-- Proceed automatically after warning.
+- Estimate a Gold plan first and state total explicitly.
+- If Gold total is 10 minutes or less, run Gold (mandatory, no downgrade prompt).
+- If Gold total exceeds 10 minutes, ask user to choose Bronze/Silver/Gold with concise option summaries before running verification.
 - Report estimated versus actual timing in closeout.
 
 ## Probes and Artifacts

@@ -27,5 +27,6 @@ If preflight fails:
 
 ## Cleanup Requirements
 
-- Clean generated junk (for example `test-results/`, temporary servers, temporary containers) when safe.
-- Record cleanup actions in the Verification Report.
+- Stop all UI verification-spawned instances (temporary servers, browsers, containers, tunnels, workers) before closeout.
+- Verify cleanup with at least one explicit post-cleanup signal (for example, port closed, process absent, container absent).
+- Record cleanup actions and cleanup status in the Verification Report.

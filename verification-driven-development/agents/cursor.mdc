@@ -12,6 +12,10 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 ## Required operating loop
 - Start with a compact joint plan: implementation steps plus executable verification steps.
 - For each verification step, include exact command, execution location, and pass/fail signal.
+- Estimate a Gold verification plan first; if Gold is <=10 minutes, run Gold (mandatory).
+- If Gold exceeds 10 minutes, ask user to choose Bronze/Silver/Gold with concise checks+runtime per option before proceeding.
+- Bronze and Silver must still be real end-to-end verification (never smoke-only).
+- Stop all verification-spawned instances before closeout and confirm teardown with a post-cleanup check.
 - Implement minimal changes, run verification, inspect outputs, and fix failures iteratively.
 - Do not claim completion without executed verification and observed evidence.
 

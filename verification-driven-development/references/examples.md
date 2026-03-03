@@ -5,7 +5,8 @@
 1. Run smoke probe: start server and hit `/health`; expect HTTP 200.
 2. Run full probe: execute client call and capture response payload.
 3. Inspect correlation: match payload request id with server logs.
-4. Pass only when schema and key values match acceptance criteria.
+4. Stop verification-started server/session, then verify no process remains.
+5. Pass only when schema/key values match acceptance criteria and cleanup check passes.
 
 ## Example B: UI or game behavior
 
@@ -16,10 +17,11 @@
 
 ## Example C: Expensive cold Docker build
 
-1. Estimate 15 to 25 minutes; include >10 minute warning in plan.
-2. Run fast smoke probe early to catch cheap failures.
-3. Run full verification after build and compare outputs against criteria.
-4. Report estimate versus actual timing and note cache effects.
+1. Estimate Gold first (for example 15 to 25 minutes total).
+2. Since Gold exceeds 10 minutes, present concise Bronze/Silver/Gold options with exact checks and runtimes, then wait for user choice.
+3. Run the selected tier; Bronze/Silver must still execute real end-to-end operator paths.
+4. Tear down verification-started containers/networks and verify they are stopped.
+5. Report Gold gate decision, selected tier, cleanup status, and residual risk if below Gold.
 
 ## Example D: Show-don't-tell performance fix
 

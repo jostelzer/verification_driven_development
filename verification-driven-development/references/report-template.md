@@ -59,7 +59,11 @@ State runtime surface and key versions:
 ## Ground-Truth Plan and Data
 
 Specify how verification approximated ground truth:
-- Target evidence tier: Bronze | Silver | Gold, with one-line rationale.
+- Target evidence tier: Gold (default) | Silver | Bronze, with one-line rationale.
+- Achieved evidence tier: Bronze | Silver | Gold, with one-line rationale.
+- Gold runtime estimate: <minutes> total.
+- Gold decision gate: <=10m (auto-Gold) | >10m (user choice required).
+- User tier choice when Gold >10m: Bronze | Silver | Gold + short reason (`n/a` when Gold <=10m).
 - Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale). Any credible source is acceptable; prefer high-quality datasets when available.
 - Acquisition: how data or baseline was obtained (include commands if applicable).
 - Sample size and selection: default to a small, representative sample unless a thorough run is explicitly requested.
@@ -131,7 +135,16 @@ Prefer "show, don't tell" artifacts over prose-only claims:
 Provide estimates from the plan and actual runtime:
 - Estimated per-step + total.
 - Actual per-step + total.
-- Note if total exceeded 10 minutes and why.
+- Tier gate outcome: whether Gold was mandatory (<=10m) or user-selected (>10m).
+- Note if actual total exceeded estimate and why.
+
+## Cleanup
+
+Record teardown for resources spawned during verification:
+- Resources started by verification: list processes/containers/tunnels, or `none`.
+- Teardown commands run: exact stop/kill/down commands (or `none` if nothing was started).
+- Post-cleanup check: exact command and observed signal showing spawned instances are no longer running.
+- Cleanup status: COMPLETE | INCOMPLETE.
 
 ## Known Limits
 

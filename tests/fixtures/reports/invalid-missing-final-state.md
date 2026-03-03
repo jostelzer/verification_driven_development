@@ -39,7 +39,11 @@ Fix latency regression in the request path without changing the external API con
 
 ## Ground-Truth Plan and Data
 
-- Target evidence tier: Silver, because representative baseline and sample metrics are available.
+- Target evidence tier: Gold, because full quantitative verification fits within 10 minutes.
+- Achieved evidence tier: Gold, because all Gold checks completed and passed.
+- Gold runtime estimate: 6m total.
+- Gold decision gate: <=10m (auto-Gold).
+- User tier choice when Gold >10m: n/a (Gold was mandatory).
 - Source: golden outputs from prior known-good release.
 - Acquisition: collected baseline using existing benchmark command.
 - Sample size and selection: 200 requests sampled from production-like payloads.
@@ -95,7 +99,15 @@ Fail signal: any non-zero exit or non-200 response
 
 - Estimated per-step + total: test 2m, benchmark 3m, health check 1m, total 6m.
 - Actual per-step + total: test 2m, benchmark 3m, health check 1m, total 6m.
-- Note if total exceeded 10 minutes and why: did not exceed.
+- Tier gate outcome: Gold mandatory (<=10m estimate).
+- Note if actual total exceeded estimate and why: did not exceed estimate.
+
+## Cleanup
+
+- Resources started by verification: local benchmark service (`benchd`, pid 21432).
+- Teardown commands run: `kill 21432`.
+- Post-cleanup check: `pgrep -f benchd` returned no matches.
+- Cleanup status: COMPLETE.
 
 ## Known Limits
 

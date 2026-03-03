@@ -5,8 +5,11 @@ interface:
   icon_large: "./assets/vdd.png"
   default_prompt: >-
     Use $verification-driven-development (VDD) to create a compact joint implementation and verification plan,
-    choose a target evidence tier (Bronze/Silver/Gold), design discriminating checks (H1 claim vs H0
-    no-change/confounder), run executable checks, collect show-don't-tell
+    estimate a Gold verification plan first, require Gold when estimated <=10 minutes,
+    and if Gold exceeds 10 minutes ask the user to choose Bronze/Silver/Gold with concise check+runtime options.
+    Treat Bronze and Silver as real end-to-end verification tiers (not smoke-only).
+    Track and stop all verification-spawned instances before closeout, and record teardown evidence.
+    Design discriminating checks (H1 claim vs H0 no-change/confounder), run executable checks, collect show-don't-tell
     evidence artifacts, and issue a final certificate only at terminal state,
     rendering the certificate inline in the final response. When evidence
     includes screenshots/images/video, use vision-based interpretation to

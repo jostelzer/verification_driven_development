@@ -4,7 +4,7 @@ Status Badge: 🟩 VERIFIED ✅
 
 ## Closeout Artifacts
 
-- Report Markdown: .agent/runs/20260213-000000/verification-report.md
+- Report Markdown: .agent/runs/20260213-000200/verification-report.md
 
 ## Verification Brief Claim
 
@@ -39,16 +39,16 @@ Fix latency regression in the request path without changing the external API con
 
 ## Ground-Truth Plan and Data
 
-- Target evidence tier: Gold, because full quantitative verification fits within 10 minutes.
-- Achieved evidence tier: Gold, because all Gold checks completed and passed.
-- Gold runtime estimate: 6m total.
+- Target evidence tier: Silver, intentionally invalid for gate fixture.
+- Achieved evidence tier: Silver.
+- Gold runtime estimate: 8m total.
 - Gold decision gate: <=10m (auto-Gold).
-- User tier choice when Gold >10m: n/a (Gold was mandatory).
+- User tier choice when Gold >10m: n/a (Gold would be mandatory here).
 - Source: golden outputs from prior known-good release.
 - Acquisition: collected baseline using existing benchmark command.
 - Sample size and selection: 200 requests sampled from production-like payloads.
 - Metrics and thresholds: p95 latency <= 90ms; met.
-- Data/artifact location: .agent/ground-truth/latency-baseline.csv and .agent/runs/20260213-000000/latency-after.csv.
+- Data/artifact location: .agent/ground-truth/latency-baseline.csv and .agent/runs/20260213-000200/latency-after.csv.
 - Waiver (if any): none.
 
 ## Commands Run
@@ -104,8 +104,8 @@ Fail signal: any non-zero exit or non-200 response
 
 ## Cleanup
 
-- Resources started by verification: local benchmark service (`benchd`, pid 21432).
-- Teardown commands run: `kill 21432`.
+- Resources started by verification: local benchmark service (`benchd`, pid 21987).
+- Teardown commands run: `kill 21987`.
 - Post-cleanup check: `pgrep -f benchd` returned no matches.
 - Cleanup status: COMPLETE.
 
