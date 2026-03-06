@@ -2,9 +2,16 @@
 
 Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 
+## Verification Profile
+
+- Profile: `ui-browser`
+- Why this profile: Final confidence depends on a browser click path and user-visible state change.
+
 ## Closeout Artifacts
 
-- Report Markdown: .agent/runs/20260213-000100/verification-report.md
+- Report Markdown: `tests/fixtures/reports/invalid-brief-operator-flow.md`
+- Verification Manifest: `tests/fixtures/manifests/ready-manifest.json`
+- Evidence Root: `tests/fixtures/artifacts`
 
 ## Verification Brief Claim
 
@@ -16,18 +23,9 @@ UI interaction requires manual confirmation after automated backend checks passe
 - UI preflight dependencies installed and browser launch succeeded.
 Graphic unavailable: fixture report omits images by design.
 
-## Verification Brief How YOU Can Run This
-
-```bash
-node .agent/runs/20260213-000100/playwright_check.js
-```
-
-Pass signal: script prints success marker
-Fail signal: script exits non-zero
-
 ## Goal
 
-Validate checkout button visibility changes in UI flow.
+Validate checkout button visibility changes in the UI flow.
 
 ## Acceptance Criteria
 
@@ -37,7 +35,7 @@ Validate checkout button visibility changes in UI flow.
 ## What Changed
 
 - Added UI guard for checkout button rendering.
-- Wired guard to terms acceptance state.
+- Wired the guard to terms acceptance state.
 - Added telemetry event for terms toggle.
 
 ## Runtime
@@ -57,8 +55,10 @@ Validate checkout button visibility changes in UI flow.
 - Acquisition: compared runtime behavior against screenshot baseline.
 - Sample size and selection: two deterministic interaction paths.
 - Metrics and thresholds: visibility transition observed in both paths.
-- Data/artifact location: .agent/runs/20260213-000100/ui-summary.md.
+- Data/artifact location: tests/fixtures/artifacts/ui-summary.md.
 - Waiver (if any): none.
+- Discrimination: H1=checkout visibility follows terms state; H0=only logs changed; decision rule=button hidden before acceptance and visible after acceptance.
+- Controls (when applicable): compared against existing baseline screenshots.
 
 ## Commands Run
 
@@ -73,8 +73,8 @@ npm run test:ui
 - Evidence: UI assertion logs from run output.
 
 - Criterion: Checkout button appears after terms acceptance.
-- Result: PASS
-- Evidence: UI assertion logs from run output.
+- Result: INCONCLUSIVE
+- Evidence: Final manual confirmation still pending.
 
 ## Standard Certificate
 
@@ -87,20 +87,50 @@ Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬
 Task: validate checkout button visibility flow
 What was empirically verified by agent: backend checks and UI preflight completed
 Evidence gathered by agent: assertions and logs captured
-Artifact index: .agent/runs/20260213-000100/ui-summary.md
+Artifact index: tests/fixtures/artifacts/ui-summary.md and tests/fixtures/artifacts/ui-log.txt
 Ground-Truth Gap: manual click confirmation still required
 Why this is not yet conclusive: interactive UI review pending
-Run this harness: node .agent/probes/ui/checkout-flow.js
+Run this harness: npm run test:ui
 Human checks:
 - Confirm checkout button hidden before terms accepted
 - Confirm checkout button visible after terms accepted
 How human evidence will confirm completion: screenshot pair matches expected behavior
+
+## Verification Brief How YOU Can Run This
+
+```bash
+node .agent/runs/20260213-000100/playwright_check.js
+```
+
+Pass signal: script prints success marker
+Fail signal: script exits non-zero
 
 ## Evidence and Inspection
 
 - Signal 1: backend checks passed.
 - Signal 2: UI preflight passed.
 - Signal 3: no runtime errors in logs.
+
+Scientific interpretation:
+- The signals suggest the UI flow is close to correct but do not complete the final browser-path proof.
+- Manual confirmation is still needed because the decisive visual transition has not been captured here.
+- Threats to validity: no screenshot pair was attached in this fixture.
+
+## Artifact Index
+
+- Path: `tests/fixtures/artifacts/ui-summary.md`
+- Kind: `trace`
+- Proves: UI verification summary was captured.
+
+- Path: `tests/fixtures/artifacts/ui-log.txt`
+- Kind: `log`
+- Proves: corroborating UI state log was captured.
+
+## Command Ownership
+
+- Agent-ran commands summary: npm run test:ui executed the browser preflight and harness.
+- Agent-side failures: none during the fixture run.
+- Why any human step was unavoidable: final click-path confirmation still requires a human review.
 
 ## Timing
 

@@ -1,0 +1,63 @@
+{
+  "run_id": "20260213-000200",
+  "task": "Invalid Gold gate fixture",
+  "profile": "api-service",
+  "final_state": "VERIFIED ✅",
+  "status_badge": "🟩 VERIFIED ✅",
+  "target_evidence_tier": "Silver",
+  "achieved_evidence_tier": "Silver",
+  "gold_decision_gate": "<=10m (auto-Gold)",
+  "user_tier_choice_when_gold_gt_10m": "n/a",
+  "blocked_by": "none",
+  "ground_truth": {
+    "source": "golden outputs from prior known-good release",
+    "acquisition": "Collected baseline via existing benchmark command",
+    "sample_size": "200 requests sampled from production-like payloads",
+    "metrics_and_thresholds": "p95 latency <= 90ms; health endpoint HTTP 200",
+    "artifact_location": "tests/fixtures/artifacts/latency-baseline.csv",
+    "waiver": "none",
+    "h1": "Latency regression is fixed",
+    "h0": "Behavior is unchanged",
+    "decision_rule": "Accept only if p95 <= 90ms",
+    "controls": "Compared against prior release baseline"
+  },
+  "commands": [
+    {
+      "command": "make bench",
+      "location": "local",
+      "purpose": "Benchmark request path against representative sample",
+      "observed_signal": "Benchmark reported p95 latency of 78ms",
+      "verdict": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "tests/fixtures/artifacts/latency-after.csv",
+      "kind": "table",
+      "proves": "Post-change latency sample exists"
+    }
+  ],
+  "criteria_results": [
+    {
+      "criterion": "p95 latency below 90ms on representative traffic sample",
+      "result": "PASS",
+      "evidence": "Post-change sample recorded p95 of 78ms"
+    }
+  ],
+  "cleanup": {
+    "resources_started": "none",
+    "teardown_commands": [
+      "none"
+    ],
+    "post_cleanup_check": "none",
+    "status": "COMPLETE"
+  },
+  "command_ownership": {
+    "agent_ran": [
+      "make bench"
+    ],
+    "agent_failed": [],
+    "human_required_reason": "none"
+  },
+  "human_verification": null
+}

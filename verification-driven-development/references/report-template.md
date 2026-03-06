@@ -1,9 +1,10 @@
 # Verification Report Template
 
-Use this template for `VERIFIED` and `READY FOR HUMAN VERIFICATION`.
+Use this template for all terminal states: `VERIFIED`, `READY FOR HUMAN VERIFICATION`, and `BLOCKED`.
 This structure is the source of truth for:
-- Full report (Markdown).
-- Verification Brief shown in agent chat (generated from the three Verification Brief sections).
+- the full report markdown
+- the Verification Brief rendered in chat
+- cross-checking the report against the verification manifest
 
 ## Verification Outcome (Required)
 
@@ -12,10 +13,16 @@ Include exactly one status badge line at the top of the report:
 - `Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬`
 - `Status Badge: 🟥 BLOCKED ⛔`
 
+## Verification Profile (Required)
+
+- Profile: `api-service|ui-browser|data-pipeline|ml-model|deploy-infra|library-refactor|remote-ssh`
+- Why this profile: `<one sentence>`
+
 ## Closeout Artifacts (Required)
 
-Record canonical closeout artifact paths:
-- Report Markdown: `<path>/verification-report.md`
+- Report Markdown: `REPORT_PATH_PLACEHOLDER`
+- Verification Manifest: `MANIFEST_PATH_PLACEHOLDER`
+- Evidence Root: `RUN_DIR_PLACEHOLDER`
 
 Verification Brief delivery:
 - Render directly in chat using the standardized Verification Brief structure.
@@ -23,19 +30,13 @@ Verification Brief delivery:
 
 ## Verification Brief Claim (Required)
 
-Write one sentence with outcome and impact (target <=18 words).
+Write one sentence with outcome and impact.
 
 ## Verification Brief Evidence (Required)
 
-Provide concise, convincing evidence:
-1. Exactly 2 evidence bullets with concrete signals (metric, output, or log).
-2. Include at least 1 graphic (image/chart screenshot) if available.
-3. If no graphic is available, add `Graphic unavailable: <reason>`.
-
-Example:
-- p95 latency improved from 92ms to 74ms across the same input sample.
-- End-to-end probe returned HTTP 200 and expected payload schema.
-Graphic: /absolute/path/to/probe-chart.png
+Provide 1 to 3 concise evidence bullets with concrete signals.
+Include at least one graphic when available.
+If no graphic is available, add `Graphic unavailable: <reason>`.
 
 ## Goal
 
@@ -51,34 +52,31 @@ List 3 to 8 concrete implementation changes.
 
 ## Runtime
 
-State runtime surface and key versions:
-- Execution context: `local` / `docker` / `ssh`.
-- Host/container identifiers when relevant.
-- Language/runtime/tool versions that materially affect behavior.
+- Execution context: `local` | `docker` | `ssh`
+- Host or container identifiers when relevant.
+- Versions that materially affect behavior.
 
 ## Ground-Truth Plan and Data
 
-Specify how verification approximated ground truth:
-- Target evidence tier: Gold (default) | Silver | Bronze, with one-line rationale.
-- Achieved evidence tier: Bronze | Silver | Gold, with one-line rationale.
-- Gold runtime estimate: <minutes> total.
-- Gold decision gate: <=10m (auto-Gold) | >10m (user choice required).
-- User tier choice when Gold >10m: Bronze | Silver | Gold + short reason (`n/a` when Gold <=10m).
-- Source: user-provided | reference implementation | golden outputs | public dataset | synthetic baseline (with rationale). Any credible source is acceptable; prefer high-quality datasets when available.
-- Acquisition: how data or baseline was obtained (include commands if applicable).
-- Sample size and selection: default to a small, representative sample unless a thorough run is explicitly requested.
-- Metrics and thresholds: include exact thresholds and whether they were met.
-- Data/artifact location: paths to datasets, outputs, and evaluation summaries.
-- Waiver (if any): explicit user waiver and the reduced evidence tier.
-- Discrimination: state `H1` (claim) vs `H0` (no change/plausible confounder) and the decision rule(s) used to separate them.
-- Controls (when applicable): for noisy/proxy signals, include a "no-change" baseline and what it implies about the noise floor.
+- Target evidence tier: Gold | Silver | Bronze, with one-line rationale.
+- Achieved evidence tier: Gold | Silver | Bronze, with one-line rationale.
+- Gold runtime estimate: `<minutes>`.
+- Gold decision gate: `<=10m (auto-Gold)` | `>10m (user choice required)`.
+- User tier choice when Gold >10m: `Bronze | Silver | Gold + short reason` or `n/a`.
+- Source: `<ground-truth source>`.
+- Acquisition: `<how it was obtained>`.
+- Sample size and selection: `<what was sampled and why>`.
+- Metrics and thresholds: `<exact thresholds>`.
+- Data/artifact location: `<path(s)>`.
+- Waiver (if any): `<none or explicit waiver>`.
+- Discrimination: `H1=<claim>; H0=<confounder>; decision rule=<threshold>`.
+- Controls (when applicable): `<baseline/noise floor>`.
 
 ## Commands Run
 
 Provide copy/paste command list in execution order.
 
 ```bash
-# example
 <command 1>
 <command 2>
 ```
@@ -86,65 +84,68 @@ Provide copy/paste command list in execution order.
 ## Results by Criterion
 
 Map each acceptance criterion to evidence:
-- Criterion: <criterion text>
-- Result: PASS | FAIL
-- Evidence: <artifact path, metric, excerpt, or log line>
+- Criterion: `<criterion text>`
+- Result: PASS | FAIL | INCONCLUSIVE
+- Evidence: `<artifact path, metric, excerpt, or log line>`
 
 ## Standard Certificate (Required)
 
-Paste the full Verification Certificate block here, verbatim, using the certificate template. Do not summarize or paraphrase it.
+Paste the full Verification Certificate block here, verbatim, using the certificate template.
 
 ## Verification Brief How YOU Can Run This (Required)
 
 Place this section below the verification certificate.
 
 Provide copy/paste steps and explicit pass/fail signals:
-1. Use real operator entrypoints (actual CLI/API/UI flow for the product).
+1. Use real operator entrypoints.
 2. Do not reference ad-hoc probe scripts created during the run.
-3. Forbidden examples: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.
 
 ```bash
 <command 1>
 <command 2>
 ```
 
-Pass signal: <exact text/status/artifact expected>
-Fail signal: <exact text/status/artifact expected>
+Pass signal: `<exact text/status/artifact>`
+Fail signal: `<exact text/status/artifact>`
 
 ## Evidence and Inspection
 
-Provide strongest verification signals with short excerpts:
+Provide the strongest verification signals with short excerpts:
 - Signal 1: expected behavior observed.
-- Signal 2: correlation signal (for example, request payload to log line).
-- Signal 3: negative evidence (absence of errors/timeouts/regressions where applicable).
+- Signal 2: correlation signal.
+- Signal 3: control, counterexample, or negative evidence.
 
-Scientific interpretation (keep it short):
+Scientific interpretation:
 - Why these signals discriminate `H1` from `H0`.
-- If signals are noisy: show effect size versus baseline/noise floor, and the threshold used.
-- Threats to validity: 1 to 3 bullets (plausible alternative explanations and what you did to rule them out, or why they remain).
+- If signals are noisy: show effect size versus baseline or noise floor.
+- Threats to validity: 1 to 3 bullets.
 
-Prefer "show, don't tell" artifacts over prose-only claims:
-- Include at least one artifact per acceptance criterion when feasible (image, chart, audio clip, structured table, metric dump).
-- For each artifact, provide path/link and one line on what it proves.
-- If an artifact is an image/video/screenshot, include a brief semantic interpretation (derived via vision capabilities when available) and the observable it supports (for example: text present/absent, object moved, UI state toggled). If that interpretation is load-bearing, add one corroborating signal (logs/state/programmatic detector) or state why it could not be corroborated.
-- If artifacts are not feasible, provide compact structured data (key-value table) rather than a plain statement.
-- Include ground-truth comparison outputs (tables, charts, or metric summaries) when available.
+## Artifact Index
+
+List every load-bearing artifact:
+- Path: `<artifact path>`
+- Kind: `<image|chart|trace|log|table|dataset|other>`
+- Proves: `<one line>`
+
+## Command Ownership
+
+- Agent-ran commands summary: `<what the agent executed>`
+- Agent-side failures: `<what failed and how it was handled>`
+- Why any human step was unavoidable: `<none|reason>`
 
 ## Timing
 
-Provide estimates from the plan and actual runtime:
-- Estimated per-step + total.
-- Actual per-step + total.
-- Tier gate outcome: whether Gold was mandatory (<=10m) or user-selected (>10m).
-- Note if actual total exceeded estimate and why.
+- Estimated per-step + total: `<estimate>`
+- Actual per-step + total: `<actual>`
+- Tier gate outcome: `<mandatory Gold or user-selected tier>`
+- Note if actual total exceeded estimate and why: `<short note>`
 
 ## Cleanup
 
-Record teardown for resources spawned during verification:
-- Resources started by verification: list processes/containers/tunnels, or `none`.
-- Teardown commands run: exact stop/kill/down commands (or `none` if nothing was started).
-- Post-cleanup check: exact command and observed signal showing spawned instances are no longer running.
-- Cleanup status: COMPLETE | INCOMPLETE.
+- Resources started by verification: `<list or none>`
+- Teardown commands run: `<exact commands or none>`
+- Post-cleanup check: `<exact command and observed signal>`
+- Cleanup status: COMPLETE | INCOMPLETE
 
 ## Known Limits
 
@@ -152,6 +153,4 @@ State what was not verified and why.
 
 ## Final State
 
-Set one:
-- `VERIFIED ✅`
-- `READY FOR HUMAN VERIFICATION 🧑‍🔬`
+Final State: `VERIFIED ✅|READY FOR HUMAN VERIFICATION 🧑‍🔬|BLOCKED ⛔`

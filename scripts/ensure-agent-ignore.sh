@@ -3,10 +3,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
-CANONICAL_SCRIPT="$REPO_ROOT/verification-driven-development/scripts/render-verification-brief.sh"
+CANONICAL_SCRIPT="$REPO_ROOT/verification-driven-development/scripts/ensure-agent-ignore.sh"
 
 if [ ! -f "$CANONICAL_SCRIPT" ]; then
-  echo "error: verification brief renderer not found: $CANONICAL_SCRIPT" >&2
+  echo "error: ignore helper not found: $CANONICAL_SCRIPT" >&2
   exit 1
 fi
 

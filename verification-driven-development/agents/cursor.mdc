@@ -1,7 +1,7 @@
 ---
 description: >-
-  Verification-first workflow with executable checks and evidence before
-  completion.
+  Verification-first workflow with profile-driven executable checks and
+  evidence before completion.
 alwaysApply: false
 ---
 
@@ -10,43 +10,35 @@ alwaysApply: false
 Use this workflow for feature, bugfix, integration, deployment, and data-pipeline tasks where runtime behavior matters.
 
 ## Required operating loop
-- Start with a compact joint plan: implementation steps plus executable verification steps.
-- For each verification step, include exact command, execution location, and pass/fail signal.
-- Estimate a Gold verification plan first; if Gold is <=10 minutes, run Gold (mandatory).
-- If Gold exceeds 10 minutes, ask user to choose Bronze/Silver/Gold with concise checks+runtime per option before proceeding.
-- Bronze and Silver must still be real end-to-end verification (never smoke-only).
+- Start with one compact joint plan: implementation steps plus executable verification steps.
+- Pick a verification profile before coding: `api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, or `remote-ssh`.
+- Initialize a verification manifest and update it as commands, artifacts, and decisions accumulate.
+- For each verification step, include exact command, execution location, pass/fail signal, and the observable that separates `H1` from `H0`.
+- Estimate a Gold verification plan first; if Gold is <=10 minutes, run Gold.
+- If Gold exceeds 10 minutes, ask the user to choose Bronze, Silver, or Gold with concise checks and runtime per option.
+- Bronze and Silver must still be real end-to-end verification, never smoke-only.
 - Stop all verification-spawned instances before closeout and confirm teardown with a post-cleanup check.
-- Implement minimal changes, run verification, inspect outputs, and fix failures iteratively.
+- Validate the manifest before the report.
 - Do not claim completion without executed verification and observed evidence.
 
 ## Command ownership
 - Run implementation and verification commands yourself whenever possible.
 - Ask the human to run a command only when execution is genuinely impossible in-agent.
 - If blocked, report the exact command, observed failure signal, and why human action is required.
+- For `READY FOR HUMAN VERIFICATION`, provide the Human Verification Card plus optional operator notes.
 
 ## Evidence requirements
 - Map each acceptance criterion to at least one artifact-backed signal.
-- Include at least one correlation check (for example, input value to runtime output/log).
-- Treat verification as an experiment: define `H1` (claim) vs `H0`
-  (no change/plausible confounder) and use evidence/controls that can
-  distinguish them.
-- When evidence includes screenshots/images/video, use vision-based
-  interpretation to extract semantic signals (not only pixel diffs) and tie
-  them to an observable and decision rule.
-- Treat vision-derived signals as heuristic proxies: corroborate with an
-  independent signal when they affect the verdict; otherwise mark results as
-  inconclusive.
-- Prefer concrete evidence (structured metrics/tables/output excerpts) over plain assertions.
-- Use ground-truth comparison when possible (trusted baseline, labeled data, or reference output).
+- Include at least one correlation check.
+- Use the ground-truth ladder: strongest feasible baseline first, explicit residual risk when degraded.
+- Treat verification as an experiment: define `H1` vs `H0` and use evidence that can distinguish them.
+- When evidence includes screenshots, images, or video, use vision-based interpretation to extract semantic signals and corroborate them when they affect the verdict.
 
 ## Final response requirements
 - Provide one terminal state: `VERIFIED`, `READY FOR HUMAN VERIFICATION`, or `BLOCKED`.
-- Include commands run, key evidence, artifact paths, and known gaps.
-- By default, produce closeout artifact: markdown report (Verification Brief still required in final response).
-- Validate report format before closeout using
-  `<active-repo>/scripts/validate-vdd-report.sh` first, then
-  `<skill-root>/scripts/validate-vdd-report.sh` if needed; fix errors first.
-- If VDD tooling itself fails, switch to failover mode: include failed command,
-  exit code, stack trace, and a prefilled GitHub issue link/body generated via
-  `render-vdd-failover-issue.sh`.
+- Include commands run, key evidence, artifact paths, command ownership, and known gaps.
+- By default, produce closeout artifacts as manifest plus markdown report.
+- Validate manifest format before report closeout.
+- Validate report format before closeout using `<active-repo>/scripts/validate-vdd-report.sh` first, then `<skill-root>/scripts/validate-vdd-report.sh`.
+- If VDD tooling itself fails, switch to failover mode: include failed command, exit code, stack trace, and a prefilled GitHub issue link/body.
 - If runtime verification is unavailable, request explicit approval before using static-only checks.

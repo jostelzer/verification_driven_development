@@ -1,0 +1,63 @@
+{
+  "run_id": "RUN_ID_PLACEHOLDER",
+  "task": "Describe the task being verified",
+  "profile": "api-service",
+  "final_state": "VERIFIED ✅",
+  "status_badge": "🟩 VERIFIED ✅",
+  "target_evidence_tier": "Gold",
+  "achieved_evidence_tier": "Gold",
+  "gold_decision_gate": "<=10m (auto-Gold)",
+  "user_tier_choice_when_gold_gt_10m": "n/a",
+  "blocked_by": "none",
+  "ground_truth": {
+    "source": "golden outputs from prior known-good release",
+    "acquisition": "Describe how the baseline or data was obtained",
+    "sample_size": "Describe the sample",
+    "metrics_and_thresholds": "List exact thresholds",
+    "artifact_location": "RUN_DIR_PLACEHOLDER",
+    "waiver": "none",
+    "h1": "Describe the claim",
+    "h0": "Describe the plausible confounder",
+    "decision_rule": "Describe the threshold or decision rule",
+    "controls": "Describe the baseline or write none"
+  },
+  "commands": [
+    {
+      "command": "make test",
+      "location": "local",
+      "purpose": "Preflight runtime verification",
+      "observed_signal": "Exit code 0",
+      "verdict": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "RUN_DIR_PLACEHOLDER",
+      "kind": "table",
+      "proves": "Placeholder artifact entry; replace with real evidence"
+    }
+  ],
+  "criteria_results": [
+    {
+      "criterion": "Replace with an acceptance criterion",
+      "result": "PASS",
+      "evidence": "Replace with a metric, log line, or artifact path"
+    }
+  ],
+  "cleanup": {
+    "resources_started": "none",
+    "teardown_commands": [
+      "none"
+    ],
+    "post_cleanup_check": "none",
+    "status": "COMPLETE"
+  },
+  "command_ownership": {
+    "agent_ran": [
+      "make test"
+    ],
+    "agent_failed": [],
+    "human_required_reason": "none"
+  },
+  "human_verification": null
+}

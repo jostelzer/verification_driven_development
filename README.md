@@ -13,7 +13,16 @@ This skill is great if you find yourself:
 VDD closes this loop by teaching your coding agent a strict
 verification-first workflow: define executable checks up front, run real
 commands, inspect real outputs, iterate until checks pass, and close with
-evidence (a short Verification Report plus a Verification Certificate).
+evidence (a short Verification Manifest, Verification Report, and
+Verification Certificate).
+
+## What Changed In This Version
+
+The skill now emphasizes:
+- verification profiles (`api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, `remote-ssh`)
+- a machine-readable Verification Manifest that records commands, artifacts, cleanup, and command ownership
+- a compact Human Verification Card with optional operator notes
+- bundled helper scripts inside the installed skill, so manifest/report validation still works after install
 
 ## Examples
 
@@ -40,6 +49,23 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Port to ModernGL and generate the same screenshot.
 - Compare outputs with a calibrated visual metric (tolerance + "no-change" baseline) and save diff + metric summary.
 - Treat mismatches as failing checks until resolved, then capture evidence.
+
+### 3) Fix a boring but real API bug
+
+The common case matters:
+- Pick the `api-service` profile.
+- Capture the failing request and the expected response or state change.
+- Fix the bug and rerun the real operator path.
+- Corroborate the result with one independent signal: logs, DB state, or telemetry.
+- Record commands, artifacts, and cleanup in the manifest.
+
+### 4) Verify behavior on a remote host over SSH
+
+When the runtime lives elsewhere, verification should too:
+- Pick the `remote-ssh` profile.
+- Run the decisive checks over SSH, not just locally.
+- Capture host identity, remote outputs, and teardown evidence.
+- Do not close `VERIFIED` unless the remote cleanup check passes.
 
 ## Failover Mode for VDD Tooling Errors
 
@@ -71,7 +97,13 @@ The command prints:
   - Cursor: install the project rule with `./install.sh --target cursor --cursor-project <project-root>` (or `--target all`), which writes `.cursor/rules/verification-driven-development.mdc`; Cursor then applies it as a project rule in that workspace.
 - Bundled validator path after install:
   `<skill-root>/scripts/validate-vdd-report.sh`
-  (source-repo wrapper remains at `scripts/validate-vdd-report.sh`).
+  and `<skill-root>/scripts/validate-vdd-manifest.sh`
+  (source-repo wrappers remain under `scripts/`).
+- Bundled helper scripts after install:
+  - `<skill-root>/scripts/init-vdd-run.sh`
+  - `<skill-root>/scripts/render-verification-brief.sh`
+  - `<skill-root>/scripts/render-human-verification-card.sh`
+  - `<skill-root>/scripts/ensure-agent-ignore.sh`
 
 Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 

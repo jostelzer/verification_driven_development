@@ -1,23 +1,20 @@
 interface:
   display_name: "Verification-Driven Development (VDD)"
-  short_description: "Verification-first workflow that ships with proof, not guesswork."
+  short_description: "Verification-first workflow that ships with evidence, not optimism."
   icon_small: "./assets/vdd.png"
   icon_large: "./assets/vdd.png"
   default_prompt: >-
-    Use $verification-driven-development (VDD) to create a compact joint implementation and verification plan,
-    estimate a Gold verification plan first, require Gold when estimated <=10 minutes,
-    and if Gold exceeds 10 minutes ask the user to choose Bronze/Silver/Gold with concise check+runtime options.
-    Treat Bronze and Silver as real end-to-end verification tiers (not smoke-only).
-    Track and stop all verification-spawned instances before closeout, and record teardown evidence.
-    Design discriminating checks (H1 claim vs H0 no-change/confounder), run executable checks, collect show-don't-tell
-    evidence artifacts, and issue a final certificate only at terminal state,
-    rendering the certificate inline in the final response. When evidence
-    includes screenshots/images/video, use vision-based interpretation to
-    extract semantic observables (text, object state/position, UI state) rather
-    than relying only on pixel diffs, tie the signal to a decision rule, and
-    corroborate vision-derived signals when they are load-bearing. By default,
-    generate closeout artifact as markdown report, render the Verification Brief
-    directly in chat, and validate report format before closeout. If VDD tooling
-    fails, switch to failover mode, include stack trace evidence, and generate a
-    prefilled GitHub issue link/body via render-vdd-failover-issue.sh before
+    Use $verification-driven-development (VDD) to pick a verification profile,
+    create one compact joint implementation and verification plan, initialize a
+    verification manifest, and record commands, observed signals, artifacts,
+    cleanup, and command ownership as the run progresses. Estimate a Gold
+    verification plan first; if Gold is <=10 minutes, run Gold, otherwise ask
+    the user to choose Bronze, Silver, or Gold with concise check and runtime
+    options. Treat Bronze and Silver as real end-to-end verification tiers, not
+    smoke tests. Use discriminating checks that separate H1 from H0, prefer
+    show-don't-tell evidence, validate the manifest before the report, stop all
+    verification-spawned instances before closeout, and render the final
+    certificate inline. If browser behavior matters, require a browser-path
+    signal before VERIFIED. If VDD tooling fails, switch to failover mode and
+    generate a prefilled GitHub issue link plus stack trace evidence before
     returning BLOCKED.

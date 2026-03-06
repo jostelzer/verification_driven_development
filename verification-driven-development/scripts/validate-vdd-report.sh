@@ -7,8 +7,8 @@ Usage:
   scripts/validate-vdd-report.sh <verification_report_md>
 
 Description:
-  Validates that a verification report follows the VDD standardized format.
-  Exits non-zero when required sections/fields are missing or invalid.
+  Validates that a verification report follows the VDD standardized format and
+  agrees with the referenced verification manifest.
 EOF
 }
 
@@ -25,6 +25,24 @@ fi
 REPORT_MD="$1"
 if [ ! -f "$REPORT_MD" ]; then
   echo "error: report file does not exist: $REPORT_MD" >&2
+  exit 1
+fi
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPORT_DIR="$(cd -- "$(dirname -- "$REPORT_MD")" && pwd)"
+
+LOCAL_MANIFEST_VALIDATOR="$PWD/scripts/validate-vdd-manifest.sh"
+CANONICAL_MANIFEST_VALIDATOR="$SCRIPT_DIR/validate-vdd-manifest.sh"
+if [ -x "$LOCAL_MANIFEST_VALIDATOR" ]; then
+  MANIFEST_VALIDATOR="$LOCAL_MANIFEST_VALIDATOR"
+elif [ -f "$LOCAL_MANIFEST_VALIDATOR" ]; then
+  MANIFEST_VALIDATOR="$LOCAL_MANIFEST_VALIDATOR"
+elif [ -x "$CANONICAL_MANIFEST_VALIDATOR" ]; then
+  MANIFEST_VALIDATOR="$CANONICAL_MANIFEST_VALIDATOR"
+elif [ -f "$CANONICAL_MANIFEST_VALIDATOR" ]; then
+  MANIFEST_VALIDATOR="$CANONICAL_MANIFEST_VALIDATOR"
+else
+  echo "error: manifest validator not found" >&2
   exit 1
 fi
 
@@ -72,7 +90,28 @@ trim_block() {
   '
 }
 
+resolve_artifact_path() {
+  local raw="$1"
+  if [ -z "$raw" ]; then
+    return 1
+  fi
+  if [[ "$raw" = /* ]]; then
+    printf '%s\n' "$raw"
+    return 0
+  fi
+  if [ -f "$REPORT_DIR/$raw" ]; then
+    printf '%s\n' "$REPORT_DIR/$raw"
+    return 0
+  fi
+  if [ -f "$PWD/$raw" ]; then
+    printf '%s\n' "$PWD/$raw"
+    return 0
+  fi
+  printf '%s\n' "$REPORT_DIR/$raw"
+}
+
 require_section 'Verification Outcome' 'Verification Outcome'
+require_section 'Verification Profile' 'Verification Profile'
 require_section 'Closeout Artifacts' 'Closeout Artifacts'
 require_section 'Verification Brief Claim' 'Verification Brief Claim'
 require_section 'Verification Brief Evidence' 'Verification Brief Evidence'
@@ -86,18 +125,30 @@ require_section 'Commands Run' 'Commands Run'
 require_section 'Results by Criterion' 'Results by Criterion'
 require_section 'Standard Certificate' 'Standard Certificate'
 require_section 'Evidence and Inspection' 'Evidence and Inspection'
+require_section 'Artifact Index' 'Artifact Index'
+require_section 'Command Ownership' 'Command Ownership'
 require_section 'Timing' 'Timing'
 require_section 'Cleanup' 'Cleanup'
 require_section 'Known Limits' 'Known Limits'
 require_section 'Final State' 'Final State'
 
-if ! grep -Eq '^Status Badge:[[:space:]]*(🟩 VERIFIED ✅|🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬|🟥 BLOCKED ⛔|\[VERIFIED\]|\[READY FOR HUMAN VERIFICATION\]|\[BLOCKED\])$' "$REPORT_MD"; then
-  add_error "missing or invalid 'Status Badge:' line"
-fi
+status_badge_value="$(sed -nE 's/^Status Badge:[[:space:]]*(.*)$/\1/p' "$REPORT_MD" | head -n1)"
+final_state_value="$(sed -nE 's/^Final State:[[:space:]]*(.*)$/\1/p' "$REPORT_MD" | head -n1)"
 
-if ! grep -Eq '^Final State:[[:space:]]*(VERIFIED ✅|READY FOR HUMAN VERIFICATION 🧑‍🔬|BLOCKED ⛔|\[VERIFIED\]|\[READY FOR HUMAN VERIFICATION\]|\[BLOCKED\])$' "$REPORT_MD"; then
-  add_error "missing or invalid 'Final State:' line"
-fi
+case "$status_badge_value" in
+  '🟩 VERIFIED ✅'|'🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬'|'🟥 BLOCKED ⛔') ;;
+  *) add_error "missing or invalid 'Status Badge:' line" ;;
+esac
+
+case "$final_state_value" in
+  'VERIFIED ✅'|'READY FOR HUMAN VERIFICATION 🧑‍🔬'|'BLOCKED ⛔') ;;
+  *) add_error "missing or invalid 'Final State:' line" ;;
+esac
+
+case "$status_badge_value|$final_state_value" in
+  '🟩 VERIFIED ✅|VERIFIED ✅'|'🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬|READY FOR HUMAN VERIFICATION 🧑‍🔬'|'🟥 BLOCKED ⛔|BLOCKED ⛔') ;;
+  *) add_error "Status Badge and Final State do not agree" ;;
+esac
 
 if ! grep -Eq '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD"; then
   add_error "missing certificate block header: ## Verification Certificate"
@@ -110,36 +161,60 @@ if [ -n "$verification_certificate_line" ] && [ -n "$human_run_section_line" ] &
 fi
 
 certificate_block="$(extract_section '^##[[:space:]]+Verification Certificate' | trim_block)"
-if [ -n "$certificate_block" ]; then
-  if printf '%s\n' "$certificate_block" | grep -q '^Green Flags:'; then
-    add_error "Verification Certificate must not use 'Green Flags:'; use standalone ✅ lines"
-  fi
+if printf '%s\n' "$certificate_block" | grep -q '^Green Flags:'; then
+  add_error "Verification Certificate must not use 'Green Flags:'"
 fi
 
-if grep -Eq '^Status Badge:[[:space:]]*(🟩 VERIFIED ✅|\[VERIFIED\])$' "$REPORT_MD"; then
+if [ "$final_state_value" = 'VERIFIED ✅' ]; then
   verified_status_line_count="$(printf '%s\n' "$certificate_block" | awk '/^Status:[[:space:]]+VERIFIED$/ { c++ } END { print c+0 }')"
+  verified_check_count="$(printf '%s\n' "$certificate_block" | awk '/^✅[[:space:]]+/ { c++ } END { print c+0 }')"
   if [ "$verified_status_line_count" -ne 1 ]; then
     add_error "VERIFIED certificate must include exactly one 'Status: VERIFIED' line"
   fi
-  verified_check_count="$(printf '%s\n' "$certificate_block" | awk '/^✅[[:space:]]+/ { c++ } END { print c+0 }')"
   if [ "$verified_check_count" -ne 2 ]; then
-    add_error "VERIFIED certificate must include exactly 2 ✅ lines (proof checks only; found $verified_check_count)"
-  fi
-  if printf '%s\n' "$certificate_block" | grep -Eq '^✅ VERIFIED$'; then
-    add_error "VERIFIED certificate must not use '✅ VERIFIED'; use 'Status: VERIFIED'"
+    add_error "VERIFIED certificate must include exactly 2 ✅ proof lines"
   fi
 fi
+
+profile_block="$(extract_section '^##[[:space:]]+Verification Profile' | trim_block)"
+if [ -z "$profile_block" ]; then
+  add_error "Verification Profile section is empty"
+fi
+profile_value="$(printf '%s\n' "$profile_block" | sed -nE 's/^- Profile:[[:space:]]*`?([^`]+)`?$/\1/p' | head -n1)"
+if ! printf '%s\n' "$profile_block" | grep -Eq '^- Why this profile:[[:space:]]*[^[:space:]].*'; then
+  add_error "Verification Profile must include '- Why this profile:'"
+fi
+case "$profile_value" in
+  api-service|ui-browser|data-pipeline|ml-model|deploy-infra|library-refactor|remote-ssh) ;;
+  *) add_error "Verification Profile must set '- Profile:' to a known profile" ;;
+esac
 
 closeout_block="$(extract_section '^##[[:space:]]+Closeout Artifacts' | trim_block)"
 if [ -z "$closeout_block" ]; then
   add_error "Closeout Artifacts section is empty"
 else
   report_md_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Report Markdown:' || true)"
-
+  manifest_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Verification Manifest:' || true)"
+  evidence_root_line="$(printf '%s\n' "$closeout_block" | grep -E '^- Evidence Root:' || true)"
   [ -n "$report_md_line" ] || add_error "Closeout Artifacts missing '- Report Markdown:'"
+  [ -n "$manifest_line" ] || add_error "Closeout Artifacts missing '- Verification Manifest:'"
+  [ -n "$evidence_root_line" ] || add_error "Closeout Artifacts missing '- Evidence Root:'"
   if printf '%s\n' "$closeout_block" | grep -Eq '^- Verification Brief Markdown:'; then
     add_error "Closeout Artifacts must not include '- Verification Brief Markdown:'; Verification Brief is chat-only"
   fi
+fi
+
+manifest_raw="$(printf '%s\n' "$closeout_block" | sed -nE 's/^- Verification Manifest:[[:space:]]*`?([^`]+)`?$/\1/p' | head -n1)"
+manifest_path="$(resolve_artifact_path "$manifest_raw")"
+if [ -n "$manifest_raw" ] && [ ! -f "$manifest_path" ]; then
+  add_error "Verification Manifest path does not exist: $manifest_raw"
+fi
+
+if [ -f "$manifest_path" ]; then
+  manifest_validation_output="$("$MANIFEST_VALIDATOR" "$manifest_path" \
+    --expected-final-state "$final_state_value" \
+    --expected-status-badge "$status_badge_value" \
+    --expected-profile "$profile_value" 2>&1)" || add_error "$manifest_validation_output"
 fi
 
 brief_evidence_block="$(extract_section '^##[[:space:]]+Verification Brief Evidence' | trim_block)"
@@ -147,8 +222,8 @@ if [ -z "$brief_evidence_block" ]; then
   add_error "Verification Brief Evidence section is empty"
 else
   evidence_bullets="$(printf '%s\n' "$brief_evidence_block" | awk '/^- / { c++ } END { print c+0 }')"
-  if [ "$evidence_bullets" -ne 2 ]; then
-    add_error "Verification Brief Evidence must contain exactly 2 bullets (found $evidence_bullets)"
+  if [ "$evidence_bullets" -lt 1 ] || [ "$evidence_bullets" -gt 3 ]; then
+    add_error "Verification Brief Evidence must contain 1 to 3 bullets (found $evidence_bullets)"
   fi
   if ! printf '%s\n' "$brief_evidence_block" | grep -Eq '^!\[|^Graphic unavailable:'; then
     add_error "Verification Brief Evidence must include a graphic line or 'Graphic unavailable:'"
@@ -159,38 +234,30 @@ ground_truth_block="$(extract_section '^##[[:space:]]+Ground-Truth Plan and Data
 if [ -z "$ground_truth_block" ]; then
   add_error "Ground-Truth Plan and Data section is empty"
 else
-  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Target evidence tier:[[:space:]]*(Gold|Silver|Bronze)([[:space:][:punct:]].*)?$'; then
-    add_error "Ground-Truth Plan and Data must include '- Target evidence tier: Gold|Silver|Bronze'"
-  fi
-  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Achieved evidence tier:[[:space:]]*(Gold|Silver|Bronze)([[:space:][:punct:]].*)?$'; then
-    add_error "Ground-Truth Plan and Data must include '- Achieved evidence tier: Gold|Silver|Bronze'"
-  fi
-  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Gold runtime estimate:[[:space:]]*[^[:space:]].*'; then
-    add_error "Ground-Truth Plan and Data must include '- Gold runtime estimate:'"
-  fi
-  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- Gold decision gate:[[:space:]]*(<=10m \(auto-Gold\)|>10m \(user choice required\))([[:space:][:punct:]].*)?$'; then
-    add_error "Ground-Truth Plan and Data must include '- Gold decision gate: <=10m (auto-Gold) | >10m (user choice required)'"
-  fi
-  if ! printf '%s\n' "$ground_truth_block" | grep -Eq '^- User tier choice when Gold >10m:[[:space:]]*[^[:space:]].*'; then
-    add_error "Ground-Truth Plan and Data must include '- User tier choice when Gold >10m:'"
-  fi
-
-  target_tier="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- Target evidence tier:[[:space:]]*(Gold|Silver|Bronze).*/\1/p' | head -n1)"
-  gate_value="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- Gold decision gate:[[:space:]]*(<=10m \(auto-Gold\)|>10m \(user choice required\)).*/\1/p' | head -n1)"
-  user_choice="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- User tier choice when Gold >10m:[[:space:]]*(.*)$/\1/p' | head -n1)"
-  user_choice_tier="$(printf '%s\n' "$user_choice" | sed -nE 's/.*\b(Gold|Silver|Bronze)\b.*/\1/p' | head -n1)"
-
-  if [ "$gate_value" = "<=10m (auto-Gold)" ] && [ -n "$target_tier" ] && [ "$target_tier" != "Gold" ]; then
-    add_error "Target evidence tier must be Gold when Gold decision gate is <=10m (auto-Gold)"
-  fi
-
-  if [ "$gate_value" = ">10m (user choice required)" ]; then
-    if [ -z "$user_choice_tier" ]; then
-      add_error "User tier choice when Gold >10m must name Bronze, Silver, or Gold"
-    elif [ -n "$target_tier" ] && [ "$user_choice_tier" != "$target_tier" ]; then
-      add_error "Target evidence tier must match user tier choice when Gold >10m"
+  for pattern in \
+    '^- Target evidence tier:[[:space:]]*(Gold|Silver|Bronze)' \
+    '^- Achieved evidence tier:[[:space:]]*(Gold|Silver|Bronze)' \
+    '^- Gold runtime estimate:[[:space:]]*[^[:space:]].*' \
+    '^- Gold decision gate:[[:space:]]*(<=10m \(auto-Gold\)|>10m \(user choice required\))' \
+    '^- User tier choice when Gold >10m:[[:space:]]*[^[:space:]].*' \
+    '^- Discrimination:[[:space:]]*[^[:space:]].*'
+  do
+    if ! printf '%s\n' "$ground_truth_block" | grep -Eq "$pattern"; then
+      add_error "Ground-Truth Plan and Data is missing a required field"
+      break
     fi
-  fi
+  done
+fi
+
+commands_block="$(extract_section '^##[[:space:]]+Commands Run' | trim_block)"
+commands_code="$(printf '%s\n' "$commands_block" | awk '
+  BEGIN { in_code=0 }
+  /^```bash[[:space:]]*$/ { in_code=1; next }
+  in_code && /^```[[:space:]]*$/ { in_code=0; exit }
+  in_code { print }
+')"
+if [ -z "$commands_code" ]; then
+  add_error "Commands Run must include a non-empty bash code block"
 fi
 
 human_run_block="$(extract_section '^##[[:space:]]+Verification Brief How YOU Can Run This' | trim_block)"
@@ -212,19 +279,48 @@ else
   if ! printf '%s\n' "$human_run_block" | grep -q '^Fail signal:'; then
     add_error "Verification Brief How YOU Can Run This is missing 'Fail signal:'"
   fi
-
   forbidden_human_run_pattern='(\.agent/runs/|/tmp/|playwright_[^[:space:]]*\.js|[[:alnum:]_/-]*_check\.js|[^[:space:]]*\.spec\.js)'
   if [ -n "${human_run_commands:-}" ] && printf '%s\n' "$human_run_commands" | grep -Eqi "$forbidden_human_run_pattern"; then
     add_error "Verification Brief How YOU Can Run This contains ad-hoc probe/test script commands; use real operator entrypoints"
   fi
 fi
 
-if grep -Eqi '<(command|copy/paste|path|criterion|exact|short|one-line|reason|signal|task|artifact|repo|input|output)[^>]*>' "$REPORT_MD"; then
+artifact_index_block="$(extract_section '^##[[:space:]]+Artifact Index' | trim_block)"
+if [ -z "$artifact_index_block" ]; then
+  add_error "Artifact Index section is empty"
+else
+  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Path:'; then
+    add_error "Artifact Index must include '- Path:' entries"
+  fi
+  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Kind:'; then
+    add_error "Artifact Index must include '- Kind:' entries"
+  fi
+  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Proves:'; then
+    add_error "Artifact Index must include '- Proves:' entries"
+  fi
+fi
+
+command_ownership_block="$(extract_section '^##[[:space:]]+Command Ownership' | trim_block)"
+if [ -z "$command_ownership_block" ]; then
+  add_error "Command Ownership section is empty"
+else
+  if ! printf '%s\n' "$command_ownership_block" | grep -q '^- Agent-ran commands summary:'; then
+    add_error "Command Ownership must include '- Agent-ran commands summary:'"
+  fi
+  if ! printf '%s\n' "$command_ownership_block" | grep -q '^- Agent-side failures:'; then
+    add_error "Command Ownership must include '- Agent-side failures:'"
+  fi
+  if ! printf '%s\n' "$command_ownership_block" | grep -q '^- Why any human step was unavoidable:'; then
+    add_error "Command Ownership must include '- Why any human step was unavoidable:'"
+  fi
+fi
+
+if grep -Eqi '<(command|copy/paste|path|criterion|exact|reason|signal|task|artifact|repo|input|output)[^>]*>' "$REPORT_MD"; then
   add_error "report contains unresolved placeholder tokens (<...>)"
 fi
 
-if grep -Eqi '^Validation notes:[[:space:]]+.*validate-vdd-report\.sh not present' "$REPORT_MD"; then
-  add_error "report must not claim fallback validation when validate-vdd-report.sh is missing"
+if grep -Eq 'PLACEHOLDER' "$REPORT_MD"; then
+  add_error "report contains unresolved *_PLACEHOLDER tokens"
 fi
 
 timing_block="$(extract_section '^##[[:space:]]+Timing' | trim_block)"
@@ -236,27 +332,21 @@ cleanup_block="$(extract_section '^##[[:space:]]+Cleanup' | trim_block)"
 if [ -z "$cleanup_block" ]; then
   add_error "Cleanup section is empty"
 else
-  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Resources started by verification:[[:space:]]*[^[:space:]].*'; then
-    add_error "Cleanup section must include '- Resources started by verification:'"
-  fi
-  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Teardown commands run:[[:space:]]*[^[:space:]].*'; then
-    add_error "Cleanup section must include '- Teardown commands run:'"
-  fi
-  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Post-cleanup check:[[:space:]]*[^[:space:]].*'; then
-    add_error "Cleanup section must include '- Post-cleanup check:'"
-  fi
-  if ! printf '%s\n' "$cleanup_block" | grep -Eq '^- Cleanup status:[[:space:]]*(COMPLETE|INCOMPLETE)([[:space:][:punct:]].*)?$'; then
-    add_error "Cleanup section must include '- Cleanup status: COMPLETE | INCOMPLETE'"
-  fi
-
+  for pattern in \
+    '^- Resources started by verification:[[:space:]]*[^[:space:]].*' \
+    '^- Teardown commands run:[[:space:]]*[^[:space:]].*' \
+    '^- Post-cleanup check:[[:space:]]*[^[:space:]].*' \
+    '^- Cleanup status:[[:space:]]*(COMPLETE|INCOMPLETE)'
+  do
+    if ! printf '%s\n' "$cleanup_block" | grep -Eq "$pattern"; then
+      add_error "Cleanup section is missing a required field"
+      break
+    fi
+  done
   cleanup_status="$(printf '%s\n' "$cleanup_block" | sed -nE 's/^- Cleanup status:[[:space:]]*(COMPLETE|INCOMPLETE).*/\1/p' | head -n1)"
-  if [ "$cleanup_status" = "INCOMPLETE" ] && ! grep -Eq '^Status Badge:[[:space:]]*(🟥 BLOCKED ⛔|\[BLOCKED\])$' "$REPORT_MD"; then
-    add_error "Cleanup status INCOMPLETE is only allowed with BLOCKED status"
+  if [ "$cleanup_status" = "INCOMPLETE" ] && [ "$final_state_value" != 'BLOCKED ⛔' ]; then
+    add_error "Cleanup status INCOMPLETE is only allowed with BLOCKED final state"
   fi
-fi
-
-if ! grep -Eq '^##[[:space:]]+Commands Run([[:space:]]|$)' "$REPORT_MD"; then
-  add_warning "Commands Run section not found exactly; check section title spelling"
 fi
 
 if [ "${#WARNINGS[@]}" -gt 0 ]; then

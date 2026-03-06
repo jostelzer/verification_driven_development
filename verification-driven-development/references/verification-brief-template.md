@@ -9,8 +9,8 @@ Keep it short, concrete, and convincing.
 Claim: <one sentence, outcome + impact>
 
 Evidence:
-- <strongest discriminating signal (effect vs baseline/noise + threshold)>
-- <control/falsification signal (what `H0` would look like, and why this isn't it)>
+- <strongest discriminating signal>
+- <control, counterexample, or corroborating signal>
 ![evidence-1](/absolute/path/to/evidence-1.png)
 Graphic unavailable: <reason>  # use this line only if no graphic exists
 
@@ -24,10 +24,10 @@ Fail signal: <exact expected text/status/artifact>
 ```
 
 Rules:
-- Claim max 18 words.
-- Evidence max 2 bullets.
-- Evidence should help distinguish the claim (`H1`) from "no change" (`H0`).
-- At least 1 graphic when available.
+- Claim should stay to one sentence.
+- Evidence should stay to 1 to 3 bullets.
+- Evidence should help distinguish `H1` from `H0`.
+- Include at least 1 graphic when available.
 - If no graphic is feasible, include exactly one `Graphic unavailable:` line.
-- `How YOU Can Run This` must use real operator entrypoints (no ad-hoc harness scripts).
+- `How YOU Can Run This` must use real operator entrypoints.
 - Forbidden command patterns: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.

@@ -6,8 +6,7 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 README_MD="$REPO_ROOT/README.md"
 SKILL_MD="$REPO_ROOT/verification-driven-development/SKILL.md"
 OPENAI_YAML="$REPO_ROOT/verification-driven-development/agents/openai.yaml"
-FAILOVER_WRAPPER="$REPO_ROOT/scripts/render-vdd-failover-issue.sh"
-FAILOVER_CANONICAL="$REPO_ROOT/verification-driven-development/scripts/render-vdd-failover-issue.sh"
+CURSOR_MDC="$REPO_ROOT/verification-driven-development/agents/cursor.mdc"
 
 declare -a ERRORS=()
 
@@ -31,11 +30,60 @@ require_heading() {
   fi
 }
 
+require_contains() {
+  local path="$1"
+  local pattern="$2"
+  local label="$3"
+  if ! grep -Eqi "$pattern" "$path"; then
+    add_error "missing required concept in $(basename "$path"): $label"
+  fi
+}
+
 require_file "$README_MD"
 require_file "$SKILL_MD"
 require_file "$OPENAI_YAML"
-require_file "$FAILOVER_WRAPPER"
-require_file "$FAILOVER_CANONICAL"
+require_file "$CURSOR_MDC"
+
+for path in \
+  "$REPO_ROOT/scripts/init-vdd-run.sh" \
+  "$REPO_ROOT/scripts/ensure-agent-ignore.sh" \
+  "$REPO_ROOT/scripts/render-verification-brief.sh" \
+  "$REPO_ROOT/scripts/render-human-verification-card.sh" \
+  "$REPO_ROOT/scripts/validate-vdd-report.sh" \
+  "$REPO_ROOT/scripts/validate-vdd-manifest.sh" \
+  "$REPO_ROOT/scripts/render-vdd-failover-issue.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/init-vdd-run.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/ensure-agent-ignore.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/render-verification-brief.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/render-human-verification-card.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/validate-vdd-report.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/validate-vdd-manifest.sh" \
+  "$REPO_ROOT/verification-driven-development/scripts/render-vdd-failover-issue.sh"
+do
+  require_file "$path"
+done
+
+for ref in \
+  "$REPO_ROOT/verification-driven-development/references/report-template.md" \
+  "$REPO_ROOT/verification-driven-development/references/certificate-template.md" \
+  "$REPO_ROOT/verification-driven-development/references/verification-brief-template.md" \
+  "$REPO_ROOT/verification-driven-development/references/verification-manifest-template.json" \
+  "$REPO_ROOT/verification-driven-development/references/closeout-policy.md" \
+  "$REPO_ROOT/verification-driven-development/references/evidence-tiers.md" \
+  "$REPO_ROOT/verification-driven-development/references/ground-truth-ladder.md" \
+  "$REPO_ROOT/verification-driven-development/references/human-verification-card-template.md" \
+  "$REPO_ROOT/verification-driven-development/references/ui-automation-protocol.md" \
+  "$REPO_ROOT/verification-driven-development/references/examples.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-api-service.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-ui-browser.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-data-pipeline.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-ml-model.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-deploy-infra.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-library-refactor.md" \
+  "$REPO_ROOT/verification-driven-development/references/profile-remote-ssh.md"
+do
+  require_file "$ref"
+done
 
 if [ "${#ERRORS[@]}" -gt 0 ]; then
   printf 'skill lint failed:\n' >&2
@@ -45,7 +93,6 @@ if [ "${#ERRORS[@]}" -gt 0 ]; then
   exit 1
 fi
 
-# README must be human-only.
 if grep -Eq '^##[[:space:]]+README FOR AGENTS([[:space:]]|$)' "$README_MD"; then
   add_error "README.md must be human-only: remove 'README FOR AGENTS' section"
 fi
@@ -56,12 +103,15 @@ if ! grep -Eq 'Agent behavior is defined in `verification-driven-development/SKI
   add_error "README.md must include a pointer to SKILL.md and agents/openai.yaml"
 fi
 
-# SKILL core structure and required references.
+if [ "$(wc -l < "$SKILL_MD")" -gt 500 ]; then
+  add_error "SKILL.md should stay under 500 lines"
+fi
+
 require_heading "$SKILL_MD" '^#[[:space:]]+Verification-Driven Development \(VDD\)' '# Verification-Driven Development (VDD)'
+require_heading "$SKILL_MD" '^##[[:space:]]+Verification Profiles \(Mandatory\)' '## Verification Profiles (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Command Execution Ownership \(Mandatory\)' '## Command Execution Ownership (Mandatory)'
-require_heading "$SKILL_MD" '^##[[:space:]]+Skill Failover Mode \(Mandatory\)' '## Skill Failover Mode (Mandatory)'
-require_heading "$SKILL_MD" '^##[[:space:]]+Inputs Required Before Claiming `VERIFIED`' '## Inputs Required Before Claiming `VERIFIED`'
-require_heading "$SKILL_MD" '^##[[:space:]]+Ground-Truth Requirement \(Mandatory\)' '## Ground-Truth Requirement (Mandatory)'
+require_heading "$SKILL_MD" '^##[[:space:]]+Ground-Truth Ladder \(Mandatory\)' '## Ground-Truth Ladder (Mandatory)'
+require_heading "$SKILL_MD" '^##[[:space:]]+Verification Manifest \(Mandatory\)' '## Verification Manifest (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Operating Loop \(Mandatory\)' '## Operating Loop (Mandatory)'
 require_heading "$SKILL_MD" '^### Phase P1: Joint Plan' '### Phase P1: Joint Plan'
 require_heading "$SKILL_MD" '^### Phase P2: Implement -> Run -> Inspect -> Fix' '### Phase P2: Implement -> Run -> Inspect -> Fix'
@@ -71,80 +121,49 @@ require_heading "$SKILL_MD" '^##[[:space:]]+Static-Only Exception \(Strict\)' '#
 require_heading "$SKILL_MD" '^##[[:space:]]+Required Reference Files' '## Required Reference Files'
 
 for ref in \
-  'references/report-template.md' \
-  'references/certificate-template.md' \
-  'references/verification-brief-template.md' \
-  'references/closeout-policy.md' \
-  'references/evidence-tiers.md' \
-  'references/ui-automation-protocol.md'
+  'references/verification-manifest-template.json' \
+  'references/ground-truth-ladder.md' \
+  'references/human-verification-card-template.md' \
+  'references/profile-api-service.md' \
+  'references/profile-ui-browser.md' \
+  'references/profile-data-pipeline.md' \
+  'references/profile-ml-model.md' \
+  'references/profile-deploy-infra.md' \
+  'references/profile-library-refactor.md' \
+  'references/profile-remote-ssh.md'
 do
   if ! grep -Fq "$ref" "$SKILL_MD"; then
     add_error "SKILL.md missing required reference link: $ref"
   fi
 done
 
-if ! grep -Fq 'Set initial target evidence tier to `Gold` and estimate its runtime.' "$SKILL_MD"; then
-  add_error "SKILL.md must require Gold-first tier planning in Phase P1"
-fi
+require_contains "$SKILL_MD" 'profile' 'profile-driven workflow'
+require_contains "$SKILL_MD" 'manifest' 'manifest-driven closeout'
+require_contains "$SKILL_MD" 'Gold' 'Gold-first tier planning'
+require_contains "$SKILL_MD" 'Bronze' 'Bronze/Silver/Gold tier selection'
+require_contains "$SKILL_MD" 'cleanup' 'cleanup gate semantics'
+require_contains "$SKILL_MD" 'Human Verification Card' 'human handoff card'
+require_contains "$SKILL_MD" 'failover' 'failover mode'
 
-if ! grep -Fq 'If estimated Gold total is 10 minutes or less, run Gold (mandatory).' "$SKILL_MD"; then
-  add_error "SKILL.md must require Gold when estimated runtime is <=10 minutes"
-fi
-
-if ! grep -Fq 'If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options (`Bronze`, `Silver`, `Gold`)' "$SKILL_MD"; then
-  add_error "SKILL.md must require explicit user tier selection when Gold exceeds 10 minutes"
-fi
-
-if ! grep -Fq 'Bronze and Silver options must still be true end-to-end operator-path verification' "$SKILL_MD"; then
-  add_error "SKILL.md must require Bronze/Silver to remain end-to-end verification"
-fi
-
-if ! grep -Fq 'Teardown all agent-spawned verification instances after checks' "$SKILL_MD"; then
-  add_error "SKILL.md must require teardown of verification-spawned instances"
-fi
-
-if ! grep -Fq 'Cleanup gate for terminal states' "$SKILL_MD"; then
-  add_error "SKILL.md must include cleanup gate semantics for terminal states"
-fi
-
-# openai.yaml sync checks against SKILL frontmatter/name and core behavior cues.
-skill_name="$(awk -F': *' '/^name:/ {print $2; exit}' "$SKILL_MD" | tr -d '"')"
-if [ -z "$skill_name" ]; then
-  add_error "could not parse skill name from SKILL.md frontmatter"
+if ! python3 -m json.tool "$REPO_ROOT/verification-driven-development/references/verification-manifest-template.json" >/dev/null; then
+  add_error "verification-manifest-template.json is not valid JSON"
 fi
 
 if ! grep -Fq 'display_name: "Verification-Driven Development (VDD)"' "$OPENAI_YAML"; then
   add_error "openai.yaml display_name drift: expected Verification-Driven Development (VDD)"
 fi
+require_contains "$OPENAI_YAML" '\$verification-driven-development' 'explicit invocation token'
+require_contains "$OPENAI_YAML" 'profile' 'profile selection'
+require_contains "$OPENAI_YAML" 'manifest' 'manifest requirement'
+require_contains "$OPENAI_YAML" 'Gold' 'Gold-first planning'
+require_contains "$OPENAI_YAML" 'cleanup' 'cleanup requirement'
+require_contains "$OPENAI_YAML" 'failover' 'failover mode'
 
-if [ -n "$skill_name" ] && ! grep -Fq "\$$skill_name (VDD)" "$OPENAI_YAML"; then
-  add_error "openai.yaml default_prompt drift: missing invocation token for \$$skill_name"
-fi
-
-if ! grep -Eiq 'short_description:.*verification' "$OPENAI_YAML"; then
-  add_error "openai.yaml short_description must mention verification-first behavior"
-fi
-
-for token in \
-  'joint implementation and verification plan' \
-  'estimate a Gold verification plan first' \
-  'require Gold when estimated <=10 minutes' \
-  'choose Bronze/Silver/Gold' \
-  'end-to-end verification tiers' \
-  'stop all verification-spawned instances before closeout' \
-  'teardown evidence' \
-  'executable checks' \
-  'evidence artifacts' \
-  'certificate' \
-  'Verification Brief' \
-  'validate report format' \
-  'failover mode' \
-  'GitHub issue link'
-do
-  if ! grep -Fqi "$token" "$OPENAI_YAML"; then
-    add_error "openai.yaml default_prompt drift: missing token '$token'"
-  fi
-done
+require_contains "$CURSOR_MDC" 'profile' 'profile selection'
+require_contains "$CURSOR_MDC" 'manifest' 'manifest requirement'
+require_contains "$CURSOR_MDC" 'Gold' 'Gold-first planning'
+require_contains "$CURSOR_MDC" 'cleanup' 'cleanup requirement'
+require_contains "$CURSOR_MDC" 'failover' 'failover mode'
 
 if [ "${#ERRORS[@]}" -gt 0 ]; then
   printf 'skill lint failed:\n' >&2

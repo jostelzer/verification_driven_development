@@ -1,15 +1,15 @@
 # Verification Certificate Template
 
 Issue exactly one certificate at terminal state.
-Keep it concise: VERIFIED should be exactly 4 lines (header + status line + 2 proof lines). Other states can be longer as needed.
+The certificate should summarize empirical proof, not process narration.
 
 ## VERIFIED ✅
 
 ```markdown
 ## Verification Certificate
 Status: VERIFIED
-✅ <short proof 1>
-✅ <short proof 2>
+✅ <short proof 1 tied to an observable or artifact>
+✅ <short proof 2 tied to an observable or artifact>
 ```
 
 ## READY FOR HUMAN VERIFICATION 🧑‍🔬
@@ -24,7 +24,7 @@ Evidence gathered by agent: <concrete observations from those checks>
 Artifact index: <path/link(s) + what each artifact proves>
 Ground-Truth Gap: <what ground-truth data or comparison is missing or waived>
 Why this is not yet conclusive: <what still requires human interaction or access>
-Run this harness: <command(s)>
+Run this harness: <real CLI/API/UI command(s)>
 Human checks:
 - <action and expected outcome>
 - <action and expected outcome>
@@ -41,7 +41,7 @@ Task: <one-line task summary>
 Empirical attempts performed: <exact commands/actions run>
 Evidence gathered from attempts: <key errors/signals observed>
 Why verification remains inconclusive: <what cannot be validated yet>
-Blocked by: <missing runtime/access/instructions>
+Blocked by: <missing runtime/access/instructions/tooling>
 Unblock by:
 - <minimal question 1>
 - <minimal question 2>

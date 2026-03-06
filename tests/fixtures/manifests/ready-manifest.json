@@ -1,0 +1,95 @@
+{
+  "run_id": "20260213-000100",
+  "task": "Validate checkout button visibility changes in the UI flow",
+  "profile": "ui-browser",
+  "final_state": "READY FOR HUMAN VERIFICATION 🧑‍🔬",
+  "status_badge": "🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬",
+  "target_evidence_tier": "Gold",
+  "achieved_evidence_tier": "Silver",
+  "gold_decision_gate": "<=10m (auto-Gold)",
+  "user_tier_choice_when_gold_gt_10m": "n/a",
+  "blocked_by": "none",
+  "ground_truth": {
+    "source": "prior stable UI behavior snapshots",
+    "acquisition": "Compared current runtime behavior against screenshot baseline",
+    "sample_size": "two deterministic interaction paths",
+    "metrics_and_thresholds": "checkout hidden before terms acceptance and visible after acceptance",
+    "artifact_location": "tests/fixtures/artifacts/ui-summary.md",
+    "waiver": "none",
+    "h1": "Checkout button visibility now follows the terms acceptance state",
+    "h0": "UI still behaves the same as before or only logs changed",
+    "decision_rule": "Accept when button is hidden before acceptance and visible after acceptance",
+    "controls": "Compared against existing baseline screenshots"
+  },
+  "commands": [
+    {
+      "command": "npm run test:ui",
+      "location": "local",
+      "purpose": "Run browser harness for checkout visibility flow",
+      "observed_signal": "Browser preflight and harness completed without runtime errors",
+      "verdict": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "tests/fixtures/artifacts/ui-summary.md",
+      "kind": "trace",
+      "proves": "UI verification summary was captured"
+    },
+    {
+      "path": "tests/fixtures/artifacts/ui-log.txt",
+      "kind": "log",
+      "proves": "Corroborating UI state log was captured"
+    }
+  ],
+  "criteria_results": [
+    {
+      "criterion": "Checkout button is hidden before terms acceptance",
+      "result": "PASS",
+      "evidence": "UI log shows checkout_hidden_before_terms=true"
+    },
+    {
+      "criterion": "Checkout button appears after terms acceptance",
+      "result": "INCONCLUSIVE",
+      "evidence": "Final manual confirmation still pending"
+    }
+  ],
+  "cleanup": {
+    "resources_started": "Playwright Chromium process tree and temporary local UI server",
+    "teardown_commands": [
+      "pkill -f playwright",
+      "pkill -f ui-dev-server"
+    ],
+    "post_cleanup_check": "pgrep -f 'playwright|ui-dev-server' returned no matches",
+    "status": "COMPLETE"
+  },
+  "command_ownership": {
+    "agent_ran": [
+      "npm run test:ui"
+    ],
+    "agent_failed": [],
+    "human_required_reason": "Final click-path confirmation still requires a human review"
+  },
+  "human_verification": {
+    "preconditions": [
+      "Open the staging checkout page with demo cart state."
+    ],
+    "steps": [
+      "Load the checkout page.",
+      "Confirm the checkout button is hidden before accepting terms.",
+      "Accept terms and confirm the checkout button becomes visible."
+    ],
+    "pass_signals": [
+      "Checkout button hidden before terms are accepted",
+      "Checkout button visible after terms are accepted"
+    ],
+    "fail_signals": [
+      "Checkout button visible too early",
+      "Checkout button never appears after accepting terms"
+    ],
+    "return_condition": "Send a screenshot pair if both checks pass, or stop immediately on mismatch.",
+    "operator_notes": [
+      "Use the seeded demo cart so the page loads deterministically."
+    ]
+  }
+}

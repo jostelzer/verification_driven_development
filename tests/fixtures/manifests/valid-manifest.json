@@ -1,0 +1,94 @@
+{
+  "run_id": "20260213-000000",
+  "task": "Fix latency regression in the request path without changing the API contract",
+  "profile": "api-service",
+  "final_state": "VERIFIED ✅",
+  "status_badge": "🟩 VERIFIED ✅",
+  "target_evidence_tier": "Gold",
+  "achieved_evidence_tier": "Gold",
+  "gold_decision_gate": "<=10m (auto-Gold)",
+  "user_tier_choice_when_gold_gt_10m": "n/a",
+  "blocked_by": "none",
+  "ground_truth": {
+    "source": "golden outputs from prior known-good release",
+    "acquisition": "Collected baseline via existing benchmark command",
+    "sample_size": "200 requests sampled from production-like payloads",
+    "metrics_and_thresholds": "p95 latency <= 90ms; health endpoint HTTP 200",
+    "artifact_location": "tests/fixtures/artifacts/latency-baseline.csv",
+    "waiver": "none",
+    "h1": "Latency regression is fixed without breaking the API contract",
+    "h0": "Behavior is unchanged or only the benchmark harness changed",
+    "decision_rule": "Accept only if p95 <= 90ms and health remains HTTP 200",
+    "controls": "Compared against prior release baseline"
+  },
+  "commands": [
+    {
+      "command": "make test",
+      "location": "local",
+      "purpose": "Run regression tests before benchmarking",
+      "observed_signal": "Exit code 0",
+      "verdict": "PASS"
+    },
+    {
+      "command": "make bench",
+      "location": "local",
+      "purpose": "Benchmark request path against representative sample",
+      "observed_signal": "Benchmark reported p95 latency of 78ms",
+      "verdict": "PASS"
+    },
+    {
+      "command": "curl -sSf http://localhost:8080/health",
+      "location": "local",
+      "purpose": "Confirm the health endpoint remains reachable",
+      "observed_signal": "HTTP 200 with expected payload",
+      "verdict": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "tests/fixtures/artifacts/latency-baseline.csv",
+      "kind": "table",
+      "proves": "Baseline latency sample exists"
+    },
+    {
+      "path": "tests/fixtures/artifacts/latency-after.csv",
+      "kind": "table",
+      "proves": "Post-change latency sample exists"
+    },
+    {
+      "path": "tests/fixtures/artifacts/api-log.txt",
+      "kind": "log",
+      "proves": "Request-id correlation log was captured"
+    }
+  ],
+  "criteria_results": [
+    {
+      "criterion": "p95 latency below 90ms on representative traffic sample",
+      "result": "PASS",
+      "evidence": "Post-change sample recorded p95 of 78ms"
+    },
+    {
+      "criterion": "Health endpoint remains available",
+      "result": "PASS",
+      "evidence": "Health check returned HTTP 200"
+    }
+  ],
+  "cleanup": {
+    "resources_started": "local benchmark service (`benchd`, pid 21432)",
+    "teardown_commands": [
+      "kill 21432"
+    ],
+    "post_cleanup_check": "pgrep -f benchd returned no matches",
+    "status": "COMPLETE"
+  },
+  "command_ownership": {
+    "agent_ran": [
+      "make test",
+      "make bench",
+      "curl -sSf http://localhost:8080/health"
+    ],
+    "agent_failed": [],
+    "human_required_reason": "none"
+  },
+  "human_verification": null
+}

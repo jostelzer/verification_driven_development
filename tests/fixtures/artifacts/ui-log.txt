@@ -1,0 +1,2 @@
+checkout_hidden_before_terms=true
+checkout_visible_after_terms=true

@@ -2,9 +2,16 @@
 
 Status Badge: 🟩 VERIFIED ✅
 
+## Verification Profile
+
+- Profile: `api-service`
+- Why this profile: The task changes a backend request path and is validated through real API and benchmark commands.
+
 ## Closeout Artifacts
 
-- Report Markdown: .agent/runs/20260213-000200/verification-report.md
+- Report Markdown: `tests/fixtures/reports/invalid-gold-gate.md`
+- Verification Manifest: `tests/fixtures/manifests/invalid-auto-gold-manifest.json`
+- Evidence Root: `tests/fixtures/artifacts`
 
 ## Verification Brief Claim
 
@@ -27,9 +34,9 @@ Fix latency regression in the request path without changing the external API con
 
 ## What Changed
 
-- Reduced duplicate JSON encoding in response path.
-- Added memoized header serialization for hot path.
-- Updated benchmark harness config to match production request mix.
+- Reduced duplicate JSON encoding in the response path.
+- Added memoized header serialization for the hot path.
+- Updated benchmark harness config to match the production request mix.
 
 ## Runtime
 
@@ -48,8 +55,10 @@ Fix latency regression in the request path without changing the external API con
 - Acquisition: collected baseline using existing benchmark command.
 - Sample size and selection: 200 requests sampled from production-like payloads.
 - Metrics and thresholds: p95 latency <= 90ms; met.
-- Data/artifact location: .agent/ground-truth/latency-baseline.csv and .agent/runs/20260213-000200/latency-after.csv.
+- Data/artifact location: tests/fixtures/artifacts/latency-baseline.csv and tests/fixtures/artifacts/latency-after.csv.
 - Waiver (if any): none.
+- Discrimination: H1=latency regression fixed without breaking the API; H0=behavior unchanged; decision rule=p95 <= 90ms plus HTTP 200 health.
+- Controls (when applicable): prior release latency baseline.
 
 ## Commands Run
 
@@ -91,9 +100,34 @@ Fail signal: any non-zero exit or non-200 response
 
 ## Evidence and Inspection
 
-- Signal 1: benchmark p95 78ms under fixed sample set.
+- Signal 1: benchmark p95 78ms under a fixed sample set.
 - Signal 2: request-id correlation matched application logs for sampled runs.
 - Signal 3: no timeout or 5xx errors observed during verification.
+
+Scientific interpretation:
+- The benchmark and health signals discriminate the claimed fix from a no-change result.
+- Effect size versus baseline was 42ms at p95.
+- Threats to validity: fixture does not simulate multi-host distributed load.
+
+## Artifact Index
+
+- Path: `tests/fixtures/artifacts/latency-baseline.csv`
+- Kind: `table`
+- Proves: baseline latency sample exists for before/after comparison.
+
+- Path: `tests/fixtures/artifacts/latency-after.csv`
+- Kind: `table`
+- Proves: post-change latency sample exists and captures the claimed improvement.
+
+- Path: `tests/fixtures/artifacts/api-log.txt`
+- Kind: `log`
+- Proves: request-id correlation was captured during verification.
+
+## Command Ownership
+
+- Agent-ran commands summary: make test, make bench, and curl health probe were all executed by the agent.
+- Agent-side failures: none during the fixture run.
+- Why any human step was unavoidable: none.
 
 ## Timing
 
@@ -104,14 +138,14 @@ Fail signal: any non-zero exit or non-200 response
 
 ## Cleanup
 
-- Resources started by verification: local benchmark service (`benchd`, pid 21987).
-- Teardown commands run: `kill 21987`.
+- Resources started by verification: local benchmark service (`benchd`, pid 21432).
+- Teardown commands run: `kill 21432`.
 - Post-cleanup check: `pgrep -f benchd` returned no matches.
 - Cleanup status: COMPLETE.
 
 ## Known Limits
 
-Did not run multi-host distributed load test in this fixture.
+Did not run a multi-host distributed load test in this fixture.
 
 ## Final State
 
