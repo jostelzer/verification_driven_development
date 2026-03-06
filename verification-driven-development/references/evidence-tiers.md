@@ -27,5 +27,9 @@ Estimate Gold first during Phase P1 planning, then report both target and achiev
 
 - Always estimate a Gold plan first.
 - If estimated Gold total is 10 minutes or less, run Gold.
-- If estimated Gold total exceeds 10 minutes, ask the user to choose exactly one of `Bronze`, `Silver`, or `Gold`.
+- If estimated Gold total exceeds 10 minutes, ask the user to choose exactly one of:
+  - `🥉 Bronze — <estimated total time>`
+  - `🥈 Silver — <estimated total time>`
+  - `🥇 Gold — <estimated total time>`
+- Each option must include both the total time estimate and the exact checks included in that tier.
 - Lower tiers still require real operator-path verification.

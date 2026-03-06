@@ -13,6 +13,15 @@ Include exactly one status badge line at the top of the report:
 - `Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬`
 - `Status Badge: 🟥 BLOCKED ⛔`
 
+## Verification Snapshot (Required)
+
+Use compact badge-style lines near the top so the verdict is easy to scan:
+- `- Status Chip: 🟩 VERIFIED ✅ | 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬 | 🟥 BLOCKED ⛔`
+- `- Tier Chip: 🥇 Gold | 🥈 Silver | 🥉 Bronze`
+- `- Ground-Truth Rung: R1 | R2 | R3 | R4 | R5`
+- `- Cleanup Chip: 🧹 COMPLETE | 🧹 INCOMPLETE`
+- `- Human Step Chip: 🤖 none | 🧑‍🔬 required`
+
 ## Verification Profile (Required)
 
 - Profile: `api-service|ui-browser|data-pipeline|ml-model|deploy-infra|library-refactor|remote-ssh`
@@ -91,6 +100,7 @@ Map each acceptance criterion to evidence:
 ## Standard Certificate (Required)
 
 Paste the full Verification Certificate block here, verbatim, using the certificate template.
+The certificate heading should be `## 🏅 Verification Certificate`.
 
 ## Verification Brief How YOU Can Run This (Required)
 
@@ -122,10 +132,25 @@ Scientific interpretation:
 
 ## Artifact Index
 
-List every load-bearing artifact:
-- Path: `<artifact path>`
-- Kind: `<image|chart|trace|log|table|dataset|other>`
-- Proves: `<one line>`
+Prefer a compact markdown table:
+
+| Path | Kind | Proves |
+| --- | --- | --- |
+| `<artifact path>` | `<image|chart|screenshot|trace|log|table|dataset|other>` | `<one line>` |
+
+For `image`, `chart`, or `screenshot` rows, use an absolute filesystem path so the same file can be embedded inline below.
+
+## Inline Visual Evidence
+
+If the Artifact Index includes any `image`, `chart`, or `screenshot` rows, embed each one here inline with the same absolute filesystem path used in the Artifact Index:
+
+```markdown
+![alt text](/absolute/path/to/visual.png)
+```
+
+If no pictures or graphs were produced, write:
+
+`No inline visuals were produced.`
 
 ## Command Ownership
 

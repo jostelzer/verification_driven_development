@@ -7,18 +7,18 @@ Status Badge: 🟩 VERIFIED ✅
 - Status Chip: 🟩 VERIFIED ✅
 - Tier Chip: 🥇 Gold
 - Ground-Truth Rung: R2
-- Cleanup Chip: 🧹 INCOMPLETE
+- Cleanup Chip: 🧹 COMPLETE
 - Human Step Chip: 🤖 none
 
 ## Verification Profile
 
 - Profile: `api-service`
-- Why this profile: The task changes a backend request path and is validated through real API and benchmark commands.
+- Why this profile: The task changes a backend request path and is validated through real API and benchmark commands plus a rendered comparison chart.
 
 ## Closeout Artifacts
 
-- Report Markdown: `tests/fixtures/reports/invalid-cleanup-status.md`
-- Verification Manifest: `tests/fixtures/manifests/invalid-cleanup-manifest.json`
+- Report Markdown: `tests/fixtures/reports/valid-inline-visual-report.md`
+- Verification Manifest: `tests/fixtures/manifests/valid-manifest.json`
 - Evidence Root: `tests/fixtures/artifacts`
 
 ## Verification Brief Claim
@@ -29,7 +29,7 @@ Latency regression fixed with stable throughput under identical production-like 
 
 - p95 latency dropped from 120ms to 78ms on the same 200-request sample.
 - API returned HTTP 200 with expected schema for all sample requests.
-Graphic unavailable: fixture report omits images by design.
+![Latency chart](__VISUAL_PATH__)
 
 ## Goal
 
@@ -63,7 +63,7 @@ Fix latency regression in the request path without changing the external API con
 - Acquisition: collected baseline using existing benchmark command.
 - Sample size and selection: 200 requests sampled from production-like payloads.
 - Metrics and thresholds: p95 latency <= 90ms; met.
-- Data/artifact location: tests/fixtures/artifacts/latency-baseline.csv and tests/fixtures/artifacts/latency-after.csv.
+- Data/artifact location: __VISUAL_PATH__ and tests/fixtures/artifacts/latency-after.csv.
 - Waiver (if any): none.
 - Discrimination: H1=latency regression fixed without breaking the API; H0=behavior unchanged; decision rule=p95 <= 90ms plus HTTP 200 health.
 - Controls (when applicable): prior release latency baseline.
@@ -80,7 +80,7 @@ curl -sSf http://localhost:8080/health
 
 - Criterion: p95 latency below 90ms on representative traffic sample.
 - Result: PASS
-- Evidence: p95 dropped from 120ms to 78ms in benchmark output.
+- Evidence: p95 dropped from 120ms to 78ms in benchmark output, corroborated by the inline chart.
 
 - Criterion: Health endpoint remains available.
 - Result: PASS
@@ -94,7 +94,7 @@ Certificate rendered verbatim in the section below.
 
 Status: VERIFIED
 ✅ Runtime checks passed with expected API and benchmark outputs.
-✅ Ground-truth comparison met threshold on representative sample.
+✅ Ground-truth comparison met threshold on representative sample, including the inline chart artifact.
 
 ## Verification Brief How YOU Can Run This
 
@@ -113,21 +113,20 @@ Fail signal: any non-zero exit or non-200 response
 - Signal 3: no timeout or 5xx errors observed during verification.
 
 Scientific interpretation:
-- The benchmark and health signals discriminate the claimed fix from a no-change result.
-- Effect size versus baseline was 42ms at p95.
+- The benchmark, health, and inline chart signals discriminate the claimed fix from a no-change result.
 - Threats to validity: fixture does not simulate multi-host distributed load.
 
 ## Artifact Index
 
 | Path | Kind | Proves |
 | --- | --- | --- |
-| `tests/fixtures/artifacts/latency-baseline.csv` | `table` | baseline latency sample exists for before/after comparison |
+| `__VISUAL_PATH__` | `chart` | before/after latency comparison can be inspected directly in the report |
 | `tests/fixtures/artifacts/latency-after.csv` | `table` | post-change latency sample exists and captures the claimed improvement |
 | `tests/fixtures/artifacts/api-log.txt` | `log` | request-id correlation was captured during verification |
 
 ## Inline Visual Evidence
 
-No inline visuals were produced.
+![Latency chart](__VISUAL_PATH__)
 
 ## Command Ownership
 
@@ -144,10 +143,10 @@ No inline visuals were produced.
 
 ## Cleanup
 
-- Resources started by verification: local benchmark service (`benchd`, pid 21988).
-- Teardown commands run: `kill 21988` (permission denied).
-- Post-cleanup check: `pgrep -f benchd` still showed pid 21988.
-- Cleanup status: INCOMPLETE.
+- Resources started by verification: local benchmark service (`benchd`, pid 21432).
+- Teardown commands run: `kill 21432`.
+- Post-cleanup check: `pgrep -f benchd` returned no matches.
+- Cleanup status: COMPLETE.
 
 ## Known Limits
 

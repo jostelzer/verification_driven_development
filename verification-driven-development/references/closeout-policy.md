@@ -17,6 +17,7 @@ Use this policy for every terminal response.
 4. Validate the report.
 5. Render the Verification Brief.
 6. Render the full Verification Certificate block inline in chat.
+7. Keep the Verification Snapshot visually compact and the Artifact Index table easy to scan.
 
 ## Missing Validator Handling
 
@@ -41,5 +42,8 @@ When failover triggers:
 
 - Do not use free-form report structure.
 - Keep artifact paths explicit and stable.
+- Use a top-of-report Verification Snapshot with status, tier, ground-truth rung, cleanup, and human-step badges.
+- Prefer an Artifact Index markdown table with `Path`, `Kind`, and `Proves` columns.
+- If pictures or graphs are produced, list them with absolute filesystem paths in the artifact table and embed each one inline in the report.
 - Include command ownership and cleanup summaries.
 - The report must not contradict the manifest.

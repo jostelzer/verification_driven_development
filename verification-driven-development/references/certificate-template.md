@@ -6,7 +6,7 @@ The certificate should summarize empirical proof, not process narration.
 ## VERIFIED ✅
 
 ```markdown
-## Verification Certificate
+## 🏅 Verification Certificate
 Status: VERIFIED
 ✅ <short proof 1 tied to an observable or artifact>
 ✅ <short proof 2 tied to an observable or artifact>
@@ -15,7 +15,7 @@ Status: VERIFIED
 ## READY FOR HUMAN VERIFICATION 🧑‍🔬
 
 ```markdown
-## Verification Certificate
+## 🏅 Verification Certificate
 Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬
 Task: <one-line task summary>
@@ -34,7 +34,7 @@ How human evidence will confirm completion: <what result would close remaining r
 ## BLOCKED ⛔
 
 ```markdown
-## Verification Certificate
+## 🏅 Verification Certificate
 Status Badge: 🟥 BLOCKED ⛔
 Verdict: BLOCKED ⛔
 Task: <one-line task summary>

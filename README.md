@@ -21,7 +21,9 @@ Verification Certificate).
 The skill now emphasizes:
 - verification profiles (`api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, `remote-ssh`)
 - a machine-readable Verification Manifest that records commands, artifacts, cleanup, and command ownership
+- a compact Verification Snapshot with badge-style status, tier, ground-truth, cleanup, and human-step lines
 - a compact Human Verification Card with optional operator notes
+- an anti-pattern library for catching weak evidence and fake-confidence closeouts before terminal output
 - bundled helper scripts inside the installed skill, so manifest/report validation still works after install
 
 ## Examples
@@ -48,6 +50,7 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 - Capture a baseline screenshot from the original WebGL renderer (fixed seed/camera).
 - Port to ModernGL and generate the same screenshot.
 - Compare outputs with a calibrated visual metric (tolerance + "no-change" baseline) and save diff + metric summary.
+- Show any load-bearing screenshot, chart, or diff inline in the report instead of only citing a path.
 - Treat mismatches as failing checks until resolved, then capture evidence.
 
 ### 3) Fix a boring but real API bug

@@ -169,7 +169,11 @@ Verification plan:
 - Include a Ground-Truth Plan: selected ladder rung, source, acquisition method, sample size, metrics, thresholds, and artifact location.
 - Set initial target evidence tier to `Gold` and estimate its runtime.
 - If estimated Gold total is 10 minutes or less, run Gold.
-- If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options: `Bronze`, `Silver`, `Gold`.
+- If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options in this visual format:
+  - `🥉 Bronze — <estimated total time>`
+  - `🥈 Silver — <estimated total time>`
+  - `🥇 Gold — <estimated total time>`
+- Each option must include its own total time estimate and the exact checks it buys.
 - Bronze and Silver must still be real end-to-end operator-path verification.
 - Initialize the run scaffold and manifest before substantial execution when practical.
 
@@ -204,7 +208,9 @@ Closeout rules:
 - If no report validator is found at either location, treat closeout as `BLOCKED ⛔`.
 - If VDD tooling fails before normal closeout is possible, enter Skill Failover Mode.
 - Always render the Verification Certificate block directly in the final chat response.
-- In the report markdown, place `## Verification Brief How YOU Can Run This` below `## Verification Certificate`.
+- Apply the visual closeout conventions from `references/closeout-ux-guide.md`.
+- In the report markdown, place `## Verification Brief How YOU Can Run This` below `## 🏅 Verification Certificate`.
+- If pictures or graphs are produced, embed them inline in the report with absolute filesystem paths instead of only listing their paths.
 - In the final chat response, place `How YOU Can Run This` immediately below the Verification Certificate block.
 - Include the Artifact Index, Command Ownership summary, and Cleanup summary in the report.
 
@@ -234,6 +240,17 @@ Forbidden:
 - Bare success assertions without artifacts or concrete data signals.
 - Asking the human to run commands the agent has not attempted.
 
+## Anti-Patterns
+
+Before any terminal state, do a quick self-check against `references/anti-patterns.md`.
+
+Use it to catch recurring VDD failures such as:
+- tests or source inspection being treated as final proof
+- pretty closeout structure with weak evidence underneath
+- screenshot-only verdicts without corroboration
+- remote runtimes being “verified” locally
+- missing cleanup or missing controls
+
 ## UI Automation Protocol (Playwright)
 
 Apply this whenever acceptance criteria mention UI behavior, click flow, visibility changes, or browser-driven interactions.
@@ -261,7 +278,7 @@ Default result for approved static-only exception:
 - Estimate every verification step and total expected duration.
 - Estimate a Gold plan first and state the total explicitly.
 - If Gold total is 10 minutes or less, run Gold.
-- If Gold total exceeds 10 minutes, ask the user to choose Bronze, Silver, or Gold before running verification.
+- If Gold total exceeds 10 minutes, ask the user to choose `🥉 Bronze`, `🥈 Silver`, or `🥇 Gold`, and include a total time estimate beside each option.
 - Report estimated versus actual timing in closeout.
 
 ## Probes and Artifacts
@@ -292,8 +309,11 @@ Load as needed:
 - `references/verification-brief-template.md`
 - `references/verification-manifest-template.json`
 - `references/closeout-policy.md`
+- `references/closeout-ux-guide.md`
 - `references/evidence-tiers.md`
+- `references/tier-selection-template.md`
 - `references/ground-truth-ladder.md`
+- `references/anti-patterns.md`
 - `references/human-verification-card-template.md`
 - `references/ui-automation-protocol.md`
 - `references/examples.md`

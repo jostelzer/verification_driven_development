@@ -5,10 +5,12 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 VALID_REPORT="$REPO_ROOT/tests/fixtures/reports/valid-report.md"
+VALID_INLINE_VISUAL_TEMPLATE="$REPO_ROOT/tests/fixtures/reports/valid-inline-visual-report.md"
 INVALID_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-missing-final-state.md"
 INVALID_BRIEF_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-brief-operator-flow.md"
 INVALID_GOLD_GATE_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-gold-gate.md"
 INVALID_CLEANUP_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-cleanup-status.md"
+INVALID_INLINE_VISUAL_TEMPLATE="$REPO_ROOT/tests/fixtures/reports/invalid-inline-visual-report.md"
 
 VALID_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/valid-manifest.json"
 READY_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/ready-manifest.json"
@@ -30,13 +32,17 @@ BUNDLED_INIT_RUN="$REPO_ROOT/verification-driven-development/scripts/init-vdd-ru
 
 FAILOVER_STACKTRACE="$REPO_ROOT/tests/fixtures/errors/vdd-stacktrace.txt"
 FAILOVER_RENDERER="$REPO_ROOT/scripts/render-vdd-failover-issue.sh"
+VISUAL_ARTIFACT="$REPO_ROOT/tests/fixtures/artifacts/latency-chart.svg"
 
 TMP_OUT="$(mktemp)"
 TMP_CARD="$(mktemp)"
 TMP_FAILOVER="$(mktemp)"
+TMP_VALID_INLINE_VISUAL_REPORT="$(mktemp)"
+TMP_INVALID_INLINE_VISUAL_REPORT="$(mktemp)"
+TMP_RELATIVE_INLINE_VISUAL_REPORT="$(mktemp)"
 TMP_REPO="$(mktemp -d)"
 cleanup() {
-  rm -f "$TMP_OUT" "$TMP_CARD" "$TMP_FAILOVER"
+  rm -f "$TMP_OUT" "$TMP_CARD" "$TMP_FAILOVER" "$TMP_VALID_INLINE_VISUAL_REPORT" "$TMP_INVALID_INLINE_VISUAL_REPORT" "$TMP_RELATIVE_INLINE_VISUAL_REPORT"
   rm -rf "$TMP_REPO"
 }
 trap cleanup EXIT
@@ -73,6 +79,13 @@ done
 "$ROOT_REPORT_VALIDATOR" "$VALID_REPORT" >/dev/null
 "$BUNDLED_REPORT_VALIDATOR" "$VALID_REPORT" >/dev/null
 
+sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$VALID_INLINE_VISUAL_TEMPLATE" > "$TMP_VALID_INLINE_VISUAL_REPORT"
+sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$INVALID_INLINE_VISUAL_TEMPLATE" > "$TMP_INVALID_INLINE_VISUAL_REPORT"
+sed "s|__VISUAL_PATH__|tests/fixtures/artifacts/latency-chart.svg|g" "$VALID_INLINE_VISUAL_TEMPLATE" > "$TMP_RELATIVE_INLINE_VISUAL_REPORT"
+
+"$ROOT_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
+"$BUNDLED_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
+
 if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_GOLD_MANIFEST" >/dev/null 2>&1; then
   echo "error: expected manifest validator failure for invalid Gold gate fixture" >&2
   exit 1
@@ -105,6 +118,16 @@ fi
 
 if "$ROOT_REPORT_VALIDATOR" "$INVALID_CLEANUP_REPORT" >/dev/null 2>&1; then
   echo "error: expected report validator failure for invalid cleanup fixture: $INVALID_CLEANUP_REPORT" >&2
+  exit 1
+fi
+
+if "$ROOT_REPORT_VALIDATOR" "$TMP_INVALID_INLINE_VISUAL_REPORT" >/dev/null 2>&1; then
+  echo "error: expected report validator failure for invalid inline visual fixture" >&2
+  exit 1
+fi
+
+if "$ROOT_REPORT_VALIDATOR" "$TMP_RELATIVE_INLINE_VISUAL_REPORT" >/dev/null 2>&1; then
+  echo "error: expected report validator failure for relative inline visual path fixture" >&2
   exit 1
 fi
 

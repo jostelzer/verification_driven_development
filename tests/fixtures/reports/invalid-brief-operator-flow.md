@@ -2,6 +2,14 @@
 
 Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 
+## Verification Snapshot
+
+- Status Chip: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
+- Tier Chip: 🥈 Silver
+- Ground-Truth Rung: R2
+- Cleanup Chip: 🧹 COMPLETE
+- Human Step Chip: 🧑‍🔬 required
+
 ## Verification Profile
 
 - Profile: `ui-browser`
@@ -80,7 +88,7 @@ npm run test:ui
 
 Certificate rendered verbatim in the section below.
 
-## Verification Certificate
+## 🏅 Verification Certificate
 
 Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬
@@ -118,13 +126,14 @@ Scientific interpretation:
 
 ## Artifact Index
 
-- Path: `tests/fixtures/artifacts/ui-summary.md`
-- Kind: `trace`
-- Proves: UI verification summary was captured.
+| Path | Kind | Proves |
+| --- | --- | --- |
+| `tests/fixtures/artifacts/ui-summary.md` | `trace` | UI verification summary was captured |
+| `tests/fixtures/artifacts/ui-log.txt` | `log` | corroborating UI state log was captured |
 
-- Path: `tests/fixtures/artifacts/ui-log.txt`
-- Kind: `log`
-- Proves: corroborating UI state log was captured.
+## Inline Visual Evidence
+
+No inline visuals were produced.
 
 ## Command Ownership
 

@@ -8,7 +8,7 @@ Apply this checklist before finalizing any run.
 - For each acceptance criterion, make the evidence discriminating: state `H1` (claim) vs `H0` (no change/plausible confounder), the observable (units), and the decision rule (threshold).
 - Estimate a Gold plan first and record total estimated runtime.
 - If Gold estimate is 10 minutes or less, select Gold (mandatory).
-- If Gold estimate exceeds 10 minutes, present concise Bronze/Silver/Gold options with exact checks and runtime; proceed only after explicit user choice.
+- If Gold estimate exceeds 10 minutes, present concise `🥉 Bronze`, `🥈 Silver`, and `🥇 Gold` options with exact checks and a total time estimate for each; proceed only after explicit user choice.
 - Ensure Bronze/Silver options remain true end-to-end verification (not smoke-only).
 - Record target tier, achieved tier, and (if not Gold) explicit user choice plus residual risk.
 - Include evidence snippets tied directly to changed behavior.
@@ -19,13 +19,16 @@ Apply this checklist before finalizing any run.
 - Loop on failure with observed signals and reruns.
 - Issue certificate only at terminal state.
 - Include the full Verification Certificate block inline in the final chat response (not just in artifacts).
+- Include the Verification Snapshot badges near the top of the report.
 - Include a standardized Verification Brief with sections: `Claim`, `Evidence`, `How YOU Can Run This`.
+- If pictures or graphs were produced, list them with absolute filesystem paths and embed them inline in the report instead of only listing their paths.
 - Ensure `How YOU Can Run This` uses real operator commands, not temporary test harness scripts.
 - Present the Verification Brief directly in chat by default (not as `verification-brief.md` artifact).
 - Generate markdown report artifact by default (`verification-report.md`).
 - Run `scripts/validate-vdd-report.sh <report_md>` and fix all validation errors before closeout.
 - Do not claim fallback validation when the script is missing; report setup as blocked instead.
 - If VDD tooling fails internally, emit failover output with stack trace and a prefilled GitHub issue link/body.
+- Do a final anti-pattern check before terminal output; if any anti-pattern still applies, redesign the evidence or downgrade the state.
 - Do not claim completion without executed verification, except approved static-only exception path.
 - Stop all verification-spawned instances before closeout; include teardown commands and a post-cleanup check.
 - If cleanup is incomplete, do not close as `VERIFIED` or `READY FOR HUMAN VERIFICATION`; use `BLOCKED`.

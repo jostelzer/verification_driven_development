@@ -2,6 +2,14 @@
 
 Status Badge: 🟩 VERIFIED ✅
 
+## Verification Snapshot
+
+- Status Chip: 🟩 VERIFIED ✅
+- Tier Chip: 🥇 Gold
+- Ground-Truth Rung: R2
+- Cleanup Chip: 🧹 COMPLETE
+- Human Step Chip: 🤖 none
+
 ## Verification Profile
 
 - Profile: `api-service`
@@ -82,7 +90,7 @@ curl -sSf http://localhost:8080/health
 
 Certificate rendered verbatim in the section below.
 
-## Verification Certificate
+## 🏅 Verification Certificate
 
 Status: VERIFIED
 ✅ Runtime checks passed with expected API and benchmark outputs.
@@ -111,17 +119,15 @@ Scientific interpretation:
 
 ## Artifact Index
 
-- Path: `tests/fixtures/artifacts/latency-baseline.csv`
-- Kind: `table`
-- Proves: baseline latency sample exists for before/after comparison.
+| Path | Kind | Proves |
+| --- | --- | --- |
+| `tests/fixtures/artifacts/latency-baseline.csv` | `table` | baseline latency sample exists for before/after comparison |
+| `tests/fixtures/artifacts/latency-after.csv` | `table` | post-change latency sample exists and captures the claimed improvement |
+| `tests/fixtures/artifacts/api-log.txt` | `log` | request-id correlation was captured during verification |
 
-- Path: `tests/fixtures/artifacts/latency-after.csv`
-- Kind: `table`
-- Proves: post-change latency sample exists and captures the claimed improvement.
+## Inline Visual Evidence
 
-- Path: `tests/fixtures/artifacts/api-log.txt`
-- Kind: `log`
-- Proves: request-id correlation was captured during verification.
+No inline visuals were produced.
 
 ## Command Ownership
 

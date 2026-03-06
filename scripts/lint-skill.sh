@@ -69,8 +69,11 @@ for ref in \
   "$REPO_ROOT/verification-driven-development/references/verification-brief-template.md" \
   "$REPO_ROOT/verification-driven-development/references/verification-manifest-template.json" \
   "$REPO_ROOT/verification-driven-development/references/closeout-policy.md" \
+  "$REPO_ROOT/verification-driven-development/references/closeout-ux-guide.md" \
   "$REPO_ROOT/verification-driven-development/references/evidence-tiers.md" \
+  "$REPO_ROOT/verification-driven-development/references/tier-selection-template.md" \
   "$REPO_ROOT/verification-driven-development/references/ground-truth-ladder.md" \
+  "$REPO_ROOT/verification-driven-development/references/anti-patterns.md" \
   "$REPO_ROOT/verification-driven-development/references/human-verification-card-template.md" \
   "$REPO_ROOT/verification-driven-development/references/ui-automation-protocol.md" \
   "$REPO_ROOT/verification-driven-development/references/examples.md" \
@@ -123,6 +126,9 @@ require_heading "$SKILL_MD" '^##[[:space:]]+Required Reference Files' '## Requir
 for ref in \
   'references/verification-manifest-template.json' \
   'references/ground-truth-ladder.md' \
+  'references/closeout-ux-guide.md' \
+  'references/tier-selection-template.md' \
+  'references/anti-patterns.md' \
   'references/human-verification-card-template.md' \
   'references/profile-api-service.md' \
   'references/profile-ui-browser.md' \
@@ -141,8 +147,14 @@ require_contains "$SKILL_MD" 'profile' 'profile-driven workflow'
 require_contains "$SKILL_MD" 'manifest' 'manifest-driven closeout'
 require_contains "$SKILL_MD" 'Gold' 'Gold-first tier planning'
 require_contains "$SKILL_MD" 'Bronze' 'Bronze/Silver/Gold tier selection'
+require_contains "$SKILL_MD" '🥉|🥈|🥇' 'visual tier-selection format'
+require_contains "$SKILL_MD" 'time estimate' 'per-tier time estimate requirement'
 require_contains "$SKILL_MD" 'cleanup' 'cleanup gate semantics'
 require_contains "$SKILL_MD" 'Human Verification Card' 'human handoff card'
+require_contains "$SKILL_MD" 'anti-pattern' 'anti-pattern review'
+require_contains "$SKILL_MD" 'closeout-ux-guide' 'closeout UX guide'
+require_contains "$SKILL_MD" 'inline' 'inline visual evidence rule'
+require_contains "$SKILL_MD" 'absolute filesystem path' 'absolute inline visual path rule'
 require_contains "$SKILL_MD" 'failover' 'failover mode'
 
 if ! python3 -m json.tool "$REPO_ROOT/verification-driven-development/references/verification-manifest-template.json" >/dev/null; then
@@ -156,13 +168,25 @@ require_contains "$OPENAI_YAML" '\$verification-driven-development' 'explicit in
 require_contains "$OPENAI_YAML" 'profile' 'profile selection'
 require_contains "$OPENAI_YAML" 'manifest' 'manifest requirement'
 require_contains "$OPENAI_YAML" 'Gold' 'Gold-first planning'
+require_contains "$OPENAI_YAML" '🥉|🥈|🥇' 'visual tier-selection format'
+require_contains "$OPENAI_YAML" 'total time|runtime' 'per-tier time estimate prompt'
 require_contains "$OPENAI_YAML" 'cleanup' 'cleanup requirement'
+require_contains "$OPENAI_YAML" 'artifact table' 'closeout UX artifact table'
+require_contains "$OPENAI_YAML" 'embed' 'inline visual evidence prompt'
+require_contains "$OPENAI_YAML" 'absolute filesystem paths?' 'absolute inline visual path prompt'
+require_contains "$OPENAI_YAML" 'anti-pattern' 'anti-pattern review'
 require_contains "$OPENAI_YAML" 'failover' 'failover mode'
 
 require_contains "$CURSOR_MDC" 'profile' 'profile selection'
 require_contains "$CURSOR_MDC" 'manifest' 'manifest requirement'
 require_contains "$CURSOR_MDC" 'Gold' 'Gold-first planning'
+require_contains "$CURSOR_MDC" '🥉|🥈|🥇' 'visual tier-selection format'
+require_contains "$CURSOR_MDC" 'total time|runtime' 'per-tier time estimate prompt'
 require_contains "$CURSOR_MDC" 'cleanup' 'cleanup requirement'
+require_contains "$CURSOR_MDC" 'artifact table' 'closeout UX artifact table'
+require_contains "$CURSOR_MDC" 'embed' 'inline visual evidence prompt'
+require_contains "$CURSOR_MDC" 'absolute filesystem paths?' 'absolute inline visual path prompt'
+require_contains "$CURSOR_MDC" 'anti-pattern' 'anti-pattern review'
 require_contains "$CURSOR_MDC" 'failover' 'failover mode'
 
 if [ "${#ERRORS[@]}" -gt 0 ]; then

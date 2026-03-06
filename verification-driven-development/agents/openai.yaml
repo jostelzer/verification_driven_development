@@ -9,12 +9,19 @@ interface:
     verification manifest, and record commands, observed signals, artifacts,
     cleanup, and command ownership as the run progresses. Estimate a Gold
     verification plan first; if Gold is <=10 minutes, run Gold, otherwise ask
-    the user to choose Bronze, Silver, or Gold with concise check and runtime
-    options. Treat Bronze and Silver as real end-to-end verification tiers, not
-    smoke tests. Use discriminating checks that separate H1 from H0, prefer
-    show-don't-tell evidence, validate the manifest before the report, stop all
+    the user to choose `🥉 Bronze`, `🥈 Silver`, or `🥇 Gold`, with a total time
+    estimate beside each option plus the exact checks included. Treat Bronze and
+    Silver as real end-to-end verification tiers, not smoke tests. Use
+    discriminating checks that separate H1 from H0, prefer show-don't-tell
+    evidence, validate the manifest before the report, stop all
     verification-spawned instances before closeout, and render the final
-    certificate inline. If browser behavior matters, require a browser-path
-    signal before VERIFIED. If VDD tooling fails, switch to failover mode and
-    generate a prefilled GitHub issue link plus stack trace evidence before
-    returning BLOCKED.
+    certificate inline. Use a compact visual closeout snapshot with badge-style
+    lines for status, tier, ground-truth rung, cleanup, and human-step state,
+    plus a compact artifact table. If pictures or graphs are produced, embed
+    them inline in the report with the same absolute filesystem paths used in
+    the artifact table instead of only listing their paths. Before
+    terminal output, self-check against the anti-pattern library. If browser
+    behavior matters, require a
+    browser-path signal before VERIFIED. If VDD tooling fails, switch to
+    failover mode and generate a prefilled GitHub issue link plus stack trace
+    evidence before returning BLOCKED.

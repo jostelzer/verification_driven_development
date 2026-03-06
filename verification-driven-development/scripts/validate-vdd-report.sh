@@ -90,6 +90,15 @@ trim_block() {
   '
 }
 
+is_absolute_fs_path() {
+  local path="$1"
+  case "$path" in
+    /*) return 0 ;;
+    [A-Za-z]:\\*|[A-Za-z]:/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 resolve_artifact_path() {
   local raw="$1"
   if [ -z "$raw" ]; then
@@ -111,6 +120,7 @@ resolve_artifact_path() {
 }
 
 require_section 'Verification Outcome' 'Verification Outcome'
+require_section 'Verification Snapshot' 'Verification Snapshot'
 require_section 'Verification Profile' 'Verification Profile'
 require_section 'Closeout Artifacts' 'Closeout Artifacts'
 require_section 'Verification Brief Claim' 'Verification Brief Claim'
@@ -126,6 +136,7 @@ require_section 'Results by Criterion' 'Results by Criterion'
 require_section 'Standard Certificate' 'Standard Certificate'
 require_section 'Evidence and Inspection' 'Evidence and Inspection'
 require_section 'Artifact Index' 'Artifact Index'
+require_section 'Inline Visual Evidence' 'Inline Visual Evidence'
 require_section 'Command Ownership' 'Command Ownership'
 require_section 'Timing' 'Timing'
 require_section 'Cleanup' 'Cleanup'
@@ -150,17 +161,44 @@ case "$status_badge_value|$final_state_value" in
   *) add_error "Status Badge and Final State do not agree" ;;
 esac
 
-if ! grep -Eq '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD"; then
-  add_error "missing certificate block header: ## Verification Certificate"
+snapshot_block="$(extract_section '^##[[:space:]]+Verification Snapshot' | trim_block)"
+if [ -z "$snapshot_block" ]; then
+  add_error "Verification Snapshot section is empty"
+else
+  for pattern in \
+    '^- Status Chip:[[:space:]]*(🟩 VERIFIED ✅|🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬|🟥 BLOCKED ⛔)$' \
+    '^- Tier Chip:[[:space:]]*(🥇 Gold|🥈 Silver|🥉 Bronze)$' \
+    '^- Ground-Truth Rung:[[:space:]]*R[1-5]$' \
+    '^- Cleanup Chip:[[:space:]]*🧹[[:space:]]*(COMPLETE|INCOMPLETE)$' \
+    '^- Human Step Chip:[[:space:]]*(🤖 none|🧑‍🔬 required)$'
+  do
+    if ! printf '%s\n' "$snapshot_block" | grep -Eq "$pattern"; then
+      add_error "Verification Snapshot is missing or has an invalid badge line"
+      break
+    fi
+  done
+
+  snapshot_status="$(printf '%s\n' "$snapshot_block" | sed -nE 's/^- Status Chip:[[:space:]]*(.*)$/\1/p' | head -n1)"
+  snapshot_tier="$(printf '%s\n' "$snapshot_block" | sed -nE 's/^- Tier Chip:[[:space:]]*(.*)$/\1/p' | head -n1)"
+  snapshot_cleanup="$(printf '%s\n' "$snapshot_block" | sed -nE 's/^- Cleanup Chip:[[:space:]]*🧹[[:space:]]*(COMPLETE|INCOMPLETE)$/\1/p' | head -n1)"
+  snapshot_human="$(printf '%s\n' "$snapshot_block" | sed -nE 's/^- Human Step Chip:[[:space:]]*(.*)$/\1/p' | head -n1)"
+
+  if [ -n "$snapshot_status" ] && [ "$snapshot_status" != "$status_badge_value" ]; then
+    add_error "Verification Snapshot status chip must match Status Badge"
+  fi
 fi
 
-verification_certificate_line="$(grep -Enm1 '^##[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD" | cut -d: -f1 || true)"
+if ! grep -Eq '^##[[:space:]]+🏅[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD"; then
+  add_error "missing certificate block header: ## 🏅 Verification Certificate"
+fi
+
+verification_certificate_line="$(grep -Enm1 '^##[[:space:]]+🏅[[:space:]]+Verification Certificate([[:space:]]|$)' "$REPORT_MD" | cut -d: -f1 || true)"
 human_run_section_line="$(grep -Enm1 '^##[[:space:]]+Verification Brief How YOU Can Run This([[:space:]]|$)' "$REPORT_MD" | cut -d: -f1 || true)"
 if [ -n "$verification_certificate_line" ] && [ -n "$human_run_section_line" ] && [ "$human_run_section_line" -le "$verification_certificate_line" ]; then
   add_error "Verification Brief How YOU Can Run This must appear below Verification Certificate"
 fi
 
-certificate_block="$(extract_section '^##[[:space:]]+Verification Certificate' | trim_block)"
+certificate_block="$(extract_section '^##[[:space:]]+🏅[[:space:]]+Verification Certificate' | trim_block)"
 if printf '%s\n' "$certificate_block" | grep -q '^Green Flags:'; then
   add_error "Verification Certificate must not use 'Green Flags:'"
 fi
@@ -249,6 +287,17 @@ else
   done
 fi
 
+achieved_tier_value="$(printf '%s\n' "$ground_truth_block" | sed -nE 's/^- Achieved evidence tier:[[:space:]]*(Gold|Silver|Bronze).*/\1/p' | head -n1)"
+case "$achieved_tier_value" in
+  Gold) expected_tier_chip='🥇 Gold' ;;
+  Silver) expected_tier_chip='🥈 Silver' ;;
+  Bronze) expected_tier_chip='🥉 Bronze' ;;
+  *) expected_tier_chip='' ;;
+esac
+if [ -n "${snapshot_tier:-}" ] && [ -n "$expected_tier_chip" ] && [ "$snapshot_tier" != "$expected_tier_chip" ]; then
+  add_error "Verification Snapshot tier chip must match achieved evidence tier"
+fi
+
 commands_block="$(extract_section '^##[[:space:]]+Commands Run' | trim_block)"
 commands_code="$(printf '%s\n' "$commands_block" | awk '
   BEGIN { in_code=0 }
@@ -289,14 +338,57 @@ artifact_index_block="$(extract_section '^##[[:space:]]+Artifact Index' | trim_b
 if [ -z "$artifact_index_block" ]; then
   add_error "Artifact Index section is empty"
 else
-  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Path:'; then
-    add_error "Artifact Index must include '- Path:' entries"
+  if ! printf '%s\n' "$artifact_index_block" | grep -Eq '^\|[[:space:]]*Path[[:space:]]*\|[[:space:]]*Kind[[:space:]]*\|[[:space:]]*Proves[[:space:]]*\|$'; then
+    add_error "Artifact Index must include a markdown table header with Path, Kind, and Proves columns"
   fi
-  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Kind:'; then
-    add_error "Artifact Index must include '- Kind:' entries"
+  if ! printf '%s\n' "$artifact_index_block" | grep -Eq '^\|[[:space:]]*---[[:space:]]*\|[[:space:]]*---[[:space:]]*\|[[:space:]]*---[[:space:]]*\|$'; then
+    add_error "Artifact Index must include a markdown table separator row"
   fi
-  if ! printf '%s\n' "$artifact_index_block" | grep -q '^- Proves:'; then
-    add_error "Artifact Index must include '- Proves:' entries"
+  artifact_rows="$(printf '%s\n' "$artifact_index_block" | awk '/^\|/ { c++ } END { print c+0 }')"
+  if [ "$artifact_rows" -lt 3 ]; then
+    add_error "Artifact Index must include at least one artifact table row"
+  fi
+fi
+
+inline_visual_block="$(extract_section '^##[[:space:]]+Inline Visual Evidence' | trim_block)"
+if [ -z "$inline_visual_block" ]; then
+  add_error "Inline Visual Evidence section is empty"
+fi
+
+visual_artifacts="$(
+  printf '%s\n' "$artifact_index_block" | awk -F'|' '
+    NR > 2 && /^\|/ {
+      path=$2
+      kind=$3
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", path)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", kind)
+      gsub(/^`|`$/, "", path)
+      if (kind == "`image`" || kind == "`chart`" || kind == "`screenshot`") {
+        gsub(/^`|`$/, "", kind)
+      }
+      if (kind == "image" || kind == "chart" || kind == "screenshot") {
+        print path
+      }
+    }
+  '
+)"
+
+if [ -n "$visual_artifacts" ]; then
+  if ! printf '%s\n' "$inline_visual_block" | grep -Eq '^!\[[^]]*\]\([^)]+\)$'; then
+    add_error "Inline Visual Evidence must include markdown image embeds when visual artifacts are present"
+  fi
+  while IFS= read -r visual_path; do
+    [ -n "$visual_path" ] || continue
+    if ! is_absolute_fs_path "$visual_path"; then
+      add_error "Visual artifacts in Artifact Index must use absolute filesystem paths: $visual_path"
+    fi
+    if ! printf '%s\n' "$inline_visual_block" | grep -Fq "]($visual_path)"; then
+      add_error "Inline Visual Evidence must embed visual artifact path with markdown image syntax: $visual_path"
+    fi
+  done <<< "$visual_artifacts"
+else
+  if ! printf '%s\n' "$inline_visual_block" | grep -Fxq 'No inline visuals were produced.'; then
+    add_error "Inline Visual Evidence must say 'No inline visuals were produced.' when there are no pictures or graphs"
   fi
 fi
 
@@ -347,6 +439,17 @@ else
   if [ "$cleanup_status" = "INCOMPLETE" ] && [ "$final_state_value" != 'BLOCKED ⛔' ]; then
     add_error "Cleanup status INCOMPLETE is only allowed with BLOCKED final state"
   fi
+  if [ -n "${snapshot_cleanup:-}" ] && [ "$snapshot_cleanup" != "$cleanup_status" ]; then
+    add_error "Verification Snapshot cleanup chip must match Cleanup status"
+  fi
+fi
+
+case "$final_state_value" in
+  'READY FOR HUMAN VERIFICATION 🧑‍🔬') expected_human_chip='🧑‍🔬 required' ;;
+  *) expected_human_chip='🤖 none' ;;
+esac
+if [ -n "${snapshot_human:-}" ] && [ "$snapshot_human" != "$expected_human_chip" ]; then
+  add_error "Verification Snapshot human-step chip must match the final state"
 fi
 
 if [ "${#WARNINGS[@]}" -gt 0 ]; then

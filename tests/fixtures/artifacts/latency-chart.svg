@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-labelledby="title desc">
+  <title id="title">Latency chart</title>
+  <desc id="desc">A simple before and after latency comparison chart used by the VDD fixture suite.</desc>
+  <rect width="320" height="180" fill="#f7f4ec"/>
+  <line x1="40" y1="140" x2="290" y2="140" stroke="#3d3126" stroke-width="2"/>
+  <line x1="40" y1="30" x2="40" y2="140" stroke="#3d3126" stroke-width="2"/>
+  <rect x="78" y="52" width="48" height="88" fill="#c96f44"/>
+  <rect x="194" y="83" width="48" height="57" fill="#2d7f5e"/>
+  <text x="64" y="157" font-family="monospace" font-size="12" fill="#3d3126">Before</text>
+  <text x="184" y="157" font-family="monospace" font-size="12" fill="#3d3126">After</text>
+  <text x="84" y="46" font-family="monospace" font-size="12" fill="#3d3126">120ms</text>
+  <text x="200" y="77" font-family="monospace" font-size="12" fill="#3d3126">78ms</text>
+</svg>
