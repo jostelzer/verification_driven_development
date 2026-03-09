@@ -16,7 +16,7 @@ commands, inspect real outputs, iterate until checks pass, and close with
 evidence (a short Verification Manifest, Verification Report, and
 Verification Certificate).
 
-## What Changed In This Version
+## What VDD Enforces
 
 The skill now emphasizes:
 - verification profiles (`api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, `remote-ssh`)
@@ -26,7 +26,50 @@ The skill now emphasizes:
 - an anti-pattern library for catching weak evidence and fake-confidence closeouts before terminal output
 - bundled helper scripts inside the installed skill, so manifest/report validation still works after install
 
+## Quick Start
+
+1. Install the skill for your tool:
+   - Codex: `./install.sh --target codex`
+   - Claude Code: `./install.sh --target claude`
+   - Cursor: `./install.sh --target cursor --cursor-project <project-root>`
+2. Invoke it:
+   - Codex: `$verification-driven-development` or `VDD`
+   - Claude Code: `/verification-driven-development`
+   - Cursor: apply `.cursor/rules/verification-driven-development.mdc`
+3. Use it on a task where "done" is cheap but proof is not: API bugfixes,
+   browser flows, containerized services, or remote-host verification.
+
+## Good Fit / Bad Fit
+
+Good fit:
+- API bugs where "200 OK" is not enough
+- UI flows that need a real browser signal
+- Docker or deploy work where readiness and cleanup matter
+- Data or ML tasks that need grounded evaluation evidence
+- Remote SSH work where the decisive behavior happens off-box
+
+Bad fit:
+- trivial copy edits
+- docs-only changes
+- low-stakes static rewrites where no runtime claim is being made
+
+## What Closeout Looks Like
+
+The output is meant to be inspectable, not just confident:
+
+```text
+Terminal State: VERIFIED ✅
+Profile: api-service
+Ground Truth: Silver
+Command: curl -sSf http://127.0.0.1:8000/health
+Observed Signal: HTTP 200 with expected readiness payload
+Cleanup: PASS, no verification resources left running
+```
+
 ## Examples
+
+These examples matter because VDD is strongest when the success claim can be
+confused with a plausible false positive.
 
 ### 1) From "naked model repo" to Dockerized HTTP inference
 
@@ -89,24 +132,34 @@ The command prints:
 - an issue title
 - a full markdown body (including stack trace) for copy/paste
 
-## Installer
+## Install and Invoke
 
-- Skill Installer (GitHub folder):
-  [https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development](https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development)
-- Or local: `./install.sh --target codex|claude|cursor`
-- Invocation by tool:
-  - Codex: `$verification-driven-development` (or `VDD`)
-  - Claude Code: `/verification-driven-development`
-  - Cursor: install the project rule with `./install.sh --target cursor --cursor-project <project-root>` (or `--target all`), which writes `.cursor/rules/verification-driven-development.mdc`; Cursor then applies it as a project rule in that workspace.
-- Bundled validator path after install:
-  `<skill-root>/scripts/validate-vdd-report.sh`
-  and `<skill-root>/scripts/validate-vdd-manifest.sh`
-  (source-repo wrappers remain under `scripts/`).
-- Bundled helper scripts after install:
+GitHub folder:
+[https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development](https://github.com/jostelzer/verification_driven_development/tree/main/verification-driven-development)
+
+Install:
+- Codex: `./install.sh --target codex`
+- Claude Code: `./install.sh --target claude`
+- Cursor: `./install.sh --target cursor --cursor-project <project-root>`
+- All targets: `./install.sh --target all --cursor-project <project-root>`
+
+Invoke:
+- Codex: `$verification-driven-development` (or `VDD`)
+- Claude Code: `/verification-driven-development`
+- Cursor: install the project rule, which writes
+  `.cursor/rules/verification-driven-development.mdc`; Cursor then applies it
+  as a project rule in that workspace.
+
+What gets installed:
+- Validator paths:
+  `<skill-root>/scripts/validate-vdd-report.sh` and
+  `<skill-root>/scripts/validate-vdd-manifest.sh`
+- Helper scripts:
   - `<skill-root>/scripts/init-vdd-run.sh`
   - `<skill-root>/scripts/render-verification-brief.sh`
   - `<skill-root>/scripts/render-human-verification-card.sh`
   - `<skill-root>/scripts/ensure-agent-ignore.sh`
+  (source-repo wrappers remain under `scripts/`)
 
 Agent behavior is defined in `verification-driven-development/SKILL.md` and `verification-driven-development/agents/openai.yaml`.
 
