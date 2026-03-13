@@ -1,21 +1,19 @@
 ---
 name: verification-driven-development
 description: >-
-  Verification-first coding workflow (VDD) that prevents task completion until
-  executable verification runs and evidence is captured. Use for feature,
-  bugfix, integration, service, deployment, and data-pipeline work where
-  runtime behavior matters. Require a joint implementation plus verification
-  plan, iterative implement-run-inspect-fix loops, and a final Verification
-  Report plus Certificate. Allow static-only verification only as a rare
-  exception after explicitly asking the user and receiving approval.
+  Verification-first coding workflow (VDD) that keeps the hard requirement on
+  executed checks and observed evidence, while staying lightweight on ritual
+  and paperwork. Use for feature, bugfix, integration, service, deployment,
+  and data-pipeline work where runtime behavior matters.
 ---
 
 # Verification-Driven Development (VDD)
 
-Enforce a hard verification gate:
+Enforce a proof gate, not a paperwork gate:
 - Do not declare task completion without executed verification commands and observed evidence.
 - Do not issue terminal-state certificates until verification is complete.
 - Prefer semantic evidence over report theatrics: the manifest, artifacts, and observed signals are the source of truth.
+- Use the lightest plan and closeout structure that still makes the result believable and reproducible.
 
 ## Core Invariants
 
@@ -25,23 +23,14 @@ Always:
 - Track resources you start and prove cleanup before any terminal state.
 - Treat SSH, containers, and browsers as first-class runtime surfaces, not exceptions.
 
-## Verification Profiles (Mandatory)
+## Runtime Surface (Mandatory)
 
-Select exactly one primary verification profile before coding.
-Use the closest fit and load only that reference unless the task truly spans multiple surfaces.
+Use common sense about the actual runtime surface instead of forcing a named profile.
 
-- `api-service`: HTTP/CLI services, integrations, agents, and backend bugfixes. See `references/profile-api-service.md`.
-- `ui-browser`: browser click flows, visibility, interaction state, and visual regressions. See `references/profile-ui-browser.md`.
-- `data-pipeline`: ETL, batch jobs, queue workers, and data quality checks. See `references/profile-data-pipeline.md`.
-- `ml-model`: inference quality, model serving, evaluation datasets, and regression checks. See `references/profile-ml-model.md`.
-- `deploy-infra`: build/deploy pipelines, containers, infra wiring, and runtime readiness. See `references/profile-deploy-infra.md`.
-- `library-refactor`: internal refactors, CLI/library changes, and behavior-preserving rewrites. See `references/profile-library-refactor.md`.
-- `remote-ssh`: verification that primarily runs on remote hosts over SSH. See `references/profile-remote-ssh.md`.
-
-Profile rules:
-- Pick the profile in Phase P1 and record it in the manifest and the report.
-- If the task has a secondary surface, borrow only the specific check patterns needed from that reference.
-- `remote-ssh` is a real profile, not a transport footnote. If the critical evidence lives on a remote machine, plan for it explicitly.
+Rules:
+- Write checks that match the real path being changed: HTTP, CLI, browser, batch job, model inference, deployment, SSH, or a combination.
+- If the critical evidence lives on a remote machine, plan for it explicitly and record commands with location `ssh`.
+- If browser interaction matters, include at least one browser-path signal before calling the result conclusive.
 
 ## Command Execution Ownership (Mandatory)
 
@@ -69,7 +58,7 @@ Any human-run request must include:
 5. Return condition.
 - Optional `Operator Notes` may follow the card when the flow needs extra context.
 
-Use `references/human-verification-card-template.md` and prefer rendering via:
+Prefer rendering the Human Verification Card via:
 1. `<active-repo>/scripts/render-human-verification-card.sh <manifest_json>`
 2. `<skill-root>/scripts/render-human-verification-card.sh <manifest_json>`
 
@@ -95,8 +84,7 @@ Generate failover issue content using this resolver order:
 
 Require all of the following:
 - Task request and acceptance criteria.
-- Chosen verification profile.
-- Ground-truth source or an explicit waiver.
+- Ground-truth source or an explicit waiver when the task needs one.
 - Runtime instructions, in this order of authority:
 1. `agent.md` when present.
 2. Repository automation (`Makefile`, scripts, compose files, CI workflows).
@@ -123,7 +111,7 @@ Initialization:
 
 Manifest rules:
 - Store the manifest at `.agent/runs/<timestamp>/verification-manifest.json`.
-- Record the chosen profile, tier decision, commands, observed signals, artifacts, criteria results, cleanup, and command ownership.
+- Record commands, observed signals, artifacts when present, criteria results, cleanup, and command ownership.
 - Update the manifest during the loop, not only at the end.
 - Keep artifact paths explicit and stable.
 - Treat the manifest as stronger evidence than prose summary. The report and certificate must not contradict it.
@@ -135,20 +123,19 @@ Validate the manifest before validating the report:
 ## Terminal States
 
 Use exactly one final state:
-- `VERIFIED ✅`: implementation complete, executable verification passed, tier decision respected, and evidence supports success.
+- `VERIFIED ✅`: implementation complete, executable verification passed, and evidence supports success.
 - `READY FOR HUMAN VERIFICATION 🧑‍🔬`: implementation complete, the agent verified everything it could, and a human must complete the final discriminating step.
 - `BLOCKED ⛔`: required runtime access, tooling, or instructions are missing after agent-side attempts.
 
 Gates:
 - UI gate for `VERIFIED ✅`: when acceptance criteria include browser-driven interaction, `VERIFIED ✅` requires at least one executed browser-path signal.
-- Evidence-tier gate for `VERIFIED ✅`: if Gold is estimated at 10 minutes or less, `VERIFIED ✅` requires Gold evidence.
 - Cleanup gate for all terminal states: if any spawned verification resource cannot be stopped, terminal state must be `BLOCKED ⛔`.
 
 ## Communication Style (Default: Compact)
 
 Keep user-facing plans concise by default.
 - Target 6 to 10 bullets total, or one compact table with up to 5 steps.
-- Include only decisions that affect execution: profile, change surface, commands, pass/fail signals, blockers, and timing.
+- Include only decisions that affect execution: change surface, commands, pass/fail signals, blockers, and timing.
 - Expand detail only when the user asks for it or when ambiguity is high.
 
 ## Operating Loop (Mandatory)
@@ -163,18 +150,11 @@ Implementation plan:
 - List risky assumptions and how verification will validate each one.
 
 Verification plan:
-- State the chosen verification profile.
 - List exact command(s) per step, with execution location (`local`, `docker`, `ssh`).
 - For each acceptance criterion, define a discriminating check: `H1`, `H0`, observable, and decision rule.
-- Include a Ground-Truth Plan: selected ladder rung, source, acquisition method, sample size, metrics, thresholds, and artifact location.
-- Set initial target evidence tier to `Gold` and estimate its runtime.
-- If estimated Gold total is 10 minutes or less, run Gold.
-- If estimated Gold total exceeds 10 minutes, pause and ask the user with exactly 3 concise options in this visual format:
-  - `🥉 Bronze — <estimated total time>`
-  - `🥈 Silver — <estimated total time>`
-  - `🥇 Gold — <estimated total time>`
-- Each option must include its own total time estimate and the exact checks it buys.
-- Bronze and Silver must still be real end-to-end operator-path verification.
+- Include a Ground-Truth Plan when a baseline, sample, or waiver is load-bearing.
+- If verification cost or runtime is high, summarize the tradeoff and get user input before running the expensive path.
+- Bronze/Silver/Gold can be used as planning shorthand, but they are optional aids, not mandatory ceremony.
 - Initialize the run scaffold and manifest before substantial execution when practical.
 
 ### Phase P2: Implement -> Run -> Inspect -> Fix
@@ -194,8 +174,8 @@ Loop until terminal state:
 Produce:
 - Verification Manifest using `references/verification-manifest-template.json`.
 - Verification Report using `references/report-template.md`.
-- Verification Certificate using `references/certificate-template.md`.
-- Verification Brief using `references/verification-brief-template.md`.
+- Verification Certificate inline in chat.
+- Verification Brief rendered from the report.
 
 Validation order:
 1. Validate the manifest.
@@ -209,9 +189,8 @@ Closeout rules:
 - If VDD tooling fails before normal closeout is possible, enter Skill Failover Mode.
 - Always render the Verification Certificate block directly in the final chat response.
 - Apply the visual closeout conventions from `references/closeout-ux-guide.md`.
-- In the report markdown, place `## Verification Brief How YOU Can Run This` below `## 🏅 Verification Certificate`.
+- Keep the report compact by default. Required content is commands, results by criterion, evidence, reproducibility, command ownership, cleanup, final state, and a matching manifest.
 - If pictures or graphs are produced, embed them inline in the report with absolute filesystem paths instead of only listing their paths.
-- In the final chat response, place `How YOU Can Run This` immediately below the Verification Certificate block.
 - Include the Artifact Index, Command Ownership summary, and Cleanup summary in the report.
 
 ## Verification Policy
@@ -219,9 +198,9 @@ Closeout rules:
 Must:
 - Execute behavior through the same path a careful human would execute.
 - Collect concrete evidence and perform light introspection.
-- Map each acceptance criterion to at least one artifact-backed signal.
+- Map each acceptance criterion to at least one concrete signal.
 - Prefer “show, don’t tell” artifacts: screenshots, charts, tables, logs, trace files, or structured outputs.
-- Use smoke checks only as preflight; they do not count as Bronze, Silver, or Gold evidence.
+- Treat smoke checks as preflight unless they really are the operator path.
 - Stop verification-spawned instances before closeout and prove teardown with at least one check.
 
 ### Scientific Mindset (Lean)
@@ -276,9 +255,7 @@ Default result for approved static-only exception:
 ## Time Estimation Policy
 
 - Estimate every verification step and total expected duration.
-- Estimate a Gold plan first and state the total explicitly.
-- If Gold total is 10 minutes or less, run Gold.
-- If Gold total exceeds 10 minutes, ask the user to choose `🥉 Bronze`, `🥈 Silver`, or `🥇 Gold`, and include a total time estimate beside each option.
+- Only escalate into tiered Bronze/Silver/Gold planning when that helps a real tradeoff discussion.
 - Report estimated versus actual timing in closeout.
 
 ## Probes and Artifacts
@@ -305,22 +282,11 @@ Artifact rules:
 
 Load as needed:
 - `references/report-template.md`
-- `references/certificate-template.md`
-- `references/verification-brief-template.md`
 - `references/verification-manifest-template.json`
 - `references/closeout-policy.md`
 - `references/closeout-ux-guide.md`
 - `references/evidence-tiers.md`
-- `references/tier-selection-template.md`
 - `references/ground-truth-ladder.md`
 - `references/anti-patterns.md`
-- `references/human-verification-card-template.md`
 - `references/ui-automation-protocol.md`
 - `references/examples.md`
-- `references/profile-api-service.md`
-- `references/profile-ui-browser.md`
-- `references/profile-data-pipeline.md`
-- `references/profile-ml-model.md`
-- `references/profile-deploy-infra.md`
-- `references/profile-library-refactor.md`
-- `references/profile-remote-ssh.md`

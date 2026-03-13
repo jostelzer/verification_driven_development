@@ -1,6 +1,6 @@
 ---
 description: >-
-  Verification-first workflow with profile-driven executable checks and
+  Verification-first workflow with executable checks and
   evidence before completion.
 alwaysApply: false
 ---
@@ -11,15 +11,14 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 
 ## Required operating loop
 - Start with one compact joint plan: implementation steps plus executable verification steps.
-- Pick a verification profile before coding: `api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, or `remote-ssh`.
+- Use the checks that match the real runtime surface.
+- Treat SSH as an execution location.
 - Initialize a verification manifest and update it as commands, artifacts, and decisions accumulate.
 - For each verification step, include exact command, execution location, pass/fail signal, and the observable that separates `H1` from `H0`.
-- Estimate a Gold verification plan first; if Gold is <=10 minutes, run Gold.
-- If Gold exceeds 10 minutes, ask the user to choose `🥉 Bronze`, `🥈 Silver`, or `🥇 Gold`, and show a total time estimate plus the included checks for each option.
-- Bronze and Silver must still be real end-to-end verification, never smoke-only.
+- Use Bronze/Silver/Gold only when a real time or cost tradeoff needs discussion; otherwise keep the plan simple.
 - Stop all verification-spawned instances before closeout and confirm teardown with a post-cleanup check.
 - Validate the manifest before the report.
-- Use a compact closeout snapshot with status, tier, ground-truth rung, cleanup, and human-step badges, plus a compact artifact table.
+- Use a compact closeout with commands, results by criterion, evidence, reproducibility, command ownership, cleanup, and final state.
 - If pictures or graphs are produced, embed them inline in the report with the same absolute filesystem paths used in the artifact table instead of only listing their paths.
 - Before terminal output, self-check against the anti-pattern library.
 - Do not claim completion without executed verification and observed evidence.

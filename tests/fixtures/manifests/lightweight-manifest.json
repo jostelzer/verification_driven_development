@@ -1,0 +1,48 @@
+{
+  "run_id": "fixture-lightweight",
+  "task": "Lean closeout fixture",
+  "final_state": "VERIFIED ✅",
+  "blocked_by": "none",
+  "commands": [
+    {
+      "command": "python -m http.server 8765",
+      "location": "local",
+      "purpose": "Start the service under test",
+      "observed_signal": "Server bound to 0.0.0.0:8765",
+      "verdict": "PASS"
+    },
+    {
+      "command": "curl -sSf http://127.0.0.1:8765/",
+      "location": "local",
+      "purpose": "Verify the operator path returns a successful response",
+      "observed_signal": "HTML index returned with HTTP 200",
+      "verdict": "PASS"
+    }
+  ],
+  "criteria_results": [
+    {
+      "criterion": "The service responds on the expected port",
+      "result": "PASS",
+      "evidence": "curl returned HTTP 200 from http://127.0.0.1:8765/"
+    }
+  ],
+  "cleanup": {
+    "resources_started": "local python http.server on port 8765",
+    "teardown_commands": [
+      "pkill -f 'python -m http.server 8765'"
+    ],
+    "post_cleanup_check": "lsof -i tcp:8765 returned no listeners",
+    "status": "COMPLETE"
+  },
+  "command_ownership": {
+    "agent_ran": [
+      "python -m http.server 8765",
+      "curl -sSf http://127.0.0.1:8765/",
+      "pkill -f 'python -m http.server 8765'",
+      "lsof -i tcp:8765"
+    ],
+    "agent_failed": [],
+    "human_required_reason": "none"
+  },
+  "human_verification": null
+}

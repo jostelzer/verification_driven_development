@@ -4,11 +4,11 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  verification-driven-development/scripts/validate-vdd-manifest.sh <verification_manifest_json> [--expected-final-state <state>] [--expected-status-badge <badge>] [--expected-profile <profile>]
+  verification-driven-development/scripts/validate-vdd-manifest.sh <verification_manifest_json> [--expected-final-state <state>] [--expected-status-badge <badge>]
 
 Description:
   Validates that a verification manifest contains the semantic evidence needed
-  to support a VDD closeout.
+  to support a VDD closeout without forcing every optional planning field.
 EOF
 }
 
@@ -27,8 +27,6 @@ shift
 
 EXPECTED_FINAL_STATE=""
 EXPECTED_STATUS_BADGE=""
-EXPECTED_PROFILE=""
-
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --expected-final-state)
@@ -37,10 +35,6 @@ while [ "$#" -gt 0 ]; do
       ;;
     --expected-status-badge)
       EXPECTED_STATUS_BADGE="${2:-}"
-      shift 2
-      ;;
-    --expected-profile)
-      EXPECTED_PROFILE="${2:-}"
       shift 2
       ;;
     *)
@@ -61,7 +55,7 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-python3 - "$MANIFEST_JSON" "$EXPECTED_FINAL_STATE" "$EXPECTED_STATUS_BADGE" "$EXPECTED_PROFILE" <<'PY'
+python3 - "$MANIFEST_JSON" "$EXPECTED_FINAL_STATE" "$EXPECTED_STATUS_BADGE" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -69,24 +63,13 @@ from pathlib import Path
 manifest_path = Path(sys.argv[1])
 expected_final_state = sys.argv[2]
 expected_status_badge = sys.argv[3]
-expected_profile = sys.argv[4]
 
 allowed_states = {
     "VERIFIED ✅": "🟩 VERIFIED ✅",
     "READY FOR HUMAN VERIFICATION 🧑‍🔬": "🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬",
     "BLOCKED ⛔": "🟥 BLOCKED ⛔",
 }
-allowed_profiles = {
-    "api-service",
-    "ui-browser",
-    "data-pipeline",
-    "ml-model",
-    "deploy-infra",
-    "library-refactor",
-    "remote-ssh",
-}
 allowed_locations = {"local", "docker", "ssh"}
-allowed_tiers = {"Gold", "Silver", "Bronze"}
 allowed_cleanup = {"COMPLETE", "INCOMPLETE"}
 allowed_verdicts = {"PASS", "FAIL", "INFO"}
 allowed_results = {"PASS", "FAIL", "INCONCLUSIVE"}
@@ -139,13 +122,20 @@ if not isinstance(data, dict):
 else:
     run_id = require_string(data, "run_id", "manifest")
     task = require_string(data, "task", "manifest")
-    profile = require_string(data, "profile", "manifest")
+    profile = data.get("profile")
+    if profile is not None and (not isinstance(profile, str) or not profile.strip()):
+        err("manifest field 'profile' must be a non-empty string when provided")
+        profile = None
     final_state = require_string(data, "final_state", "manifest")
-    status_badge = require_string(data, "status_badge", "manifest")
+    status_badge_raw = data.get("status_badge", "")
+    if status_badge_raw is None:
+        status_badge_raw = ""
+    if not isinstance(status_badge_raw, str):
+        err("manifest field 'status_badge' must be a string when provided")
+        status_badge = ""
+    else:
+        status_badge = status_badge_raw.strip()
     blocked_by = data.get("blocked_by", "none")
-
-    if profile and profile not in allowed_profiles:
-        err(f"manifest profile must be one of: {', '.join(sorted(allowed_profiles))}")
 
     if final_state and final_state not in allowed_states:
         err("manifest final_state must be VERIFIED ✅, READY FOR HUMAN VERIFICATION 🧑‍🔬, or BLOCKED ⛔")
@@ -153,57 +143,40 @@ else:
     if final_state in allowed_states and status_badge and status_badge != allowed_states[final_state]:
         err("status_badge does not match final_state")
 
+    implied_status_badge = allowed_states.get(final_state, "")
+
     if expected_final_state and final_state != expected_final_state:
         err(f"final_state mismatch: expected '{expected_final_state}' but manifest recorded '{final_state}'")
 
-    if expected_status_badge and status_badge != expected_status_badge:
-        err(f"status_badge mismatch: expected '{expected_status_badge}' but manifest recorded '{status_badge}'")
+    if expected_status_badge:
+        compare_badge = status_badge or implied_status_badge
+        if compare_badge != expected_status_badge:
+            err(
+                f"status_badge mismatch: expected '{expected_status_badge}' "
+                f"but manifest recorded '{status_badge or implied_status_badge or 'missing'}'"
+            )
 
-    if expected_profile and profile != expected_profile:
-        err(f"profile mismatch: expected '{expected_profile}' but manifest recorded '{profile}'")
+    for label in ("target_evidence_tier", "achieved_evidence_tier"):
+        value = data.get(label)
+        if value is not None:
+            if not isinstance(value, str) or value not in {"Gold", "Silver", "Bronze"}:
+                err(f"{label} must be Gold, Silver, or Bronze when provided")
 
-    target_tier = require_string(data, "target_evidence_tier", "manifest")
-    achieved_tier = require_string(data, "achieved_evidence_tier", "manifest")
-    gate = require_string(data, "gold_decision_gate", "manifest")
-    user_choice = require_string(data, "user_tier_choice_when_gold_gt_10m", "manifest")
-
-    for label, value in (("target_evidence_tier", target_tier), ("achieved_evidence_tier", achieved_tier)):
-        if value and value not in allowed_tiers:
-            err(f"{label} must be Gold, Silver, or Bronze")
-
-    if gate not in {"<=10m (auto-Gold)", ">10m (user choice required)"}:
-        err("gold_decision_gate must be '<=10m (auto-Gold)' or '>10m (user choice required)'")
-
-    if gate == "<=10m (auto-Gold)" and target_tier and target_tier != "Gold":
-        err("target_evidence_tier must be Gold when gold_decision_gate is <=10m (auto-Gold)")
-
-    if gate == ">10m (user choice required)":
-        choice_tier = ""
-        for tier in allowed_tiers:
-            if tier in user_choice:
-                choice_tier = tier
-                break
-        if not choice_tier:
-            err("user_tier_choice_when_gold_gt_10m must name Bronze, Silver, or Gold")
-        elif target_tier and target_tier != choice_tier:
-            err("target_evidence_tier must match user_tier_choice_when_gold_gt_10m")
+    for label in ("gold_decision_gate", "user_tier_choice_when_gold_gt_10m"):
+        value = data.get(label)
+        if value is not None and (not isinstance(value, str) or not value.strip()):
+            err(f"{label} must be a non-empty string when provided")
 
     ground_truth = data.get("ground_truth")
-    if not isinstance(ground_truth, dict):
-        err("manifest missing ground_truth object")
-        ground_truth = {}
-
-    for field in (
-        "source",
-        "acquisition",
-        "sample_size",
-        "metrics_and_thresholds",
-        "artifact_location",
-        "h1",
-        "h0",
-        "decision_rule",
-    ):
-        require_string(ground_truth, field, "ground_truth")
+    if ground_truth is not None:
+        if not isinstance(ground_truth, dict):
+            err("ground_truth must be an object when provided")
+            ground_truth = {}
+        else:
+            for field in ("source", "waiver", "h1", "h0", "decision_rule"):
+                value = ground_truth.get(field)
+                if value is not None and (not isinstance(value, str) or not value.strip()):
+                    err(f"ground_truth field '{field}' must be a non-empty string when provided")
 
     commands = require_list(data, "commands", "manifest")
     saw_ssh_command = False
@@ -226,7 +199,10 @@ else:
         if "browser" in command.lower() or "browser" in item.get("purpose", "").lower() or "playwright" in command.lower():
             saw_browser_signal = True
 
-    artifacts = require_list(data, "artifacts", "manifest")
+    artifacts = data.get("artifacts", [])
+    if not isinstance(artifacts, list):
+        err("manifest field 'artifacts' must be a list when provided")
+        artifacts = []
     graphic_count = 0
     for idx, item in enumerate(artifacts, start=1):
         if not isinstance(item, dict):
@@ -258,8 +234,13 @@ else:
     if not isinstance(cleanup, dict):
         err("manifest missing cleanup object")
         cleanup = {}
-    require_string(cleanup, "resources_started", "cleanup")
-    teardown_commands = require_list(cleanup, "teardown_commands", "cleanup")
+    resources_started = cleanup.get("resources_started", "none")
+    if not isinstance(resources_started, str) or not resources_started.strip():
+        err("cleanup.resources_started must be a non-empty string when provided")
+    teardown_commands = cleanup.get("teardown_commands", [])
+    if not isinstance(teardown_commands, list):
+        err("cleanup.teardown_commands must be a list")
+        teardown_commands = []
     require_string(cleanup, "post_cleanup_check", "cleanup")
     cleanup_status = require_string(cleanup, "status", "cleanup")
     if cleanup_status and cleanup_status not in allowed_cleanup:
@@ -273,7 +254,10 @@ else:
     agent_failed = command_ownership.get("agent_failed", [])
     if not isinstance(agent_failed, list):
         err("command_ownership.agent_failed must be a list")
-    human_required_reason = require_string(command_ownership, "human_required_reason", "command_ownership")
+    human_required_reason = command_ownership.get("human_required_reason", "none")
+    if not isinstance(human_required_reason, str) or not human_required_reason.strip():
+        err("command_ownership.human_required_reason must be a non-empty string when provided")
+        human_required_reason = "none"
 
     human_verification = data.get("human_verification")
     if final_state == "READY FOR HUMAN VERIFICATION 🧑‍🔬":
@@ -297,12 +281,6 @@ else:
                 err("human_verification.return_condition is required for READY FOR HUMAN VERIFICATION")
     elif human_verification is not None and not isinstance(human_verification, dict):
         err("human_verification must be an object when provided")
-
-    if profile == "remote-ssh" and not saw_ssh_command:
-        err("remote-ssh profile requires at least one command with location 'ssh'")
-
-    if profile == "ui-browser" and final_state == "VERIFIED ✅" and not saw_browser_signal:
-        err("ui-browser profile requires at least one browser-path artifact or command signal before VERIFIED")
 
     if cleanup_status == "INCOMPLETE" and final_state != "BLOCKED ⛔":
         err("cleanup.status INCOMPLETE is only allowed when final_state is BLOCKED ⛔")

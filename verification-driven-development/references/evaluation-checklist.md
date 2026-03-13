@@ -6,11 +6,9 @@ Apply this checklist before finalizing any run.
 - Keep the joint plan compact by default (6 to 10 bullets total or one compact table).
 - Include explicit commands, pass/fail signals, and runtime location for each verification step.
 - For each acceptance criterion, make the evidence discriminating: state `H1` (claim) vs `H0` (no change/plausible confounder), the observable (units), and the decision rule (threshold).
-- Estimate a Gold plan first and record total estimated runtime.
-- If Gold estimate is 10 minutes or less, select Gold (mandatory).
-- If Gold estimate exceeds 10 minutes, present concise `🥉 Bronze`, `🥈 Silver`, and `🥇 Gold` options with exact checks and a total time estimate for each; proceed only after explicit user choice.
-- Ensure Bronze/Silver options remain true end-to-end verification (not smoke-only).
-- Record target tier, achieved tier, and (if not Gold) explicit user choice plus residual risk.
+- Estimate runtime honestly.
+- Use Bronze/Silver/Gold only when a real cost or runtime tradeoff needs to be made explicit.
+- If tiers are used, ensure lower tiers remain true end-to-end verification and record the residual risk.
 - Include evidence snippets tied directly to changed behavior.
 - Prefer artifact-backed evidence (images/charts/audio/structured metrics) over prose-only "pass" claims.
 - For noisy/proxy signals, include at least one control/baseline (for example, "no-change" run) so the metric is interpretable.
@@ -19,7 +17,7 @@ Apply this checklist before finalizing any run.
 - Loop on failure with observed signals and reruns.
 - Issue certificate only at terminal state.
 - Include the full Verification Certificate block inline in the final chat response (not just in artifacts).
-- Include the Verification Snapshot badges near the top of the report.
+- Include a concise runnable reproduction section in the report.
 - Include a standardized Verification Brief with sections: `Claim`, `Evidence`, `How YOU Can Run This`.
 - If pictures or graphs were produced, list them with absolute filesystem paths and embed them inline in the report instead of only listing their paths.
 - Ensure `How YOU Can Run This` uses real operator commands, not temporary test harness scripts.

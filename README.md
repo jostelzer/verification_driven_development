@@ -10,18 +10,18 @@ This skill is great if you find yourself:
   (wrong behavior, broken integration)
 - being unsure if and what the agent actually ran
 
-VDD closes this loop by teaching your coding agent a strict
-verification-first workflow: define executable checks up front, run real
-commands, inspect real outputs, iterate until checks pass, and close with
-evidence (a short Verification Manifest, Verification Report, and
-Verification Certificate).
+VDD closes this loop by teaching your coding agent a verification-first
+workflow that stays strict on proof but lighter on ritual: define executable
+checks up front, run real commands, inspect real outputs, iterate until checks
+pass, and close with evidence.
 
 ## What VDD Enforces
 
 The skill now emphasizes:
-- verification profiles (`api-service`, `ui-browser`, `data-pipeline`, `ml-model`, `deploy-infra`, `library-refactor`, `remote-ssh`)
-- a machine-readable Verification Manifest that records commands, artifacts, cleanup, and command ownership
-- a compact Verification Snapshot with badge-style status, tier, ground-truth, cleanup, and human-step lines
+- checks that match the real runtime surface instead of forced profile names
+- SSH as just another execution location when the runtime lives remotely
+- a machine-readable Verification Manifest that records commands, cleanup, command ownership, and artifacts when they matter
+- a concise report format that focuses on runnable proof, results by criterion, evidence, cleanup, and reproducibility
 - a compact Human Verification Card with optional operator notes
 - an anti-pattern library for catching weak evidence and fake-confidence closeouts before terminal output
 - bundled helper scripts inside the installed skill, so manifest/report validation still works after install
@@ -59,7 +59,7 @@ The output is meant to be inspectable, not just confident:
 
 ```text
 Terminal State: VERIFIED ✅
-Profile: api-service
+Surface: HTTP service
 Ground Truth: Silver
 Command: curl -sSf http://127.0.0.1:8000/health
 Observed Signal: HTTP 200 with expected readiness payload
@@ -99,7 +99,6 @@ A port that "seems fine" isn't verification. VDD forces a visual proof:
 ### 3) Fix a boring but real API bug
 
 The common case matters:
-- Pick the `api-service` profile.
 - Capture the failing request and the expected response or state change.
 - Fix the bug and rerun the real operator path.
 - Corroborate the result with one independent signal: logs, DB state, or telemetry.
@@ -108,7 +107,7 @@ The common case matters:
 ### 4) Verify behavior on a remote host over SSH
 
 When the runtime lives elsewhere, verification should too:
-- Pick the `remote-ssh` profile.
+- Run the decisive checks over SSH.
 - Run the decisive checks over SSH, not just locally.
 - Capture host identity, remote outputs, and teardown evidence.
 - Do not close `VERIFIED` unless the remote cleanup check passes.

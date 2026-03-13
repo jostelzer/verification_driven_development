@@ -88,7 +88,7 @@ npm run test:ui
 
 Certificate rendered verbatim in the section below.
 
-## 🏅 Verification Certificate
+## 🧑‍🔬 Human Check Report
 
 Status Badge: 🟨 READY FOR HUMAN VERIFICATION 🧑‍🔬
 Verdict: READY FOR HUMAN VERIFICATION 🧑‍🔬

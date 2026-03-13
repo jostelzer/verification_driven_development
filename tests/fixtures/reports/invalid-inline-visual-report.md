@@ -90,7 +90,7 @@ curl -sSf http://localhost:8080/health
 
 Certificate rendered verbatim in the section below.
 
-## 🏅 Verification Certificate
+## ✅ Verified Report
 
 Status: VERIFIED
 ✅ Runtime checks passed with expected API and benchmark outputs.

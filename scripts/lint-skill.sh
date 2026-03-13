@@ -66,24 +66,14 @@ done
 for ref in \
   "$REPO_ROOT/verification-driven-development/references/report-template.md" \
   "$REPO_ROOT/verification-driven-development/references/certificate-template.md" \
-  "$REPO_ROOT/verification-driven-development/references/verification-brief-template.md" \
   "$REPO_ROOT/verification-driven-development/references/verification-manifest-template.json" \
   "$REPO_ROOT/verification-driven-development/references/closeout-policy.md" \
   "$REPO_ROOT/verification-driven-development/references/closeout-ux-guide.md" \
   "$REPO_ROOT/verification-driven-development/references/evidence-tiers.md" \
-  "$REPO_ROOT/verification-driven-development/references/tier-selection-template.md" \
   "$REPO_ROOT/verification-driven-development/references/ground-truth-ladder.md" \
   "$REPO_ROOT/verification-driven-development/references/anti-patterns.md" \
-  "$REPO_ROOT/verification-driven-development/references/human-verification-card-template.md" \
   "$REPO_ROOT/verification-driven-development/references/ui-automation-protocol.md" \
-  "$REPO_ROOT/verification-driven-development/references/examples.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-api-service.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-ui-browser.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-data-pipeline.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-ml-model.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-deploy-infra.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-library-refactor.md" \
-  "$REPO_ROOT/verification-driven-development/references/profile-remote-ssh.md"
+  "$REPO_ROOT/verification-driven-development/references/examples.md"
 do
   require_file "$ref"
 done
@@ -111,7 +101,7 @@ if [ "$(wc -l < "$SKILL_MD")" -gt 500 ]; then
 fi
 
 require_heading "$SKILL_MD" '^#[[:space:]]+Verification-Driven Development \(VDD\)' '# Verification-Driven Development (VDD)'
-require_heading "$SKILL_MD" '^##[[:space:]]+Verification Profiles \(Mandatory\)' '## Verification Profiles (Mandatory)'
+require_heading "$SKILL_MD" '^##[[:space:]]+Runtime Surface \(Mandatory\)' '## Runtime Surface (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Command Execution Ownership \(Mandatory\)' '## Command Execution Ownership (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Ground-Truth Ladder \(Mandatory\)' '## Ground-Truth Ladder (Mandatory)'
 require_heading "$SKILL_MD" '^##[[:space:]]+Verification Manifest \(Mandatory\)' '## Verification Manifest (Mandatory)'
@@ -127,28 +117,18 @@ for ref in \
   'references/verification-manifest-template.json' \
   'references/ground-truth-ladder.md' \
   'references/closeout-ux-guide.md' \
-  'references/tier-selection-template.md' \
   'references/anti-patterns.md' \
-  'references/human-verification-card-template.md' \
-  'references/profile-api-service.md' \
-  'references/profile-ui-browser.md' \
-  'references/profile-data-pipeline.md' \
-  'references/profile-ml-model.md' \
-  'references/profile-deploy-infra.md' \
-  'references/profile-library-refactor.md' \
-  'references/profile-remote-ssh.md'
+  'references/examples.md'
 do
   if ! grep -Fq "$ref" "$SKILL_MD"; then
     add_error "SKILL.md missing required reference link: $ref"
   fi
 done
 
-require_contains "$SKILL_MD" 'profile' 'profile-driven workflow'
+require_contains "$SKILL_MD" 'runtime surface' 'runtime-surface guidance'
 require_contains "$SKILL_MD" 'manifest' 'manifest-driven closeout'
-require_contains "$SKILL_MD" 'Gold' 'Gold-first tier planning'
-require_contains "$SKILL_MD" 'Bronze' 'Bronze/Silver/Gold tier selection'
-require_contains "$SKILL_MD" '🥉|🥈|🥇' 'visual tier-selection format'
-require_contains "$SKILL_MD" 'time estimate' 'per-tier time estimate requirement'
+require_contains "$SKILL_MD" 'SSH' 'ssh execution guidance'
+require_contains "$SKILL_MD" 'time' 'runtime estimation guidance'
 require_contains "$SKILL_MD" 'cleanup' 'cleanup gate semantics'
 require_contains "$SKILL_MD" 'Human Verification Card' 'human handoff card'
 require_contains "$SKILL_MD" 'anti-pattern' 'anti-pattern review'
@@ -165,25 +145,23 @@ if ! grep -Fq 'display_name: "Verification-Driven Development (VDD)"' "$OPENAI_Y
   add_error "openai.yaml display_name drift: expected Verification-Driven Development (VDD)"
 fi
 require_contains "$OPENAI_YAML" '\$verification-driven-development' 'explicit invocation token'
-require_contains "$OPENAI_YAML" 'profile' 'profile selection'
+require_contains "$OPENAI_YAML" 'runtime surface' 'runtime-surface guidance'
 require_contains "$OPENAI_YAML" 'manifest' 'manifest requirement'
-require_contains "$OPENAI_YAML" 'Gold' 'Gold-first planning'
-require_contains "$OPENAI_YAML" '🥉|🥈|🥇' 'visual tier-selection format'
-require_contains "$OPENAI_YAML" 'total time|runtime' 'per-tier time estimate prompt'
+require_contains "$OPENAI_YAML" 'SSH' 'ssh execution guidance'
+require_contains "$OPENAI_YAML" 'runtime|cost' 'runtime tradeoff prompt'
 require_contains "$OPENAI_YAML" 'cleanup' 'cleanup requirement'
-require_contains "$OPENAI_YAML" 'artifact table' 'closeout UX artifact table'
+require_contains "$OPENAI_YAML" 'criterion' 'criterion-oriented closeout'
 require_contains "$OPENAI_YAML" 'embed' 'inline visual evidence prompt'
 require_contains "$OPENAI_YAML" 'absolute filesystem paths?' 'absolute inline visual path prompt'
 require_contains "$OPENAI_YAML" 'anti-pattern' 'anti-pattern review'
 require_contains "$OPENAI_YAML" 'failover' 'failover mode'
 
-require_contains "$CURSOR_MDC" 'profile' 'profile selection'
+require_contains "$CURSOR_MDC" 'runtime surface' 'runtime-surface guidance'
 require_contains "$CURSOR_MDC" 'manifest' 'manifest requirement'
-require_contains "$CURSOR_MDC" 'Gold' 'Gold-first planning'
-require_contains "$CURSOR_MDC" '🥉|🥈|🥇' 'visual tier-selection format'
-require_contains "$CURSOR_MDC" 'total time|runtime' 'per-tier time estimate prompt'
+require_contains "$CURSOR_MDC" 'SSH' 'ssh execution guidance'
+require_contains "$CURSOR_MDC" 'runtime|cost' 'runtime tradeoff prompt'
 require_contains "$CURSOR_MDC" 'cleanup' 'cleanup requirement'
-require_contains "$CURSOR_MDC" 'artifact table' 'closeout UX artifact table'
+require_contains "$CURSOR_MDC" 'criterion' 'criterion-oriented closeout'
 require_contains "$CURSOR_MDC" 'embed' 'inline visual evidence prompt'
 require_contains "$CURSOR_MDC" 'absolute filesystem paths?' 'absolute inline visual path prompt'
 require_contains "$CURSOR_MDC" 'anti-pattern' 'anti-pattern review'

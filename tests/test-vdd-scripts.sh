@@ -5,19 +5,18 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 VALID_REPORT="$REPO_ROOT/tests/fixtures/reports/valid-report.md"
+LIGHTWEIGHT_REPORT="$REPO_ROOT/tests/fixtures/reports/lightweight-report.md"
 VALID_INLINE_VISUAL_TEMPLATE="$REPO_ROOT/tests/fixtures/reports/valid-inline-visual-report.md"
 INVALID_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-missing-final-state.md"
 INVALID_BRIEF_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-brief-operator-flow.md"
-INVALID_GOLD_GATE_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-gold-gate.md"
 INVALID_CLEANUP_REPORT="$REPO_ROOT/tests/fixtures/reports/invalid-cleanup-status.md"
 INVALID_INLINE_VISUAL_TEMPLATE="$REPO_ROOT/tests/fixtures/reports/invalid-inline-visual-report.md"
 
 VALID_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/valid-manifest.json"
+LIGHTWEIGHT_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/lightweight-manifest.json"
 READY_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/ready-manifest.json"
-INVALID_GOLD_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/invalid-auto-gold-manifest.json"
 INVALID_CLEANUP_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/invalid-cleanup-manifest.json"
 INVALID_READY_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/invalid-ready-no-human-manifest.json"
-INVALID_REMOTE_SSH_MANIFEST="$REPO_ROOT/tests/fixtures/manifests/invalid-remote-ssh-manifest.json"
 
 ROOT_REPORT_VALIDATOR="$REPO_ROOT/scripts/validate-vdd-report.sh"
 ROOT_MANIFEST_VALIDATOR="$REPO_ROOT/scripts/validate-vdd-manifest.sh"
@@ -76,8 +75,12 @@ done
 
 "$ROOT_MANIFEST_VALIDATOR" "$VALID_MANIFEST" >/dev/null
 "$BUNDLED_MANIFEST_VALIDATOR" "$VALID_MANIFEST" >/dev/null
+"$ROOT_MANIFEST_VALIDATOR" "$LIGHTWEIGHT_MANIFEST" >/dev/null
+"$BUNDLED_MANIFEST_VALIDATOR" "$LIGHTWEIGHT_MANIFEST" >/dev/null
 "$ROOT_REPORT_VALIDATOR" "$VALID_REPORT" >/dev/null
 "$BUNDLED_REPORT_VALIDATOR" "$VALID_REPORT" >/dev/null
+"$ROOT_REPORT_VALIDATOR" "$LIGHTWEIGHT_REPORT" >/dev/null
+"$BUNDLED_REPORT_VALIDATOR" "$LIGHTWEIGHT_REPORT" >/dev/null
 
 sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$VALID_INLINE_VISUAL_TEMPLATE" > "$TMP_VALID_INLINE_VISUAL_REPORT"
 sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$INVALID_INLINE_VISUAL_TEMPLATE" > "$TMP_INVALID_INLINE_VISUAL_REPORT"
@@ -85,11 +88,6 @@ sed "s|__VISUAL_PATH__|tests/fixtures/artifacts/latency-chart.svg|g" "$VALID_INL
 
 "$ROOT_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
 "$BUNDLED_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
-
-if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_GOLD_MANIFEST" >/dev/null 2>&1; then
-  echo "error: expected manifest validator failure for invalid Gold gate fixture" >&2
-  exit 1
-fi
 
 if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_CLEANUP_MANIFEST" >/dev/null 2>&1; then
   echo "error: expected manifest validator failure for invalid cleanup fixture" >&2
@@ -101,18 +99,8 @@ if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_READY_MANIFEST" >/dev/null 2>&1; then
   exit 1
 fi
 
-if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_REMOTE_SSH_MANIFEST" >/dev/null 2>&1; then
-  echo "error: expected manifest validator failure for remote-ssh fixture without ssh command" >&2
-  exit 1
-fi
-
 if "$ROOT_REPORT_VALIDATOR" "$INVALID_REPORT" >/dev/null 2>&1; then
   echo "error: expected report validator failure for invalid fixture: $INVALID_REPORT" >&2
-  exit 1
-fi
-
-if "$ROOT_REPORT_VALIDATOR" "$INVALID_GOLD_GATE_REPORT" >/dev/null 2>&1; then
-  echo "error: expected report validator failure for invalid Gold gate fixture: $INVALID_GOLD_GATE_REPORT" >&2
   exit 1
 fi
 
@@ -140,6 +128,12 @@ fi
 
 if ! grep -q '^How YOU Can Run This:$' "$TMP_OUT"; then
   echo "error: rendered verification brief missing run section" >&2
+  exit 1
+fi
+
+"$ROOT_BRIEF_RENDERER" "$LIGHTWEIGHT_REPORT" > "$TMP_OUT"
+if ! grep -q '^Claim:' "$TMP_OUT"; then
+  echo "error: rendered lightweight verification brief missing claim" >&2
   exit 1
 fi
 

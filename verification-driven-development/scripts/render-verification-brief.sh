@@ -7,11 +7,15 @@ Usage:
   verification-driven-development/scripts/render-verification-brief.sh <input_report_md>
 
 Description:
-  Extracts a standardized Verification Brief from a full verification report.
-  Required report sections:
+  Extracts a standardized Verification Brief from a verification report.
+  Preferred source sections:
     - ## Verification Brief Claim
     - ## Verification Brief Evidence
     - ## Verification Brief How YOU Can Run This
+  Fallback source sections:
+    - ## Goal
+    - ## Evidence and Inspection
+    - ## How YOU Can Run This
 EOF
 }
 
@@ -64,19 +68,30 @@ trim_block() {
 }
 
 CLAIM_BLOCK="$(extract_section '^##[[:space:]]+Verification Brief Claim' | trim_block)"
+if [ -z "$CLAIM_BLOCK" ]; then
+  CLAIM_BLOCK="$(extract_section '^##[[:space:]]+Goal' | trim_block)"
+fi
+
 EVIDENCE_BLOCK="$(extract_section '^##[[:space:]]+Verification Brief Evidence' | trim_block)"
+if [ -z "$EVIDENCE_BLOCK" ]; then
+  EVIDENCE_BLOCK="$(extract_section '^##[[:space:]]+Evidence and Inspection' | trim_block)"
+fi
+
 HUMAN_RUN_BLOCK="$(extract_section '^##[[:space:]]+Verification Brief How YOU Can Run This' | trim_block)"
+if [ -z "$HUMAN_RUN_BLOCK" ]; then
+  HUMAN_RUN_BLOCK="$(extract_section '^##[[:space:]]+How YOU Can Run This' | trim_block)"
+fi
 
 if [ -z "$CLAIM_BLOCK" ]; then
-  echo "error: missing section content: ## Verification Brief Claim" >&2
+  echo "error: missing section content for verification brief claim (expected ## Verification Brief Claim or ## Goal)" >&2
   exit 1
 fi
 if [ -z "$EVIDENCE_BLOCK" ]; then
-  echo "error: missing section content: ## Verification Brief Evidence" >&2
+  echo "error: missing section content for verification brief evidence (expected ## Verification Brief Evidence or ## Evidence and Inspection)" >&2
   exit 1
 fi
 if [ -z "$HUMAN_RUN_BLOCK" ]; then
-  echo "error: missing section content: ## Verification Brief How YOU Can Run This" >&2
+  echo "error: missing section content for runnable instructions (expected ## Verification Brief How YOU Can Run This or ## How YOU Can Run This)" >&2
   exit 1
 fi
 
@@ -88,39 +103,46 @@ HUMAN_RUN_COMMANDS="$(printf '%s\n' "$HUMAN_RUN_BLOCK" | awk '
 ')"
 
 if [ -z "$HUMAN_RUN_COMMANDS" ]; then
-  echo "error: ## Verification Brief How YOU Can Run This must include a non-empty bash code block with real run commands" >&2
+  echo "error: runnable instructions must include a non-empty bash code block with real run commands" >&2
   exit 1
 fi
 
 if printf '%s\n' "$HUMAN_RUN_COMMANDS" | grep -Eq '<command|<copy/paste|<path|<repo>'; then
-  echo "error: ## Verification Brief How YOU Can Run This contains placeholder commands; provide concrete runnable commands" >&2
+  echo "error: runnable instructions contain placeholder commands; provide concrete runnable commands" >&2
   exit 1
 fi
 
 FORBIDDEN_HUMAN_RUN_PATTERN='(\.agent/runs/|/tmp/|playwright_[^[:space:]]*\.js|[[:alnum:]_/-]*_check\.js|[^[:space:]]*\.spec\.js)'
 if printf '%s\n' "$HUMAN_RUN_COMMANDS" | grep -Eqi "$FORBIDDEN_HUMAN_RUN_PATTERN"; then
-  echo "error: ## Verification Brief How YOU Can Run This must use real operator entrypoints, not ad-hoc probe/test scripts (.agent/runs, /tmp, playwright/check/spec scripts)" >&2
+  echo "error: runnable instructions must use real operator entrypoints, not ad-hoc probe/test scripts (.agent/runs, /tmp, playwright/check/spec scripts)" >&2
   exit 1
 fi
 
 if ! printf '%s\n' "$HUMAN_RUN_BLOCK" | grep -q '^Pass signal:'; then
-  echo "error: ## Verification Brief How YOU Can Run This is missing required line: Pass signal:" >&2
+  echo "error: runnable instructions are missing required line: Pass signal:" >&2
   exit 1
 fi
 
 if ! printf '%s\n' "$HUMAN_RUN_BLOCK" | grep -q '^Fail signal:'; then
-  echo "error: ## Verification Brief How YOU Can Run This is missing required line: Fail signal:" >&2
+  echo "error: runnable instructions are missing required line: Fail signal:" >&2
   exit 1
 fi
 
 CLAIM_LINE="$(printf '%s\n' "$CLAIM_BLOCK" | awk 'NF { print; exit }')"
 CLAIM_LINE="${CLAIM_LINE#- }"
 CLAIM_LINE="${CLAIM_LINE#Claim: }"
+CLAIM_LINE="${CLAIM_LINE#Goal: }"
 CLAIM_LINE="$(printf '%s' "$CLAIM_LINE" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
 
 if [ -z "$CLAIM_LINE" ]; then
   echo "error: verification brief claim could not be parsed from ## Verification Brief Claim" >&2
   exit 1
+fi
+
+EVIDENCE_BULLETS_RAW="$(printf '%s\n' "$EVIDENCE_BLOCK" | awk '/^- / { print }')"
+if [ -z "$EVIDENCE_BULLETS_RAW" ]; then
+  FIRST_EVIDENCE_LINE="$(printf '%s\n' "$EVIDENCE_BLOCK" | awk 'NF { print; exit }')"
+  EVIDENCE_BLOCK="- ${FIRST_EVIDENCE_LINE:-Evidence captured in report.}"
 fi
 
 evidence_bullets="$(printf '%s\n' "$EVIDENCE_BLOCK" | awk '/^- / { c++ } END { print c+0 }')"
