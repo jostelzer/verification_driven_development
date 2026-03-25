@@ -7,6 +7,7 @@ Use this policy for every terminal response.
 - Required manifest artifact: `.agent/runs/<timestamp>/verification-manifest.json`.
 - Required markdown report artifact: `.agent/runs/<timestamp>/verification-report.md`.
 - Verification Brief is required in the final chat response and is chat-only.
+- If pictures or graphs were produced, the final chat response must render them inline from local absolute filesystem paths, not just mention them in artifacts.
 - PDF generation is optional and only performed when explicitly requested.
 
 ## Closeout Flow
@@ -15,7 +16,7 @@ Use this policy for every terminal response.
 2. Validate the manifest.
 3. Generate the report markdown from `references/report-template.md`.
 4. Validate the report.
-5. Render the Verification Brief.
+5. Render the Verification Brief, preserving any inline visual evidence from the report.
 6. Render the full Verification Certificate block inline in chat.
 7. Keep the closeout compact by default; add optional sections only when they add signal.
 
@@ -45,5 +46,6 @@ When failover triggers:
 - Require a report that covers commands, results by criterion, evidence, reproducibility, command ownership, cleanup, and final state.
 - Prefer an Artifact Index markdown table with `Path`, `Kind`, and `Proves` columns, but a bullet list or `No standalone artifacts.` is acceptable when simpler.
 - If pictures or graphs are produced, list them with absolute filesystem paths in the artifact table and embed each one inline in the report.
+- The final chat response must preserve those same inline visuals with local absolute filesystem paths; if the visuals came from SSH, copy them locally first.
 - Include command ownership and cleanup summaries.
 - The report must not contradict the manifest.

@@ -28,6 +28,8 @@ Rules:
 - Evidence max 2 bullets.
 - Evidence should help distinguish the claim (`H1`) from "no change" (`H0`).
 - At least 1 graphic when available.
+- Graphic paths must be local absolute filesystem paths so chat can render them inline.
+- If a graphic was generated remotely, copy it locally before embedding it in chat.
 - If no graphic is feasible, include exactly one `Graphic unavailable:` line.
 - `How YOU Can Run This` must use real operator entrypoints (no ad-hoc harness scripts).
 - Forbidden command patterns: `.agent/runs/...`, `/tmp/...`, `playwright_*.js`, `*_check.js`, `*.spec.js`.

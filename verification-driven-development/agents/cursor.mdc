@@ -19,7 +19,8 @@ Use this workflow for feature, bugfix, integration, deployment, and data-pipelin
 - Stop all verification-spawned instances before closeout and confirm teardown with a post-cleanup check.
 - Validate the manifest before the report.
 - Use a compact closeout with commands, results by criterion, evidence, reproducibility, command ownership, cleanup, and final state.
-- If pictures or graphs are produced, embed them inline in the report with the same absolute filesystem paths used in the artifact table instead of only listing their paths.
+- If pictures or graphs are produced, embed them inline in the report and final chat response with the same local absolute filesystem paths used in the artifact table instead of only listing their paths.
+- If a visual artifact is generated over SSH, copy it locally before embedding it in chat; remote filesystem paths will not render for the user.
 - Before terminal output, self-check against the anti-pattern library.
 - Do not claim completion without executed verification and observed evidence.
 

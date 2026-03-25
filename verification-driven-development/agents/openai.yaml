@@ -16,8 +16,10 @@ interface:
     certificate inline. Require a concise report with commands, results by
     criterion, evidence, reproducibility, command ownership, cleanup, and final
     state; use optional sections only when they add value. If pictures or
-    graphs are produced, embed them inline in the report with the same absolute filesystem paths
-    used in the artifact table instead of only listing their paths. Before
+    graphs are produced, embed them inline in the report and final chat response
+    with the same local absolute filesystem paths used in the artifact table
+    instead of only listing their paths. If a visual artifact is generated
+    over SSH, copy it locally before embedding it in chat. Before
     terminal output, self-check against the anti-pattern library.
     If browser behavior matters, require a browser-path signal before VERIFIED.
     Treat SSH as an execution location. If verification cost is high,

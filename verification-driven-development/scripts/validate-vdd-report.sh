@@ -205,6 +205,7 @@ if artifact_block:
             artifact_rows.append((parts[0], parts[1], parts[2]))
 
 inline_visual_block, inline_visual_name = get_section("Inline Visual Evidence")
+brief_evidence_block, _ = get_section("Verification Brief Evidence")
 visual_paths = []
 for path_value, kind_value, _ in artifact_rows:
     if kind_value in visual_kinds:
@@ -213,6 +214,8 @@ for path_value, kind_value, _ in artifact_rows:
 if visual_paths:
     if not inline_visual_block:
         add_error("Inline Visual Evidence is required when Artifact Index lists images, charts, or screenshots")
+    if brief_evidence_block and re.search(r"^Graphic unavailable:\s+", brief_evidence_block, re.MULTILINE):
+        add_error("Verification Brief Evidence must not claim visuals are unavailable when Artifact Index lists visual artifacts")
     for visual_path in visual_paths:
         if not Path(visual_path).is_absolute():
             add_error(f"Visual artifacts must use absolute filesystem paths: {visual_path}")

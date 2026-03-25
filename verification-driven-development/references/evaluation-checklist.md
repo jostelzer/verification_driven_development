@@ -20,6 +20,7 @@ Apply this checklist before finalizing any run.
 - Include a concise runnable reproduction section in the report.
 - Include a standardized Verification Brief with sections: `Claim`, `Evidence`, `How YOU Can Run This`.
 - If pictures or graphs were produced, list them with absolute filesystem paths and embed them inline in the report instead of only listing their paths.
+- If pictures or graphs were produced, preserve them in the final chat response with the same local absolute filesystem paths; copy remote artifacts locally before embedding them.
 - Ensure `How YOU Can Run This` uses real operator commands, not temporary test harness scripts.
 - Present the Verification Brief directly in chat by default (not as `verification-brief.md` artifact).
 - Generate markdown report artifact by default (`verification-report.md`).

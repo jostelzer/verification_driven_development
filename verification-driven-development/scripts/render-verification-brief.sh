@@ -11,6 +11,7 @@ Description:
   Preferred source sections:
     - ## Verification Brief Claim
     - ## Verification Brief Evidence
+    - ## Inline Visual Evidence
     - ## Verification Brief How YOU Can Run This
   Fallback source sections:
     - ## Goal
@@ -77,6 +78,11 @@ if [ -z "$EVIDENCE_BLOCK" ]; then
   EVIDENCE_BLOCK="$(extract_section '^##[[:space:]]+Evidence and Inspection' | trim_block)"
 fi
 
+INLINE_VISUAL_BLOCK="$(extract_section '^##[[:space:]]+Inline Visual Evidence' | trim_block)"
+if [ "$INLINE_VISUAL_BLOCK" = "No inline visuals were produced." ]; then
+  INLINE_VISUAL_BLOCK=""
+fi
+
 HUMAN_RUN_BLOCK="$(extract_section '^##[[:space:]]+Verification Brief How YOU Can Run This' | trim_block)"
 if [ -z "$HUMAN_RUN_BLOCK" ]; then
   HUMAN_RUN_BLOCK="$(extract_section '^##[[:space:]]+How YOU Can Run This' | trim_block)"
@@ -93,6 +99,24 @@ fi
 if [ -z "$HUMAN_RUN_BLOCK" ]; then
   echo "error: missing section content for runnable instructions (expected ## Verification Brief How YOU Can Run This or ## How YOU Can Run This)" >&2
   exit 1
+fi
+
+if [ -n "$INLINE_VISUAL_BLOCK" ] && printf '%s\n' "$INLINE_VISUAL_BLOCK" | grep -q '^!\['; then
+  EVIDENCE_BLOCK="$(printf '%s\n' "$EVIDENCE_BLOCK" | awk '!/^Graphic unavailable:/')"
+  EVIDENCE_BLOCK="$(printf '%s\n' "$EVIDENCE_BLOCK" | trim_block)"
+fi
+
+if [ -n "$INLINE_VISUAL_BLOCK" ]; then
+  while IFS= read -r line; do
+    if [ -z "$line" ]; then
+      continue
+    fi
+    if ! printf '%s\n' "$EVIDENCE_BLOCK" | grep -Fqx -- "$line"; then
+      EVIDENCE_BLOCK="${EVIDENCE_BLOCK}
+${line}"
+    fi
+  done <<< "$INLINE_VISUAL_BLOCK"
+  EVIDENCE_BLOCK="$(printf '%s\n' "$EVIDENCE_BLOCK" | trim_block)"
 fi
 
 HUMAN_RUN_COMMANDS="$(printf '%s\n' "$HUMAN_RUN_BLOCK" | awk '

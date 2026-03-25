@@ -190,7 +190,8 @@ Closeout rules:
 - Always render the Verification Certificate block directly in the final chat response.
 - Apply the visual closeout conventions from `references/closeout-ux-guide.md`.
 - Keep the report compact by default. Required content is commands, results by criterion, evidence, reproducibility, command ownership, cleanup, final state, and a matching manifest.
-- If pictures or graphs are produced, embed them inline in the report with absolute filesystem paths instead of only listing their paths.
+- If pictures or graphs are produced, embed them inline in the report and in the final chat response with the same local absolute filesystem paths instead of only listing their paths.
+- If visual artifacts were produced over SSH or on another machine, copy them locally before embedding them in chat; remote filesystem paths do not render for the user.
 - Include the Artifact Index, Command Ownership summary, and Cleanup summary in the report.
 
 ## Verification Policy

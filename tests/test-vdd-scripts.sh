@@ -39,9 +39,11 @@ TMP_FAILOVER="$(mktemp)"
 TMP_VALID_INLINE_VISUAL_REPORT="$(mktemp)"
 TMP_INVALID_INLINE_VISUAL_REPORT="$(mktemp)"
 TMP_RELATIVE_INLINE_VISUAL_REPORT="$(mktemp)"
+TMP_INLINE_ONLY_BRIEF_REPORT="$(mktemp)"
+TMP_CONTRADICTORY_INLINE_VISUAL_REPORT="$(mktemp)"
 TMP_REPO="$(mktemp -d)"
 cleanup() {
-  rm -f "$TMP_OUT" "$TMP_CARD" "$TMP_FAILOVER" "$TMP_VALID_INLINE_VISUAL_REPORT" "$TMP_INVALID_INLINE_VISUAL_REPORT" "$TMP_RELATIVE_INLINE_VISUAL_REPORT"
+  rm -f "$TMP_OUT" "$TMP_CARD" "$TMP_FAILOVER" "$TMP_VALID_INLINE_VISUAL_REPORT" "$TMP_INVALID_INLINE_VISUAL_REPORT" "$TMP_RELATIVE_INLINE_VISUAL_REPORT" "$TMP_INLINE_ONLY_BRIEF_REPORT" "$TMP_CONTRADICTORY_INLINE_VISUAL_REPORT"
   rm -rf "$TMP_REPO"
 }
 trap cleanup EXIT
@@ -85,9 +87,36 @@ done
 sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$VALID_INLINE_VISUAL_TEMPLATE" > "$TMP_VALID_INLINE_VISUAL_REPORT"
 sed "s|__VISUAL_PATH__|$VISUAL_ARTIFACT|g" "$INVALID_INLINE_VISUAL_TEMPLATE" > "$TMP_INVALID_INLINE_VISUAL_REPORT"
 sed "s|__VISUAL_PATH__|tests/fixtures/artifacts/latency-chart.svg|g" "$VALID_INLINE_VISUAL_TEMPLATE" > "$TMP_RELATIVE_INLINE_VISUAL_REPORT"
+python3 - "$TMP_VALID_INLINE_VISUAL_REPORT" "$TMP_INLINE_ONLY_BRIEF_REPORT" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+source = Path(sys.argv[1]).read_text(encoding="utf-8")
+head, tail = source.split("## Goal", 1)
+head = re.sub(r"!\[Latency chart\]\([^)]+\)\n", "", head, count=1)
+Path(sys.argv[2]).write_text(head + "## Goal" + tail, encoding="utf-8")
+PY
+python3 - "$TMP_VALID_INLINE_VISUAL_REPORT" "$TMP_CONTRADICTORY_INLINE_VISUAL_REPORT" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+source = Path(sys.argv[1]).read_text(encoding="utf-8")
+head, tail = source.split("## Goal", 1)
+head = re.sub(
+    r"!\[Latency chart\]\([^)]+\)",
+    "Graphic unavailable: inline visual evidence is only attached in the dedicated section.\n\\g<0>",
+    head,
+    count=1,
+)
+Path(sys.argv[2]).write_text(head + "## Goal" + tail, encoding="utf-8")
+PY
 
 "$ROOT_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
 "$BUNDLED_REPORT_VALIDATOR" "$TMP_VALID_INLINE_VISUAL_REPORT" >/dev/null
+"$ROOT_REPORT_VALIDATOR" "$TMP_INLINE_ONLY_BRIEF_REPORT" >/dev/null
+"$BUNDLED_REPORT_VALIDATOR" "$TMP_INLINE_ONLY_BRIEF_REPORT" >/dev/null
 
 if "$ROOT_MANIFEST_VALIDATOR" "$INVALID_CLEANUP_MANIFEST" >/dev/null 2>&1; then
   echo "error: expected manifest validator failure for invalid cleanup fixture" >&2
@@ -119,6 +148,11 @@ if "$ROOT_REPORT_VALIDATOR" "$TMP_RELATIVE_INLINE_VISUAL_REPORT" >/dev/null 2>&1
   exit 1
 fi
 
+if "$ROOT_REPORT_VALIDATOR" "$TMP_CONTRADICTORY_INLINE_VISUAL_REPORT" >/dev/null 2>&1; then
+  echo "error: expected report validator failure for contradictory inline visual brief fixture" >&2
+  exit 1
+fi
+
 "$ROOT_BRIEF_RENDERER" "$VALID_REPORT" > "$TMP_OUT"
 
 if ! grep -q '^## Verification Brief$' "$TMP_OUT"; then
@@ -128,6 +162,16 @@ fi
 
 if ! grep -q '^How YOU Can Run This:$' "$TMP_OUT"; then
   echo "error: rendered verification brief missing run section" >&2
+  exit 1
+fi
+
+"$ROOT_BRIEF_RENDERER" "$TMP_INLINE_ONLY_BRIEF_REPORT" > "$TMP_OUT"
+if ! grep -Fq "![Latency chart]($VISUAL_ARTIFACT)" "$TMP_OUT"; then
+  echo "error: rendered verification brief did not preserve inline visual evidence from the report" >&2
+  exit 1
+fi
+if grep -q '^Graphic unavailable:' "$TMP_OUT"; then
+  echo "error: rendered verification brief should not claim graphics are unavailable when inline visuals exist" >&2
   exit 1
 fi
 
