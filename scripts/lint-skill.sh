@@ -126,6 +126,7 @@ do
 done
 
 require_contains "$SKILL_MD" 'runtime surface' 'runtime-surface guidance'
+require_contains "$SKILL_MD" 'explicit' 'explicit invocation guidance'
 require_contains "$SKILL_MD" 'manifest' 'manifest-driven closeout'
 require_contains "$SKILL_MD" 'SSH' 'ssh execution guidance'
 require_contains "$SKILL_MD" 'time' 'runtime estimation guidance'
@@ -145,6 +146,7 @@ if ! grep -Fq 'display_name: "Verification-Driven Development (VDD)"' "$OPENAI_Y
   add_error "openai.yaml display_name drift: expected Verification-Driven Development (VDD)"
 fi
 require_contains "$OPENAI_YAML" '\$verification-driven-development' 'explicit invocation token'
+require_contains "$OPENAI_YAML" 'explicit' 'explicit invocation guidance'
 require_contains "$OPENAI_YAML" 'runtime surface' 'runtime-surface guidance'
 require_contains "$OPENAI_YAML" 'manifest' 'manifest requirement'
 require_contains "$OPENAI_YAML" 'SSH' 'ssh execution guidance'
@@ -157,6 +159,7 @@ require_contains "$OPENAI_YAML" 'anti-pattern' 'anti-pattern review'
 require_contains "$OPENAI_YAML" 'failover' 'failover mode'
 
 require_contains "$CURSOR_MDC" 'runtime surface' 'runtime-surface guidance'
+require_contains "$CURSOR_MDC" 'explicit' 'explicit invocation guidance'
 require_contains "$CURSOR_MDC" 'manifest' 'manifest requirement'
 require_contains "$CURSOR_MDC" 'SSH' 'ssh execution guidance'
 require_contains "$CURSOR_MDC" 'runtime|cost' 'runtime tradeoff prompt'

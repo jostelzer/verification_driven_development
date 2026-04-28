@@ -1,13 +1,18 @@
 interface:
   display_name: "Verification-Driven Development (VDD)"
-  short_description: "Verification-first workflow that ships with evidence, not optimism."
+  short_description: "Explicitly invoked verification-first workflow that ships with evidence, not optimism."
   icon_small: "./assets/vdd.png"
   icon_large: "./assets/vdd.png"
   default_prompt: >-
-    Use $verification-driven-development (VDD) to create one compact joint
-    implementation and verification plan, initialize a verification manifest,
-    and record commands, observed signals, artifacts when useful, cleanup, and
-    command ownership as the run progresses. Keep the process lightweight:
+    This skill is explicit opt-in only: use $verification-driven-development
+    (VDD) only when the user explicitly asks for VDD,
+    $verification-driven-development, or the Verification-Driven Development
+    skill by name. Do not invoke it passively because a task involves
+    verification, testing, proof, evidence, or runtime checks. When explicitly
+    invoked, create one compact joint implementation and verification plan,
+    initialize a verification manifest, and record commands, observed signals,
+    artifacts when useful, cleanup, and command ownership as the run progresses.
+    Keep the process lightweight:
     optimize for believable proof and reproducibility, not ceremony. Use the
     checks that match the real runtime surface instead of forcing named
     profiles. Use discriminating checks that separate H1 from H0, prefer

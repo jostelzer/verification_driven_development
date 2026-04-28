@@ -1,13 +1,16 @@
 ---
 description: >-
-  Verification-first workflow with executable checks and
+  Explicitly invoked verification-first workflow with executable checks and
   evidence before completion.
 alwaysApply: false
 ---
 
 # Verification-Driven Development (VDD)
 
-Use this workflow for feature, bugfix, integration, deployment, and data-pipeline tasks where runtime behavior matters.
+Use this workflow only when the user explicitly asks for VDD,
+`$verification-driven-development`, or the Verification-Driven Development
+skill by name. Do not apply it passively because a task involves verification,
+testing, proof, evidence, or runtime checks.
 
 ## Required operating loop
 - Start with one compact joint plan: implementation steps plus executable verification steps.

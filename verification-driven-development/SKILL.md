@@ -1,13 +1,22 @@
 ---
 name: verification-driven-development
 description: >-
-  Verification-first coding workflow (VDD) that keeps the hard requirement on
-  executed checks and observed evidence, while staying lightweight on ritual
-  and paperwork. Use for feature, bugfix, integration, service, deployment,
-  and data-pipeline work where runtime behavior matters.
+  Explicitly invoked verification-first coding workflow (VDD) that keeps the
+  hard requirement on executed checks and observed evidence, while staying
+  lightweight on ritual and paperwork. Use only when the user explicitly asks
+  for VDD, $verification-driven-development, or this skill by name.
 ---
 
 # Verification-Driven Development (VDD)
+
+## Activation (Explicit Only)
+
+Use this skill only when the user explicitly asks for VDD,
+`$verification-driven-development`, or the Verification-Driven Development
+skill by name. Do not invoke it passively because a task involves verification,
+testing, proof, evidence, or runtime checks; outside explicit invocation, follow
+the normal project guidance and use lightweight verification appropriate to the
+task.
 
 Enforce a proof gate, not a paperwork gate:
 - Do not declare task completion without executed verification commands and observed evidence.

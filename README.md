@@ -4,6 +4,11 @@
 
 ## TLDR: Closed-loop verification = build fast, with proof.
 
+VDD is explicit opt-in. It should be invoked only when you ask for `VDD`,
+`$verification-driven-development`, or the Verification-Driven Development
+skill by name. It should not be applied passively just because a task involves
+testing or verification.
+
 This skill is great if you find yourself:
 - pasting stack traces back to your coding agent
 - getting code that compiles, but doesn't match your spec
@@ -32,7 +37,7 @@ The skill now emphasizes:
    - Codex: `./install.sh --target codex`
    - Claude Code: `./install.sh --target claude`
    - Cursor: `./install.sh --target cursor --cursor-project <project-root>`
-2. Invoke it:
+2. Invoke it explicitly:
    - Codex: `$verification-driven-development` or `VDD`
    - Claude Code: `/verification-driven-development`
    - Cursor: apply `.cursor/rules/verification-driven-development.mdc`
@@ -142,7 +147,7 @@ Install:
 - Cursor: `./install.sh --target cursor --cursor-project <project-root>`
 - All targets: `./install.sh --target all --cursor-project <project-root>`
 
-Invoke:
+Invoke explicitly:
 - Codex: `$verification-driven-development` (or `VDD`)
 - Claude Code: `/verification-driven-development`
 - Cursor: install the project rule, which writes
